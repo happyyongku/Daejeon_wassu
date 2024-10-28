@@ -50,5 +50,5 @@
     "hooks": {
       "pre-commit": "lint-staged || true"
     }
-  } 
+  }
 }

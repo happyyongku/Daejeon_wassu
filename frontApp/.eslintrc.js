@@ -4,9 +4,9 @@ module.exports = {
   rules: {
     'no-var': 'error',
     'no-multiple-empty-lines': 'error',
-    'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+    'no-console': ['error', {allow: ['warn', 'error', 'info']}],
     eqeqeq: 'error',
     'dot-notation': 'error',
-    'no-unused-vars': 'error'
+    'no-unused-vars': 'error',
   },
 };
