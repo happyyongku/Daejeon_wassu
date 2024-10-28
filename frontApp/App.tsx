@@ -86,9 +86,10 @@ function App(): React.JSX.Element {
           </Section>
           <Section title="Learn More">
             Read the docs to discover what to do next: a
-                <div>aaa
-                    </div>
-                        "a"
+            <div>
+              aaa</div>
+              "v"
+            "a"
           </Section>
           <LearnMoreLinks />
         </View>
