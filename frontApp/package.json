@@ -5,10 +5,11 @@
   "scripts": {
     "android": "react-native run-android --terminal powershell.exe",
     "ios": "react-native run-ios",
-    "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "prepare": "cd .. && husky frontApp/.husky"
+    "prepare": "cd .. && husky frontApp/.husky",
+    "format": "prettier --cache --write .",
+    "lint": "eslint --cache ."
   },
   "dependencies": {
     "lint-staged": "^15.2.10",
