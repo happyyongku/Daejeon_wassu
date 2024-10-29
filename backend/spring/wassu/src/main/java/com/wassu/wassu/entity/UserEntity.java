@@ -2,23 +2,19 @@ package com.wassu.wassu.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+
 import java.util.List;
-//import lombok.AllArgsConstructor;
-//import lombok.Getter;
-//import lombok.NoArgsConstructor;
-//import lombok.Setter;
 
 @Entity
-@Data
-@Table(name="user")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 30)
     private String email;
@@ -41,20 +37,19 @@ public class User {
     private Integer exp;
 
     @OneToMany(mappedBy="user")
-    private List<Article> articles;
+    private List<ArticleEntity> articles;
 
     @OneToMany(mappedBy = "user")
-    private List<ArticleLiked> articleLikes;
+    private List<ArticleLikedEntity> articleLikes;
 
     @OneToMany(mappedBy = "user")
-    private List<ClearedMarble> clearedMarbles;
+    private List<ClearedMarbleEntity> clearedMarbles;
 
     @OneToMany(mappedBy = "user")
-    private List<VisitedSpot> visitedSpots;
+    private List<VisitedSpotEntity> visitedSpots;
 
     @OneToMany(mappedBy = "user")
-    private List<ArticleRead> articleReads;
+    private List<ArticleReadEntity> articleReads;
 
-    public User(String email, String password, String gender, Integer birthYear, String nickname) {}
-
+    public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

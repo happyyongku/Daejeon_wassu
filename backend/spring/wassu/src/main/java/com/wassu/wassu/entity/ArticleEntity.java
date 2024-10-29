@@ -6,15 +6,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name='article')
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Article {
+public class ArticleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long articleId;
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String title;
@@ -33,16 +33,15 @@ public class Article {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable = false)
-    private User user;
+    @JoinColumn(name="user_entity_id", nullable = false)
+    private UserEntity user;
 
     @OneToMany(mappedBy = "article")
-    private List<ArticleRead> articleReads;
+    private List<ArticleReadEntity> articleReads;
 
     @OneToMany(mappedBy = "article")
-    private List<ArticleLiked> articleLikes;
+    private List<ArticleLikedEntity> articleLikes;
 
     @OneToMany(mappedBy = "article")
-    private List <ArticleImage> articleImages;
-
+    private List <ArticleImageEntity> articleImages;
 }
