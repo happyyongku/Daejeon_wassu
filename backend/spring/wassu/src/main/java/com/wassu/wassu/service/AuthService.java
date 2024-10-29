@@ -20,6 +20,7 @@ public class AuthService {
     @Autowired
     public AuthService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public Map<String, String> authenticateAndGenerateTokens(String email, String password) {
