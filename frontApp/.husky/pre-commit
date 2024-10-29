@@ -1,2 +1,1 @@
-cd frontApp
-npm test
+cd frontApp && npx lint-staged

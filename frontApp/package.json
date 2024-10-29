@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "prepare": "husky",
+    "prepare": "cd .. && husky frontApp/.husky",
     "format": "prettier --cache --write .",
     "lint": "eslint --cache ."
   },
