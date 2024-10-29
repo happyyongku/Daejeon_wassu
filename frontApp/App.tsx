@@ -41,6 +41,7 @@ function Section({children, title}: SectionProps): React.JSX.Element {
           },
         ]}>
         {title}
+        asd
       </Text>
       <Text
         style={[
