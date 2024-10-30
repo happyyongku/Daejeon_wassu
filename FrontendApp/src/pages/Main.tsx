@@ -1,11 +1,6 @@
 import React from 'react';
 import {View, Button} from 'react-native';
 import SearchBar from '../components/SearchBar';
-import CategoryList from '../components/CategoryList';
-import RecommendedPlace from '../components/RecommendedPlace';
-import TravelChallenge from '../components/TravelChallenge';
-import Community from '../components/Community';
-import MonopolyPage from '../components/MonopolyPage';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
@@ -19,15 +14,35 @@ const MainPage = () => {
     navigation.navigate('Login');
   };
 
+  const goToRecommend = () => {
+    navigation.navigate('RecommendedPlace');
+  };
+
+  const goToTravelChallenge = () => {
+    navigation.navigate('TravelChallenge');
+  };
+
+  const goToMonopolyPage = () => {
+    navigation.navigate('MonopolyPage');
+  };
+
+  const goToCommunity = () => {
+    navigation.navigate('Community');
+  };
+
+  const goToAr = () => {
+    navigation.navigate('Ar');
+  };
+
   return (
     <View>
       <SearchBar />
-      <RecommendedPlace />
-      <CategoryList />
-      <TravelChallenge />
-      <MonopolyPage />
-      <Community />
+      <Button title="추천 이동" onPress={goToRecommend} />
+      <Button title="챌린지 이동" onPress={goToTravelChallenge} />
+      <Button title="부루마블 이동" onPress={goToMonopolyPage} />
+      <Button title="커뮤니티 이동" onPress={goToCommunity} />
       <Button title="로그인 페이지로 이동" onPress={goToLogin} />
+      <Button title="ar 이동" onPress={goToAr} />
     </View>
   );
 };
