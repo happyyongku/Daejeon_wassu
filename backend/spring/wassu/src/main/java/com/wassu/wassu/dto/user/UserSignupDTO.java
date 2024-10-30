@@ -5,9 +5,9 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class UserDTO {
-    private Long id;
+public class UserSignupDTO {
     private String email;
+    private String password;
     private String nickname;
     private String gender;
     private Integer birthYear;

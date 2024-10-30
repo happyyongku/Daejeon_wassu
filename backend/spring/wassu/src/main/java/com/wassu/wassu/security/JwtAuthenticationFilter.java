@@ -1,11 +1,14 @@
 package com.wassu.wassu.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,11 +16,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Security;
+import java.util.List;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+
+    private static final List<String> EXCLUDED_PATHS = List.of(
+            "/wassu/auth/signup",
+            "/wassu/auth/login"
+    );
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -26,8 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        String token = extractToken(request);
+        String requestURI = request.getRequestURI();
+        String requestMethod = request.getMethod();
 
+        if (EXCLUDED_PATHS.contains(requestURI)) {
+            chain.doFilter(request, response);
+            log.info("Request URI: " + requestURI + "--- Request Method: " + requestMethod + "------------------------------" );
+            return;
+        }
+        System.out.println("Token Request------------------------------");
+        String token = extractToken(request);
         if (token != null && jwtUtil.validateToken(token)) {
             String userEmail = jwtUtil.extractUserEmail(token);
             UsernamePasswordAuthenticationToken authToken =

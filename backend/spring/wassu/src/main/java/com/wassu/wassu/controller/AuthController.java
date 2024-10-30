@@ -4,6 +4,7 @@ import com.wassu.wassu.service.AuthService;
 import com.wassu.wassu.service.UserService;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.dto.user.UserAuthDTO;
+import com.wassu.wassu.dto.user.UserSignupDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,11 @@ public class AuthController {
     
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<?> joinUser(@RequestBody UserEntity userEntity) {
+    public ResponseEntity<?> joinUser(@RequestBody UserSignupDTO userSignupDTO) {
         try {
-            UserEntity savedUser = userService.createUser(userEntity);
-            logger.info("Recieved signup request: {}", userEntity.getEmail());
+            UserEntity userEntity = authService.convertToUserEntity(userSignupDTO);
+            userService.createUser(userEntity);
+            logger.info("Recieved signup request: {}", userSignupDTO.getEmail());
             return ResponseEntity.ok(createSuccessResponse("status", "success"));
         } catch (IllegalStateException e) {
             logger.error("Failed to signup (email already exist): {}", e.getMessage());
@@ -43,12 +45,21 @@ public class AuthController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
-
+    
+    //로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserAuthDTO userAuthDTO) {
         // 로그인 처리
-        Map<String, String> tokens = authService.authenticateAndGenerateTokens(userAuthDTO.getEmail(), userAuthDTO.getPassword());
-        return ResponseEntity.ok(tokens);
+        try {
+            Map<String, String> tokens = authService.authenticateAndGenerateTokens(userAuthDTO.getEmail(), userAuthDTO.getPassword());
+            if (tokens == null) {
+                return ResponseEntity.status(404).body("Invalid email or password");
+            }
+            return ResponseEntity.ok(tokens);
+        } catch (IllegalStateException e) {
+            logger.error("Failed to login (email already exist): {}", e.getMessage());
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
     }
 
 

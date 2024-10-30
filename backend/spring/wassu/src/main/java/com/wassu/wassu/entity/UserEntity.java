@@ -36,6 +36,16 @@ public class UserEntity {
 
     private Integer exp;
 
+    @PrePersist
+    public void prePersist() {
+        if (this.level == null) {
+            this.level = "초보";
+        }
+        if (this.exp == null) {
+            this.exp = 0;
+        }
+    }
+
     @OneToMany(mappedBy="user")
     private List<ArticleEntity> articles;
 

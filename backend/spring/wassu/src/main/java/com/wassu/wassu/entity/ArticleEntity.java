@@ -32,6 +32,16 @@ public class ArticleEntity {
 
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void prePersist() {
+        if (view_count == null) {
+            view_count = 0;
+        }
+        if (liked == null) {
+            liked = 0;
+        }
+    }
+
     @ManyToOne
     @JoinColumn(name="user_entity_id", nullable = false)
     private UserEntity user;

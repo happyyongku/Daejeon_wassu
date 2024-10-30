@@ -28,7 +28,7 @@ public class JwtUtil {
     public JwtUtil(
             @Value("${JWT_SECRET}") String secretKey,
             @Value("${JWT_ACCESS_EXPIRATION}") Long accessTokenExpiration,
-            @Value("${JWT_REFRESH_EXPIRATION") Long refreshTokenExpiration,
+            @Value("${JWT_REFRESH_EXPIRATION}") Long refreshTokenExpiration,
             @Value("${JWT_ALGORITHM}") String algorithm) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
@@ -37,7 +37,7 @@ public class JwtUtil {
         this.algorithm = algorithm;
     }
 
-    public Map<String, String> generateToken(String email) {
+    public Map<String, String> generateTokens(String email) {
         long now = System.currentTimeMillis();
 
         String accessToken = Jwts.builder()
@@ -117,34 +117,4 @@ public class JwtUtil {
             return e.getClaims();
         }
     }
-//
-//    public String generateToken(String email) {
-//        return Jwts.builder()
-//                .setSubject(email)
-//                .setIssuedAt(new Date())
-//                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-//                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), getSignatureAlgorithm())
-//                .compact();
-//    }
-//
-//    public Boolean validateToken(String token) {
-//        try {
-//            Jwts.parserBuilder()
-//                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
-//                    .build()
-//                    .parseClaimsJws(token);
-//            return true;
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-//
-//    public String extractUserEmail(String token) {
-//        Claims claims = Jwts.parserBuilder()
-//                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
-//                .build()
-//                .parseClaimsJws(token)
-//                .getBody();
-//        return claims.getSubject();
-//    }
 }
