@@ -13,8 +13,8 @@ const Stack = createStackNavigator<RootStackParamList>();
 function Navigator() {
   return (
     <Stack.Navigator initialRouteName="Main">
-      <Stack.Screen name="Main" component={Main} />
-      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Main" component={Main} options={{headerShown: false}} />
+      <Stack.Screen name="Login" component={Login} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }

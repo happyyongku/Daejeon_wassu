@@ -6,7 +6,7 @@ import type {RootStackParamList} from '../router/Navigator';
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
-function Main(): React.JSX.Element {
+const Main = (): React.JSX.Element => {
   const navigation = useNavigation<MainScreenNavigationProp>();
 
   const goToLogin = () => {
@@ -19,6 +19,6 @@ function Main(): React.JSX.Element {
       <Button title="로그인 페이지로 이동" onPress={goToLogin} />
     </View>
   );
-}
+};
 
 export default Main;

@@ -2,10 +2,12 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import Navigator from './src/router/Navigator';
 
-export default function App(): React.JSX.Element {
+const App = () => {
   return (
     <NavigationContainer>
       <Navigator />
     </NavigationContainer>
   );
-}
+};
+
+export default App;
