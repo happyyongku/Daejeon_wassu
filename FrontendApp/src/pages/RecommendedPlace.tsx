@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import CategoryList from '../components/CategoryList';
 
 const styles = StyleSheet.create({
   container: {
@@ -21,6 +22,7 @@ const RecommendedPlace = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>비 오는 날에도 즐길 수 있는 실내 대전 여행지</Text>
+      <CategoryList />
     </View>
   );
 };
