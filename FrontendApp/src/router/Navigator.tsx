@@ -8,6 +8,7 @@ import TravelChallenge from '../pages/TravelChallenge';
 import MonopolyPage from '../pages/MonopolyPage';
 import Community from '../pages/Community';
 import Ar from '../pages/Ar';
+import FindPassword from '../pages/FindPassword';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   MonopolyPage: undefined;
   Community: undefined;
   Ar: undefined;
+  FindPassword: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -41,6 +43,7 @@ function Navigator() {
       <Stack.Screen name="MonopolyPage" component={MonopolyPage} options={{headerShown: false}} />
       <Stack.Screen name="Community" component={Community} options={{headerShown: false}} />
       <Stack.Screen name="Ar" component={Ar} options={{headerShown: false}} />
+      <Stack.Screen name="FindPassword" component={FindPassword} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }
