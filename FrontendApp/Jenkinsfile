@@ -21,7 +21,7 @@ pipeline {
         stage('Copy native_build.sh') {
             steps {
                 withCredentials([file(credentialsId: 'native-build-script', variable: 'BUILD_FILE')]) {
-                    sh 'sudo cp $BUILD_FILE ./FrontendApp/native_build.sh'  // FrontendApp 디렉토리로 복사
+                    sh 'cp $BUILD_FILE ./FrontendApp/native_build.sh'  // FrontendApp 디렉토리로 복사
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 dir('FrontendApp') {  // FrontendApp 디렉토리에서 실행
                     sh '''
-                        sudo chmod +x native_build.sh
+                        chmod +x native_build.sh
                         ./native_build.sh
                     '''
                 }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // 컨테이너 실행
-                    sh 'sudo docker run -d --name test-react-native -p 3000:3000 react-native'
+                    sh 'docker run -d --name test-react-native -p 3000:3000 react-native'
                 }
                 echo 'Docker 컨테이너 실행 완료'
             }
@@ -55,8 +55,8 @@ pipeline {
         always {
             echo '파이프라인 실행 완료'
             // 컨테이너 종료 및 제거
-            sh 'sudo docker stop test-react-native || true'
-            sh 'sudo docker rm test-react-native || true'
+            sh 'docker stop test-react-native || true'
+            sh 'docker rm test-react-native || true'
         }
         success { echo '배포 성공' }
         failure { echo '배포 실패' }
