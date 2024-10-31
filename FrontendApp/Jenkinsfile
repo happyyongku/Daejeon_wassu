@@ -23,6 +23,8 @@ pipeline {
                 withCredentials([file(credentialsId: 'native-build-script', variable: 'BUILD_FILE')]) {
                     sh 'cp $BUILD_FILE ./FrontendApp/native_build.sh'  // FrontendApp 디렉토리로 복사
                 }
+                echo 'native_build.sh 복사 완료!' // 복사 완료 메시지 추가
+                sh 'ls -l ./FrontendApp'  // 복사된 파일 목록 확인
             }
         }
 
