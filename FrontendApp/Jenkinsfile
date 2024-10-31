@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IP = credentials('server_IP')  // EC2 서버 IP를 환경 변수로 가져옵니다.
+        IP = credentials('server_IP')  // EC2 서버 IP
     }
 
     stages {
@@ -17,37 +17,25 @@ pipeline {
             }
         }
 
-        // 2단계: native_build.sh 스크립트 복사
-        stage('Copy native_build.sh') {
-            steps {
-                withCredentials([file(credentialsId: 'native-build-script', variable: 'BUILD_FILE')]) {
-                    sh 'cp $BUILD_FILE ./FrontendApp/native_build.sh'  // FrontendApp 디렉토리로 복사
-                }
-                echo 'native_build.sh 복사 완료!' // 복사 완료 메시지 추가
-                sh 'ls -l ./FrontendApp'  // 복사된 파일 목록 확인
-            }
-        }
-
-        // 3단계: Docker 이미지 빌드
+        // 2단계: Docker 이미지 빌드
         stage('Build Docker Image') {
             steps {
-                dir('./FrontendApp') {  // FrontendApp 디렉토리에서 실행
+                dir('./FrontendApp') {  
                     sh '''
-                        chmod +x native_build.sh
-                        ls -l
-                        ./native_build.sh
+                        chmod +x native_build.sh  // 실행 권한 부여
+                        ./native_build.sh          // 스크립트 실행
                     '''
                 }
                 echo 'Docker 이미지 빌드 완료'
             }
         }
 
-        // 4단계: Docker 이미지 실행
+        // 3단계: Docker 이미지 실행
         stage('Run Docker Container') {
             steps {
                 script {
                     // 컨테이너 실행
-                    sh 'docker run -d --name test-react-native -p 3000:3000 react-native'
+                    sh 'docker run -d --name react-native -p 3000:3000 react-native'
                 }
                 echo 'Docker 컨테이너 실행 완료'
             }
