@@ -36,7 +36,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/wassu/auth/login", "/wassu/auth/signup").permitAll()
+                                .requestMatchers(
+                                        "/wassu/auth/login",
+                                        "/wassu/auth/signup",
+                                        "/wassu/auth/send-verification-code",
+                                        "/wassu/auth/verify-code"
+                                ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )

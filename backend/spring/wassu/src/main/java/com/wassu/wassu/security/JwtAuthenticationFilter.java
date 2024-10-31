@@ -41,19 +41,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (EXCLUDED_PATHS.contains(requestURI)) {
             chain.doFilter(request, response);
-            log.info("Request URI: " + requestURI + "--- Request Method: " + requestMethod + "------------------------------" );
+            log.info("Passed URI: " + requestURI + "--- Request Method: " + requestMethod + "------------------------------" );
             return;
         }
+
         System.out.println("Token Request------------------------------");
-        String token = extractToken(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            String userEmail = jwtUtil.extractUserEmail(token);
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(userEmail, null, null);
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            String token = extractToken(request);
+            if (token != null && jwtUtil.validateToken(token)) {
+                log.info("Token Validated");
+                String userEmail = jwtUtil.extractUserEmail(token);
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userEmail, null, null);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                chain.doFilter(request, response);
+            } else if (token != null && jwtUtil.isTokenExpired(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"status\":\"expired\"}");
+            } else {
+                log.info("Token Invalid");
+                chain.doFilter(request, response);
+            }
+        } catch (Exception e) {
+            log.error("Exception in JwtAuthenticationFilter: ", e);
         }
-        chain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
