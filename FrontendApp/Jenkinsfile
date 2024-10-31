@@ -27,6 +27,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         always { echo '파이프라인 실행 완료' }
