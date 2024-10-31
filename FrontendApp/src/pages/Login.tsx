@@ -6,7 +6,7 @@ import type {RootStackParamList} from '../router/Navigator';
 
 const {width} = Dimensions.get('window');
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Login = (): React.JSX.Element => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
