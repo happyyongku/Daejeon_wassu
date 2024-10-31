@@ -9,6 +9,23 @@ import MonopolyPage from '../pages/MonopolyPage';
 import Community from '../pages/Community';
 import Ar from '../pages/Ar';
 import FindPassword from '../pages/FindPassword';
+import MyPage from '../pages/MyPage';
+import TravelItinerary from '../pages/TravelItinerary';
+import OngoingChallenge from '../components/MyPage/OngoingChallenge';
+import CompletedChallenge from '../components/MyPage/CompletedChallenge';
+import Profile from '../pages/Profile';
+import Dogam from '../components/MyPage/Dogam';
+import ChangePassword from '../components/Profile/ChangePassword';
+import ChangeInfo from '../components/Profile/ChangeInfo';
+import CreateSchedule from '../components/TravelItinerary/CreateSchedule';
+import Details from '../components/TravelItinerary/Details';
+import Course from '../components/TravelChallenge/Course';
+import CourseDescription from '../components/TravelChallenge/CourseDescription';
+import ChallengeDetail from '../components/TravelChallenge/ChallengeDetail';
+import PlaceList from '../components/RecommendedPlace/PlaceList';
+import PlaceDetail from '../components/RecommendedPlace/PlaceDetail';
+import Writing from '../components/Community/Writing';
+import CommunitySearch from '../components/Community/CommunitySearch';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -20,6 +37,23 @@ export type RootStackParamList = {
   Community: undefined;
   Ar: undefined;
   FindPassword: undefined;
+  MyPage: undefined;
+  TravelItinerary: undefined;
+  OngoingChallenge: undefined;
+  CompletedChallenge: undefined;
+  Profile: undefined;
+  Dogam: undefined;
+  ChangePassword: undefined;
+  ChangeInfo: undefined;
+  CreateSchedule: undefined;
+  Details: undefined;
+  Course: undefined;
+  CourseDescription: undefined;
+  ChallengeDetail: undefined;
+  PlaceList: undefined;
+  PlaceDetail: undefined;
+  Writing: undefined;
+  CommunitySearch: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -44,6 +78,55 @@ function Navigator() {
       <Stack.Screen name="Community" component={Community} options={{headerShown: false}} />
       <Stack.Screen name="Ar" component={Ar} options={{headerShown: false}} />
       <Stack.Screen name="FindPassword" component={FindPassword} options={{headerShown: false}} />
+      <Stack.Screen name="MyPage" component={MyPage} options={{headerShown: false}} />
+      <Stack.Screen
+        name="TravelItinerary"
+        component={TravelItinerary}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="OngoingChallenge"
+        component={OngoingChallenge}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="CompletedChallenge"
+        component={CompletedChallenge}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen name="Profile" component={Profile} options={{headerShown: false}} />
+      <Stack.Screen name="Dogam" component={Dogam} options={{headerShown: false}} />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen name="ChangeInfo" component={ChangeInfo} options={{headerShown: false}} />
+      <Stack.Screen
+        name="CreateSchedule"
+        component={CreateSchedule}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen name="Details" component={Details} options={{headerShown: false}} />
+      <Stack.Screen name="Course" component={Course} options={{headerShown: false}} />
+      <Stack.Screen
+        name="CourseDescription"
+        component={CourseDescription}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ChallengeDetail"
+        component={ChallengeDetail}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen name="PlaceList" component={PlaceList} options={{headerShown: false}} />
+      <Stack.Screen name="PlaceDetail" component={PlaceDetail} options={{headerShown: false}} />
+      <Stack.Screen name="Writing" component={Writing} options={{headerShown: false}} />
+      <Stack.Screen
+        name="CommunitySearch"
+        component={CommunitySearch}
+        options={{headerShown: false}}
+      />
     </Stack.Navigator>
   );
 }

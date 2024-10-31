@@ -10,17 +10,19 @@ const categories = [
 
 const CategoryList = () => {
   return (
-    <FlatList
-      data={categories}
-      horizontal
-      renderItem={({item}) => (
-        <View>
-          <Text>{item.name}</Text>
-        </View>
-      )}
-      keyExtractor={item => item.id}
-      showsHorizontalScrollIndicator={false}
-    />
+    <>
+      <FlatList
+        data={categories}
+        horizontal
+        renderItem={({item}) => (
+          <View>
+            <Text>{item.name} </Text>
+          </View>
+        )}
+        keyExtractor={item => item.id}
+        showsHorizontalScrollIndicator={false}
+      />
+    </>
   );
 };
 
