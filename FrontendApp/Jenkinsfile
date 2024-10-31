@@ -22,8 +22,8 @@ pipeline {
             steps {
                 dir('./FrontendApp') {  
                     sh '''
-                        chmod +x native_build.sh  // 실행 권한 부여
-                        ./native_build.sh          // 스크립트 실행
+                        chmod +x native_build.sh  
+                        ./native_build.sh        
                     '''
                 }
                 echo 'Docker 이미지 빌드 완료'
@@ -46,8 +46,8 @@ pipeline {
         always {
             echo '파이프라인 실행 완료'
             // 컨테이너 종료 및 제거
-            sh 'docker stop test-react-native || true'
-            sh 'docker rm test-react-native || true'
+            sh 'docker stop react-native || true'
+            sh 'docker rm react-native || true'
         }
         success { echo '배포 성공' }
         failure { echo '배포 실패' }
