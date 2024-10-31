@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    environment {
+        IP = credentials('server_IP')  // EC2 서버 IP를 환경 변수로 가져옵니다.
+    }
+
+    stages {
+        // 1단계: Git 클론
+        stage('Git Clone') {
+            steps {
+                dir('FrontendApp') {  // FrontendApp 디렉토리로 이동
+                    git branch: 'dev-fe', credentialsId: 'gitlab-credentials', url: 'https://lab.ssafy.com/s11-final/S11P31B105.git'
+                }
+            }
+            post {
+                success { echo 'Repository clone 성공!' }
+                failure { echo 'Repository clone 실패!' }
+            }
+        }
+
+        // 2단계: native_build.sh 스크립트 복사
+        stage('Copy native_build.sh') {
+            steps {
+                withCredentials([file(credentialsId: 'native-build-script', variable: 'BUILD_FILE')]) {
+                    sh 'cp $BUILD_FILE ./FrontendApp/native_build.sh'  // FrontendApp 디렉토리로 복사
+                }
+            }
+        }
+
+        // 3단계: Docker 이미지 빌드
+        stage('Build Docker Image') {
+            steps {
+                dir('FrontendApp') {  // FrontendApp 디렉토리에서 실행
+                    sh '''
+                        chmod +x native_build.sh
+                        ./native_build.sh
+                    '''
+                }
+                echo 'Docker 이미지 빌드 완료'
+            }
+        }
+
+        // 4단계: Docker 이미지 실행
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // 컨테이너 실행
+                    sh 'sudo docker run -d --name test-react-native -p 3000:3000 react-native'
+                }
+                echo 'Docker 컨테이너 실행 완료'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '파이프라인 실행 완료'
+            // 컨테이너 종료 및 제거
+            sh 'docker stop test-react-native || true'
+            sh 'docker rm test-react-native || true'
+        }
+        success { echo '배포 성공' }
+        failure { echo '배포 실패' }
+    }
+}
