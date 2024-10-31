@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     // 컨테이너 실행
-                    sh 'docker run -d --name test-react-native -p 3000:3000 react-native'
+                    sh 'sudo docker run -d --name test-react-native -p 3000:3000 react-native'
                 }
                 echo 'Docker 컨테이너 실행 완료'
             }
