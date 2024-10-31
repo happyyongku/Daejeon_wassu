@@ -1,26 +1,43 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, Button, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../router/Navigator';
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 10,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginHorizontal: 16,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-});
+type TravelChallengeNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const TravelChallenge = () => {
+  const navigation = useNavigation<TravelChallengeNavigationProp>();
+
+  const goToOngoingChallenge = () => {
+    navigation.navigate('OngoingChallenge');
+  };
+
+  const goToCourse = () => {
+    navigation.navigate('Course');
+  };
+
+  const goToCourseDescription = () => {
+    navigation.navigate('CourseDescription');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>대전 여행 코스 챌린지</Text>
+    <View>
+      <Text>챌린지</Text>
+
+      <TouchableOpacity onPress={goToOngoingChallenge}>
+        <Text>나의 챌린지</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={goToCourse}>
+        <Text>챌린지 코스</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={goToCourseDescription}>
+        <Text>챌린지 코스가 무엇인가요?</Text>
+      </TouchableOpacity>
+
+      <Button title="챗봇에게 코스 물어보기" />
     </View>
   );
 };

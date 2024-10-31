@@ -1,28 +1,30 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import CategoryList from '../components/CategoryList';
+import {View, Text, TouchableOpacity} from 'react-native';
+import RecommendedSearchBar from '../components/RecommendedPlace/RecommendedSearchBar';
+import CategoryList from '../components/RecommendedPlace/CategoryList';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../router/Navigator';
 
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 10,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginHorizontal: 16,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-});
+type RecommendedPlaceNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceList'>;
 
 const RecommendedPlace = () => {
+  const navigation = useNavigation<RecommendedPlaceNavigationProp>();
+
+  const goToPlaceList = () => {
+    navigation.navigate('PlaceList');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>비 오는 날에도 즐길 수 있는 실내 대전 여행지</Text>
+    <View>
+      <RecommendedSearchBar />
       <CategoryList />
+
+      <TouchableOpacity onPress={goToPlaceList}>
+        <Text>전체 관광지</Text>
+      </TouchableOpacity>
+
+      <Text>전체 관광지 추천</Text>
     </View>
   );
 };
