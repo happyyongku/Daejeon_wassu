@@ -12,7 +12,7 @@ fi
 
 # 3. Docker 이미지 빌드
 echo "Docker 이미지 빌드 시작: $IMAGE_NAME"
-sudo docker build --no-cache -t $IMAGE_NAME $DOCKERFILE_PATH
+docker build --no-cache -t $IMAGE_NAME $DOCKERFILE_PATH
 
 # 4. 빌드 완료 메시지 출력
 if [[ $? -eq 0 ]]; then
