@@ -3,6 +3,8 @@ package com.wassu.wassu.service;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.dto.user.UserSignupDTO;
+import com.wassu.wassu.dto.user.UserProfileDTO;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,17 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     // 회원가입
     public UserEntity createUser(UserEntity userEntity) {
@@ -34,14 +31,8 @@ public class UserService {
         return userRepository.save(userEntity);
     }
     
-    // id 기반 유저 조회
-    public Optional<UserSignupDTO> findUserById(Long id) {
-        Optional<UserEntity> userEntity = userRepository.findById(id);
-        return userEntity.map(this::convertToDTO);
-    }
-    
     // email 기반 유저 조히
-    public Optional<UserSignupDTO> findUserByEmail(String email) {
+    public Optional<UserProfileDTO> findUserByEmail(String email) {
         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         return userEntity.map(this::convertToDTO);
     }
@@ -66,8 +57,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    private UserSignupDTO convertToDTO(UserEntity userEntity) {
-        return UserSignupDTO.builder()
+    private UserProfileDTO convertToDTO(UserEntity userEntity) {
+        return UserProfileDTO.builder()
                 .email(userEntity.getEmail())
                 .nickname(userEntity.getNickname())
                 .birthYear(userEntity.getBirthYear())

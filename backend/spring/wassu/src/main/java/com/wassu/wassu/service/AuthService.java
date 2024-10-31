@@ -6,6 +6,7 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.BlackListRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,20 +22,13 @@ import java.util.Random;
 import java.text.MessageFormat;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
     private final BlackListRepository blackListRepository;
-
-    @Autowired
-    public AuthService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, BlackListRepository blackListRepository) {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
-        this.blackListRepository = blackListRepository;
-    }
 
     @Autowired
     private EmailService emailService;
