@@ -9,9 +9,7 @@ pipeline {
         // 1단계: Git 클론
         stage('Git Clone') {
             steps {
-                dir('FrontendApp') {  // FrontendApp 디렉토리로 이동
-                    git branch: 'dev-fe', credentialsId: 'gitlab-credentials', url: 'https://lab.ssafy.com/s11-final/S11P31B105.git'
-                }
+                git branch: 'dev-fe', credentialsId: 'gitlab-credentials', url: 'https://lab.ssafy.com/s11-final/S11P31B105.git'
             }
             post {
                 success { echo 'Repository clone 성공!' }
