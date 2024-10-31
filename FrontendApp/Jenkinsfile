@@ -27,10 +27,39 @@ pipeline {
                 }
             }
         }
+
+        // 3단계: Docker 이미지 빌드
+        stage('Build Docker Image') {
+            steps {
+                dir('FrontendApp') {  // FrontendApp 디렉토리에서 실행
+                    sh '''
+                        chmod +x native_build.sh
+                        ./native_build.sh
+                    '''
+                }
+                echo 'Docker 이미지 빌드 완료'
+            }
+        }
+
+        // 4단계: Docker 이미지 실행
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // 컨테이너 실행
+                    sh 'docker run -d --name test-react-native -p 3000:3000 react-native'
+                }
+                echo 'Docker 컨테이너 실행 완료'
+            }
+        }
     }
 
     post {
-        always { echo '파이프라인 실행 완료' }
+        always {
+            echo '파이프라인 실행 완료'
+            // 컨테이너 종료 및 제거
+            sh 'docker stop test-react-native || true'
+            sh 'docker rm test-react-native || true'
+        }
         success { echo '배포 성공' }
         failure { echo '배포 실패' }
     }
