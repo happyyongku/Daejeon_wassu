@@ -31,9 +31,10 @@ pipeline {
         // 3단계: Docker 이미지 빌드
         stage('Build Docker Image') {
             steps {
-                dir('FrontendApp') {  // FrontendApp 디렉토리에서 실행
+                dir('./FrontendApp') {  // FrontendApp 디렉토리에서 실행
                     sh '''
                         chmod +x native_build.sh
+                        ls -l
                         ./native_build.sh
                     '''
                 }
