@@ -17,6 +17,28 @@ pipeline {
             }
         }
 
+        // 사용자 및 그룹 체크
+        stage('Check User and Groups') {
+            steps {
+                script {
+                    // 현재 사용자 확인
+                    sh 'whoami'
+                    // 그룹 확인
+                    sh 'groups'
+                }
+            }
+        }
+
+        // Docker 접근 테스트
+        stage('Docker Test') {
+            steps {
+                script {
+                    // Docker 버전 확인으로 Docker 접근 테스트
+                    sh 'docker --version'
+                }
+            }
+        }
+
         // 2단계: Docker 이미지 빌드
         stage('Build Docker Image') {
             steps {
