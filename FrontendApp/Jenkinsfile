@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IP = credentials('server_IP')  // EC2 서버 IP
-        PATH = "/usr/bin:$PATH"  // Docker 설치 경로 추가
     }
 
     stages {
