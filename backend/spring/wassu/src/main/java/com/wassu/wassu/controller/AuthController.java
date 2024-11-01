@@ -99,7 +99,8 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Error refreshing access token: " + e);
         }
-        return ResponseEntity.status(404).body("Invalid refresh token");
+        authService.logout(refreshToken);
+        return ResponseEntity.status(404).body(createResponse("status", "failed"));
     }
 
     // 회원탈퇴

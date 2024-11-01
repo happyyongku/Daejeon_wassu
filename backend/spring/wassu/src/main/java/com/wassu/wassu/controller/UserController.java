@@ -28,12 +28,13 @@ public class UserController {
 
     // 사용자 정보 조회
     @GetMapping("/profile")
-    public Optional<UserProfileDTO> getProfile(@RequestHeader String accessToken) {
+    public Optional<UserProfileDTO> getProfile(@RequestHeader(value="Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
             return userService.findUserByEmail(userEmail);
         }
+        log.info("User not found: {}", userEmail);
         return Optional.empty();
     }
 }

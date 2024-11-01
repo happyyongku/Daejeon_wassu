@@ -80,6 +80,7 @@ public class JwtUtil {
         } catch (SecurityException | MalformedJwtException e) {
             logger.info("Invalid JWT: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
+            System.out.println("Expired JWT --------------------------");
             logger.info("Expired JWT: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             logger.info("Unsupported JWT: {}", e.getMessage());
@@ -96,7 +97,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            logger.info("Expired JWT: {}", e.getMessage());
+            logger.error ("Expired JWT: {}", e.getMessage());
             return true;
         }
         return false;

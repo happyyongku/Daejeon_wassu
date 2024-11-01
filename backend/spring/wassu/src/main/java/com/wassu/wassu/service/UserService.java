@@ -63,6 +63,8 @@ public class UserService {
                 .nickname(userEntity.getNickname())
                 .birthYear(userEntity.getBirthYear())
                 .gender(userEntity.getGender())
+                .exp(userEntity.getExp())
+                .level(userEntity.getLevel())
                 .build();
     }
 }

@@ -74,7 +74,7 @@ public class AuthService {
         }
     }
 
-    private Map<String, String> verificationCodes = new HashMap<>();
+    private final Map<String, String> verificationCodes = new HashMap<>();
 
     public String sendVerificationCode(String email) {
         String verificationCode = generateRandomCode(8);
