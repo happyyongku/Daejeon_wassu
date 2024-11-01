@@ -11,8 +11,5 @@ RUN npm install
 # 4. 소스 코드 복사
 COPY . .
 
-# 5. 애플리케이션 빌드
-RUN npm run build
-
-# 6. 애플리케이션 시작
-CMD ["npm", "start"]
+# 5. Metro 서버 실행 (빌드 및 개발 환경)
+CMD ["npx", "react-native", "start"]
