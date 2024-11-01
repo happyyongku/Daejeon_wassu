@@ -32,7 +32,8 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
-
+    
+    // 토큰 인증 및 생성
     public Map<String, String> authenticateAndGenerateTokens(String email, String password) {
         // 사용자 조회
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(email);
@@ -56,7 +57,8 @@ public class AuthService {
         }
         return null;
     }
-
+    
+    // 계정 탈퇴
     public void deleteAccount(String token) {
         String email  = jwtUtil.extractUserEmail(token);
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(email);
@@ -75,7 +77,8 @@ public class AuthService {
     }
 
     private final Map<String, String> verificationCodes = new HashMap<>();
-
+    
+    // 검증 코드 이메일 발송
     public String sendVerificationCode(String email) {
         String verificationCode = generateRandomCode(8);
         verificationCodes.put(email, verificationCode);
@@ -87,13 +90,15 @@ public class AuthService {
 
         return "Verification Code sent to your email";
     }
-
+    
+    //로그아웃
     public void logout(String token) {
         BlackListEntity blacklistEntity = new BlackListEntity();
         blacklistEntity.setToken(token);
         blackListRepository.save(blacklistEntity);
     }
 
+    // 랜덤 코드 생성
     private String generateRandomCode(int length) {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -104,6 +109,7 @@ public class AuthService {
 
     }
 
+    // 코드 검증
     public Boolean verifyCode(String email, String code) {
         String correctCode = verificationCodes.get(email);
         return correctCode != null && correctCode.equals(code);

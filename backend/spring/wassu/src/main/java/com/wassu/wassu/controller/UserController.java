@@ -2,6 +2,7 @@ package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
+import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
 import com.wassu.wassu.service.UserService;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.repository.UserRepository;
@@ -49,6 +50,23 @@ public class UserController {
             return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         }
         log.info("User not found: {}", userEmail);
-        return ResponseEntity.status(404).body(utilTool.createResponse("status", "error"));
+        return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+    }
+
+    // 사용자 비밀번호 수정
+    @PutMapping("/change-password")
+    public ResponseEntity<?> updatePassword(@RequestHeader(value="Authorization") String accessToken, @RequestBody UserPasswordUpdateDTO userPasswordUpdateDTO) {
+        String token = accessToken.replace("Bearer ", "");
+        String userEmail = jwtUtil.extractUserEmail(token);
+        if (userRepository.findByEmail(userEmail).isPresent()) {
+            Boolean updated = userService.updateUserPassword(userEmail, userPasswordUpdateDTO);
+            if (updated){
+                return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+            } else {
+                return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+            }
+        }
+        log.error("User not found while change password: {}", userEmail);
+        return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
     }
 }

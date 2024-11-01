@@ -10,6 +10,7 @@ import com.wassu.wassu.tool.UtilTool;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/wassu/auth")
 @AllArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final UserService userService;
@@ -47,7 +49,7 @@ public class AuthController {
             String email = userSignupDTO.getEmail();
             if (!verificationEmails.getOrDefault(email, false)) {
                 logger.error("Email not verified");
-                return ResponseEntity.badRequest().body(utilTool.createResponse("status", "Email not verified"));
+                return ResponseEntity.status(404).body(utilTool.createResponse("status", "Email not verified"));
             }
             UserEntity userEntity = authService.convertToUserEntity(userSignupDTO);
             userService.createUser(userEntity);
@@ -55,10 +57,10 @@ public class AuthController {
             return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         } catch (IllegalStateException e) {
             logger.error("Failed to signup (email already exist): {}", e.getMessage());
-            return ResponseEntity.status(409).body(e.getMessage());
+            return ResponseEntity.status(409).body(utilTool.createResponse("status", "email already exist"));
         } catch (Exception e) {
             logger.error("Failed to signup : {}", e.getMessage());
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(utilTool.createResponse("status", "failed"));
         }
     }
     
@@ -69,12 +71,13 @@ public class AuthController {
         try {
             Map<String, String> tokens = authService.authenticateAndGenerateTokens(userAuthDTO.getEmail(), userAuthDTO.getPassword());
             if (tokens == null) {
-                return ResponseEntity.status(404).body("Invalid email or password");
+                log.error("Failed to authenticate user: {}", userAuthDTO.getEmail());
+                return ResponseEntity.status(404).body(utilTool.createResponse("status", "Invalid email or password"));
             }
             return ResponseEntity.ok(tokens);
         } catch (IllegalStateException e) {
             logger.error("Failed to login (email already exist): {}", e.getMessage());
-            return ResponseEntity.status(409).body(e.getMessage());
+            return ResponseEntity.status(409).body(utilTool.createResponse("status", "failed"));
         }
     }
     
@@ -102,9 +105,11 @@ public class AuthController {
                 return ResponseEntity.ok(utilTool.createResponse("access", newAccessToken));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Error refreshing access token: " + e);
+            log.error("Failed to refresh access token: {}", e.getMessage());
+            return ResponseEntity.status(401).body(utilTool.createResponse("status", "failed"));
         }
         authService.logout(refreshToken);
+        log.warn("Refresh token not validated: {}", refreshToken);
         return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
     }
 
@@ -117,9 +122,9 @@ public class AuthController {
                 authService.deleteAccount(token);
                 return ResponseEntity.ok(utilTool.createResponse("status", "success"));
             }
-            return ResponseEntity.status(401).body("Invalid access token");
+            return ResponseEntity.status(401).body(utilTool.createResponse("status","Invalid access token"));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Error deleting account: " + e);
+            return ResponseEntity.status(401).body(utilTool.createResponse("status", "failed"));
         }
     }
 

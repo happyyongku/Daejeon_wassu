@@ -3,10 +3,10 @@ package com.wassu.wassu.service;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.UserRepository;
-import com.wassu.wassu.dto.user.UserSignupDTO;
 import com.wassu.wassu.dto.user.UserProfileDTO;
+import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -32,7 +33,7 @@ public class UserService {
         return userRepository.save(userEntity);
     }
     
-    // email 기반 유저 조히
+    // email 기반 유저 조회
     public Optional<UserProfileDTO> findUserByEmail(String email) {
         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         return userEntity.map(this::convertToDTO);
@@ -51,6 +52,27 @@ public class UserService {
             logger.info("User updated: " + email );
         } else {
             logger.error("User does not exist");
+        }
+    }
+
+    //비밀번호 변경
+    public Boolean updateUserPassword(String email, UserPasswordUpdateDTO userPasswordUpdateDTO) {
+        Optional<UserEntity> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            UserEntity user = userOptional.get();
+            if (passwordEncoder.matches(userPasswordUpdateDTO.getCurrentPassword(), user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(userPasswordUpdateDTO.getNewPassword()));
+                userRepository.save(user);
+                log.info("Password updated");
+                return true;
+            } else {
+                log.error("Password does not match");
+                return false;
+            }
+        } else {
+            logger.error("User does not exist while updating password");
+            return false;
         }
     }
 
