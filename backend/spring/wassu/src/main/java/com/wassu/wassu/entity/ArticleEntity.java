@@ -40,6 +40,12 @@ public class ArticleEntity {
         if (liked == null) {
             liked = 0;
         }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @ManyToOne

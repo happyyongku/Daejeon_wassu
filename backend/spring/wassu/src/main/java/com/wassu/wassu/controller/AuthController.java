@@ -6,12 +6,10 @@ import com.wassu.wassu.service.UserService;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.dto.user.UserAuthDTO;
 import com.wassu.wassu.dto.user.UserSignupDTO;
-import com.wassu.wassu.tool.UtilTool;
+import com.wassu.wassu.util.UtilTool;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;

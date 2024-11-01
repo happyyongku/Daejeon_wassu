@@ -16,7 +16,7 @@ public class ArticleImageEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String imageUrl;
+    private String fileName;
 
     @ManyToOne
     @JoinColumn(name="article_id")

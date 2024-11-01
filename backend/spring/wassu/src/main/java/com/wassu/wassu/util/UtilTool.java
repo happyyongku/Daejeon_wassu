@@ -1,4 +1,4 @@
-package com.wassu.wassu.tool;
+package com.wassu.wassu.util;
 
 import org.springframework.stereotype.Component;
 
