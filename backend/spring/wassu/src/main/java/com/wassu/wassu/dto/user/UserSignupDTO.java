@@ -13,4 +13,5 @@ public class UserSignupDTO {
     private Integer birthYear;
     private String level;
     private Integer exp;
+    private String profileImage;
 }

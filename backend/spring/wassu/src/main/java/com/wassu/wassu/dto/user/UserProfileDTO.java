@@ -12,4 +12,5 @@ public class UserProfileDTO {
     private String gender;
     private String level;
     private Integer exp;
+    private String profileImage;
 }

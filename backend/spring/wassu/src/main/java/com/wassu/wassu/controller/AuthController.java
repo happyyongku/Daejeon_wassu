@@ -6,8 +6,10 @@ import com.wassu.wassu.service.UserService;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.dto.user.UserAuthDTO;
 import com.wassu.wassu.dto.user.UserSignupDTO;
+import com.wassu.wassu.tool.UtilTool;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +21,24 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/wassu/auth")
+@AllArgsConstructor
 public class AuthController {
 
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final UtilTool utilTool;
 
-    @Autowired
-    public AuthController(UserService userService, AuthService authService, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.authService = authService;
-        this.jwtUtil = jwtUtil;
-    }
+//    @Autowired
+//    public AuthController(UserService userService, AuthService authService, JwtUtil jwtUtil, UtilTool utilTool) {
+//        this.userService = userService;
+//        this.authService = authService;
+//        this.jwtUtil = jwtUtil;
+//        this.utilTool = utilTool;
+//    }
 
-    private Map<String, Boolean> verificationEmails = new HashMap<>();
+    private final Map<String, Boolean> verificationEmails = new HashMap<>();
     
     // 회원가입
     @PostMapping("/signup")
@@ -42,12 +47,12 @@ public class AuthController {
             String email = userSignupDTO.getEmail();
             if (!verificationEmails.getOrDefault(email, false)) {
                 logger.error("Email not verified");
-                return ResponseEntity.badRequest().body(createResponse("status", "Email not verified"));
+                return ResponseEntity.badRequest().body(utilTool.createResponse("status", "Email not verified"));
             }
             UserEntity userEntity = authService.convertToUserEntity(userSignupDTO);
             userService.createUser(userEntity);
             logger.info("Recieved signup request: {}", userSignupDTO.getEmail());
-            return ResponseEntity.ok(createResponse("status", "success"));
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         } catch (IllegalStateException e) {
             logger.error("Failed to signup (email already exist): {}", e.getMessage());
             return ResponseEntity.status(409).body(e.getMessage());
@@ -79,7 +84,7 @@ public class AuthController {
         try{
             String token  = refreshToken.replace("Bearer ", "");
             authService.logout(token);
-            return ResponseEntity.ok(createResponse("status", "success"));
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         } catch (IllegalStateException e) {
             logger.error("Failed to logout (refresh token already exist): {}", e.getMessage());
             return ResponseEntity.status(409).body(e.getMessage());
@@ -94,13 +99,13 @@ public class AuthController {
             if (jwtUtil.validateToken(token)) {
                 String userEmail = jwtUtil.extractUserEmail(token);
                 String newAccessToken = jwtUtil.generateToken(userEmail, "access");
-                return ResponseEntity.ok(createResponse("access", newAccessToken));
+                return ResponseEntity.ok(utilTool.createResponse("access", newAccessToken));
             }
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Error refreshing access token: " + e);
         }
         authService.logout(refreshToken);
-        return ResponseEntity.status(404).body(createResponse("status", "failed"));
+        return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
     }
 
     // 회원탈퇴
@@ -110,7 +115,7 @@ public class AuthController {
             String token = accessToken.replace("Bearer ", "");
             if (jwtUtil.validateToken(token)) {
                 authService.deleteAccount(token);
-                return ResponseEntity.ok(createResponse("status", "success"));
+                return ResponseEntity.ok(utilTool.createResponse("status", "success"));
             }
             return ResponseEntity.status(401).body("Invalid access token");
         } catch (Exception e) {
@@ -122,7 +127,7 @@ public class AuthController {
     @PostMapping("/send-verification-code")
     private ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
         String response = authService.sendVerificationCode(email);
-        return ResponseEntity.ok(createResponse("status", "success"));
+        return ResponseEntity.ok(utilTool.createResponse("status", "success"));
     }
 
     @PostMapping("/verify-code")
@@ -131,14 +136,8 @@ public class AuthController {
         if (isVerified) {
             verificationEmails.put(email, true);
             authService.removeVerificationCode(email);
-            return ResponseEntity.ok(createResponse("status", "success"));
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         }
-        return ResponseEntity.status(401).body(createResponse("status", "Invalid verification code"));
-    }
-
-    private Map<String, String> createResponse(String key, String value) {
-        Map<String, String> response = new HashMap<>();
-        response.put(key, value);
-        return response;
+        return ResponseEntity.status(401).body(utilTool.createResponse("status", "Invalid verification code"));
     }
 }

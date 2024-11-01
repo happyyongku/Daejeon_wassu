@@ -1,5 +1,6 @@
 package com.wassu.wassu.service;
 
+import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.dto.user.UserSignupDTO;
@@ -38,23 +39,19 @@ public class UserService {
     }
     
     // 회원 수정
-    public UserEntity updateUser(Long id, UserEntity updateUser) {
-        UserEntity existingUser = userRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
-        existingUser.setEmail(updateUser.getEmail());
-        existingUser.setNickname(updateUser.getNickname());
-        existingUser.setBirthYear(updateUser.getBirthYear());
-        existingUser.setGender(updateUser.getGender());
+    public void updateUser(String email, UserProfileUpdateDTO userProfileUpdateDTO) {
+        Optional<UserEntity> userOptional = userRepository.findByEmail(email);
+        logger.info("Starting Update ---------");
+        if (userOptional.isPresent()) {
+            UserEntity userEntity = userOptional.get();
+            userEntity.setNickname(userProfileUpdateDTO.getNickName());
+            userEntity.setProfileImage(userProfileUpdateDTO.getProfileImage());
 
-        return userRepository.save(existingUser);
-    }
-    
-    // 회원 삭제
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("해당 유저를 찾을 수 없습니다.");
+            userRepository.save(userEntity);
+            logger.info("User updated: " + email );
+        } else {
+            logger.error("User does not exist");
         }
-        userRepository.deleteById(id);
     }
 
     private UserProfileDTO convertToDTO(UserEntity userEntity) {

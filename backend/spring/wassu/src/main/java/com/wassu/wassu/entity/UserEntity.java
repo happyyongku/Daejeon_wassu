@@ -36,6 +36,8 @@ public class UserEntity {
 
     private Integer exp;
 
+    private String profileImage;
+
     @PrePersist
     public void prePersist() {
         if (this.level == null) {
@@ -43,6 +45,9 @@ public class UserEntity {
         }
         if (this.exp == null) {
             this.exp = 0;
+        }
+        if (this.profileImage == null) {
+            this.profileImage = "default";
         }
     }
 

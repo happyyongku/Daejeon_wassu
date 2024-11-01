@@ -1,30 +1,30 @@
 package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.user.UserProfileDTO;
+import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.service.UserService;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.tool.UtilTool;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/wassu/user")
+@AllArgsConstructor
 @Slf4j
 public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final UtilTool utilTool;
 
-    @Autowired
-    public UserController(UserService userService, JwtUtil jwtUtil, UserRepository userRepository) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
-    }
 
     // 사용자 정보 조회
     @GetMapping("/profile")
@@ -36,5 +36,19 @@ public class UserController {
         }
         log.info("User not found: {}", userEmail);
         return Optional.empty();
+    }
+
+    // 사용자 정보 수정
+    @PutMapping("/profile/edit")
+    public ResponseEntity<?> editProfile(@RequestHeader(value="Authorization") String accessToken, @RequestBody UserProfileUpdateDTO userProfileUpdateDTO) {
+        String token = accessToken.replace("Bearer ", "");
+        String userEmail = jwtUtil.extractUserEmail(token);
+        if (userRepository.findByEmail(userEmail).isPresent()) {
+            userService.updateUser(userEmail, userProfileUpdateDTO);
+            log.info("User profile updated: {}", userEmail);
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+        }
+        log.info("User not found: {}", userEmail);
+        return ResponseEntity.status(404).body(utilTool.createResponse("status", "error"));
     }
 }
