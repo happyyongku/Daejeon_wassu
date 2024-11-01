@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        IP = credentials('server_IP')  // EC2 서버 IP
-        PATH = "/usr/bin:$PATH"  // Docker 설치 경로 추가
-    }
-
     stages {
         // 1단계: Git 클론
         stage('Git Clone') {
@@ -22,23 +17,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('./FrontendApp') {  
-                    sh '''
-                        chmod +x native_build.sh  
-                        ./native_build.sh        
-                    '''
+                    sh 'docker build --no-cache -t react-native .'
                 }
                 echo 'Docker 이미지 빌드 완료'
             }
         }
 
-        // 3단계: Docker 이미지 실행
+        // 3단계: Docker 컨테이너 실행 (Metro 서버)
         stage('Run Docker Container') {
             steps {
                 script {
-                    // 컨테이너 실행
-                    sh 'docker run -d --name react-native -p 3000:3000 react-native'
+                    sh 'docker run -d --name react-native -p 8081:8081 react-native'
                 }
-                echo 'Docker 컨테이너 실행 완료'
+                echo 'Docker 컨테이너 실행 완료 (Metro 서버 실행 중)'
             }
         }
     }
