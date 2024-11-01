@@ -27,7 +27,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    sh 'docker run -d --name react-native -p 8989:8081 react-native'
+                    sh 'docker run -d --name react-native -p 8081:8081 react-native'
                 }
                 echo 'Docker 컨테이너 실행 완료 (Metro 서버 실행 중)'
             }
