@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import MyTrips from '../components/MyPage/MyTrips';
 import DaejeonStamp from '../components/MyPage/DaejeonStamp';
 import ChallengeCourse from '../components/MyPage/ChallengeCourse';
@@ -7,6 +7,8 @@ import TravelLog from '../components/MyPage/TravelLog';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
+
+const {width} = Dimensions.get('window');
 
 type MyPageNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -80,6 +82,8 @@ const MyPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: width * 0.06,
+    backgroundColor: '#fff',
   },
   tabContainer: {
     flexDirection: 'row',

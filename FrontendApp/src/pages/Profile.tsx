@@ -1,8 +1,10 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
+
+const {width} = Dimensions.get('window');
 
 type ProfileNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -35,7 +37,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: width * 0.06,
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 20,

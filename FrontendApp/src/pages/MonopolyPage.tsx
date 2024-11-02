@@ -1,15 +1,15 @@
 import React from 'react';
-import {View, Text, Button, StyleSheet} from 'react-native';
+import {View, Text, Button, StyleSheet, Dimensions} from 'react-native';
+
+const {width} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 10,
     padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginHorizontal: 16,
-    elevation: 3,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
+    paddingHorizontal: width * 0.06,
+    flex: 1,
   },
   title: {
     fontSize: 18,
