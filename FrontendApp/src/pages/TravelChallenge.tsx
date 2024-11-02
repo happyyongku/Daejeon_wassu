@@ -29,6 +29,10 @@ const TravelChallenge = () => {
     navigation.navigate('CourseDescription');
   };
 
+  const goToChallengeDetail = () => {
+    navigation.navigate('ChallengeDetail');
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -71,7 +75,7 @@ const TravelChallenge = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
         <BreadIcon width={100} height={100} style={styles.cardImage} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>대전 빵지순례 코스 챌린지</Text>
@@ -123,7 +127,7 @@ const TravelChallenge = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: width * 0.06,
   },
   header: {
