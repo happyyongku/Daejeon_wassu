@@ -1,8 +1,10 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
+
+const {width} = Dimensions.get('window');
 
 type CreateScheduleNavigationProp = StackNavigationProp<RootStackParamList, 'Details'>;
 
@@ -27,6 +29,8 @@ const CreateSchedule = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: width * 0.06,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
