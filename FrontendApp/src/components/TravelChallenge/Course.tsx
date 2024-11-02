@@ -26,7 +26,7 @@ const Course = () => {
         <BreadIcon width={100} height={100} style={styles.cardImage} />
         <CompleteIcon width={50} height={50} style={styles.completeIcon} />
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스 챌린지</Text>
+          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
           <Text style={styles.cardDescription}>
             대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
           </Text>
@@ -36,7 +36,7 @@ const Course = () => {
       <TouchableOpacity style={styles.card}>
         <BreadIcon width={100} height={100} style={styles.cardImage} />
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스 챌린지</Text>
+          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
           <Text style={styles.cardDescription}>
             대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
           </Text>
@@ -46,7 +46,7 @@ const Course = () => {
       <TouchableOpacity style={styles.card}>
         <BreadIcon width={100} height={100} style={styles.cardImage} />
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스 챌린지</Text>
+          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
           <Text style={styles.cardDescription}>
             대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
           </Text>
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
   },
   completeIcon: {
     position: 'absolute',
-    top: -10,
-    right: -10,
+    top: 0,
+    right: 0,
     zIndex: 1,
   },
 });
