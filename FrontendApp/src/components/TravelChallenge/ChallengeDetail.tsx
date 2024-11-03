@@ -42,117 +42,118 @@ const ChallengeDetail = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <>
       <Header />
-
-      <View>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          style={styles.imageContainer}>
-          {images.map((image, index) => (
-            <ImageBackground key={index} source={image} style={styles.image} resizeMode="cover" />
-          ))}
-        </ScrollView>
-        <View style={styles.pagination}>
-          {images.map((_, index) => (
-            <View
-              key={index}
-              style={[styles.dot, activeIndex === index ? styles.activeDot : styles.inactiveDot]}
-            />
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.containerT}>
-        <Text style={styles.title}>대전 빵지순례 투어</Text>
-
-        <View style={styles.hashtagContainer}>
-          {hashtags.map(hashtag => (
-            <TouchableOpacity>
-              <View key={hashtag.id} style={styles.hashtagButton}>
-                {hashtag.icon}
-                <Text style={styles.hashtagText}>{hashtag.text}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
+      <ScrollView style={styles.container}>
         <View>
-          <Text style={styles.title}>코스 소개</Text>
-
-          <View style={styles.courseItem}>
-            <View style={styles.numberContainer}>
-              <Text style={styles.numberText}>1</Text>
-            </View>
-
-            <View style={styles.courseDetails}>
-              <Text style={styles.courseTitle}>성심당</Text>
-              <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
-              <View style={styles.tagContainer}>
-                <TouchableOpacity style={styles.tag}>
-                  <Text style={styles.tagText}># 문화</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tag}>
-                  <Text style={styles.tagText}># 인기</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <MonIcon width={75} height={75} style={styles.courseIcon} />
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            style={styles.imageContainer}>
+            {images.map((image, index) => (
+              <ImageBackground key={index} source={image} style={styles.image} resizeMode="cover" />
+            ))}
+          </ScrollView>
+          <View style={styles.pagination}>
+            {images.map((_, index) => (
+              <View
+                key={index}
+                style={[styles.dot, activeIndex === index ? styles.activeDot : styles.inactiveDot]}
+              />
+            ))}
           </View>
+        </View>
 
-          <View style={styles.courseItem}>
-            <View style={styles.numberContainer}>
-              <Text style={styles.numberText}>2</Text>
-            </View>
-            <View style={styles.courseDetails}>
-              <Text style={styles.courseTitle}>하레하레</Text>
-              <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
-              <View style={styles.tagContainer}>
-                <TouchableOpacity style={styles.tag}>
-                  <Text style={styles.tagText}># 문화</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tag}>
-                  <Text style={styles.tagText}># 인기</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <MontwoIcon width={75} height={75} style={styles.courseIcon} />
+        <View style={styles.containerT}>
+          <Text style={styles.title}>대전 빵지순례 투어</Text>
+
+          <View style={styles.hashtagContainer}>
+            {hashtags.map(hashtag => (
+              <TouchableOpacity>
+                <View key={hashtag.id} style={styles.hashtagButton}>
+                  {hashtag.icon}
+                  <Text style={styles.hashtagText}>{hashtag.text}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View>
-            <Text style={styles.title2}>등장 왔슈몬</Text>
-            <View style={styles.monContainer}>
-              <View style={styles.monItem}>
-                <MonIcon width={75} height={75} />
-                <Text style={styles.monText}>단팥몬</Text>
+            <Text style={styles.title}>코스 소개</Text>
+
+            <View style={styles.courseItem}>
+              <View style={styles.numberContainer}>
+                <Text style={styles.numberText}>1</Text>
               </View>
-              <View style={styles.monItem}>
-                <MononeIcon width={75} height={75} />
-                <Text style={styles.monText}>소보루몬</Text>
+
+              <View style={styles.courseDetails}>
+                <Text style={styles.courseTitle}>성심당</Text>
+                <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
+                <View style={styles.tagContainer}>
+                  <TouchableOpacity style={styles.tag}>
+                    <Text style={styles.tagText}># 문화</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.tag}>
+                    <Text style={styles.tagText}># 인기</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.monItem}>
-                <MontwoIcon width={75} height={75} />
-                <Text style={styles.monText}>바게트몬</Text>
+              <MonIcon width={75} height={75} style={styles.courseIcon} />
+            </View>
+
+            <View style={styles.courseItem}>
+              <View style={styles.numberContainer}>
+                <Text style={styles.numberText}>2</Text>
+              </View>
+              <View style={styles.courseDetails}>
+                <Text style={styles.courseTitle}>하레하레</Text>
+                <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
+                <View style={styles.tagContainer}>
+                  <TouchableOpacity style={styles.tag}>
+                    <Text style={styles.tagText}># 문화</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.tag}>
+                    <Text style={styles.tagText}># 인기</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <MontwoIcon width={75} height={75} style={styles.courseIcon} />
+            </View>
+
+            <View>
+              <Text style={styles.title2}>등장 왔슈몬</Text>
+              <View style={styles.monContainer}>
+                <View style={styles.monItem}>
+                  <MonIcon width={75} height={75} />
+                  <Text style={styles.monText}>단팥몬</Text>
+                </View>
+                <View style={styles.monItem}>
+                  <MononeIcon width={75} height={75} />
+                  <Text style={styles.monText}>소보루몬</Text>
+                </View>
+                <View style={styles.monItem}>
+                  <MontwoIcon width={75} height={75} />
+                  <Text style={styles.monText}>바게트몬</Text>
+                </View>
               </View>
             </View>
+
+            <TouchableOpacity style={styles.challengeButton}>
+              <PlayIcon width={20} height={20} style={styles.buttonIcon} />
+              <Text style={styles.challengeButtonText}>챌린지 시작</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.challengeButton}>
+              <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
+              <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.challengeButton}>
-            <PlayIcon width={20} height={20} style={styles.buttonIcon} />
-            <Text style={styles.challengeButtonText}>챌린지 시작</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.challengeButton}>
-            <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
-            <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 

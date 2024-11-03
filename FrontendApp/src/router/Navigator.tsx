@@ -51,7 +51,7 @@ export type RootStackParamList = {
   CourseDescription: undefined;
   ChallengeDetail: undefined;
   PlaceList: undefined;
-  PlaceDetail: undefined;
+  PlaceDetail: {name: string};
   Writing: undefined;
   CommunitySearch: undefined;
 };
