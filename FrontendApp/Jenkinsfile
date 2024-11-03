@@ -36,7 +36,7 @@ pipeline {
                 echo '기존 React-Native 컨테이너 중지 및 제거 시작'
                 sshagent(credentials: ['ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@$IP "
+                        ssh -o StrictHostKeyChecking=no -p 2201 ubuntu@$IP "
                             docker-compose stop react-native &&
                             docker-compose rm -f react-native
                         "
@@ -56,7 +56,7 @@ pipeline {
                 echo 'React-Native 서비스 배포 시작'
                 sshagent(credentials: ['ec2']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@$IP "
+                        ssh -o StrictHostKeyChecking=no -p 2201 ubuntu@$IP "
                             docker-compose up -d --remove-orphans react-native
                         "
                     '''
