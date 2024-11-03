@@ -30,10 +30,12 @@ pipeline {
         // 3단계: 기존 컨테이너 중지 및 제거
         stage('Stop and Remove Existing Container') {
             steps {
-                sh '''
-                    docker-compose stop react-native
-                    docker-compose rm -f react-native
-                '''
+                dir('/') {  
+                    sh '''
+                        docker-compose stop react-native
+                        docker-compose rm -f react-native
+                    '''
+                }
                 echo '기존 React-Native 컨테이너 중지 및 제거 완료'
             }
             post {
