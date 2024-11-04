@@ -1,7 +1,7 @@
 package com.wassu.wassu.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -19,14 +19,15 @@ import java.util.UUID;
 public class S3Util {
 
     private final S3Client s3Client;
-
-    @Value("${aws.s3.bucket}")
-    private String bucketName;
-
-    @Value("${aws.s3.region}")
-    private String region;
-
-    public S3Util() {
+    private final String bucketName;
+    private final String region;
+//
+    public S3Util(
+            @Value("${aws.s3.bucket}") String bucketName,
+            @Value("${aws.s3.region}") String region
+    ) {
+        this.bucketName = bucketName;
+        this.region = region;
         this.s3Client = S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(ProfileCredentialsProvider.create())
