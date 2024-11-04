@@ -29,9 +29,11 @@ public class ArticleService {
     private final S3Util s3Util;
     
     // 포스트 생성
-    @Transactional
-    public Boolean createArticle(String userEmail, ArticleCreateDTO articleCreateDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean createArticle(String userEmail, ArticleCreateDTO articleCreateDTO, MultipartFile imageFile) {
+
         Optional<UserEntity> user = userRepository.findByEmail(userEmail);
+
         if (user.isPresent()) {
             try {
                 ArticleEntity articleEntity = new ArticleEntity();
@@ -39,13 +41,12 @@ public class ArticleService {
                 articleEntity.setTitle(articleCreateDTO.getTitle());
                 articleEntity.setContent(articleCreateDTO.getContent());
                 articleRepository.save(articleEntity);
-                //이미지 처리
-                MultipartFile imageFile = articleCreateDTO.getImage();
 
+                //이미지 처리
                 if (imageFile != null && !imageFile.isEmpty()) {
                     log.info("Image File Exists");
-                    String fileName = s3Util.uploadFile(imageFile);
-                    if (fileName.equals("Failed")) {
+                    String fileName = s3Util.uploadFile(imageFile, "article");
+                    if (fileName == null) {
                         log.error("Image Uploading Failed");
                         throw new RuntimeException("Image Uploading Failed");
                     }
@@ -54,6 +55,8 @@ public class ArticleService {
                     articleImageEntity.setArticle(articleEntity);
                     articleImageRepository.save(articleImageEntity);
                     log.info("Image File Saved");
+                } else {
+                    log.info("Image File Empty ------------ ");
                 }
             } catch (Exception e) {
                 log.error("Error creating article: ", e);
@@ -66,6 +69,50 @@ public class ArticleService {
             log.error("User not found while creating article");
             return false;
         }
+    }
+    
+    // 게시글 수정
+    public Boolean updateArticle(
+            ArticleEntity articleEntity,
+            ArticleCreateDTO articleCreateDTO,
+            MultipartFile file,
+            Long articleId
+    ) {
+        try {
+            articleEntity.setTitle(articleCreateDTO.getTitle());
+            articleEntity.setContent(articleCreateDTO.getContent());
+            log.info("Updating article");
+            if (file != null && !file.isEmpty()) {
+                log.info("Updating article with image");
+                Optional<ArticleImageEntity> optionalArticleImage = articleImageRepository.findByArticleId(articleId);
+                if (optionalArticleImage.isPresent()) {
+                    ArticleImageEntity articleImageEntity = optionalArticleImage.get();
+                    Boolean isDeleted = s3Util.deleteFile(articleImageEntity.getFileName());
+                    if (isDeleted) {
+                        articleImageRepository.delete(articleImageEntity);
+                        log.info("Deleted article image from S3 and DB");
+                    } else {
+                        log.error("Failed to delete existing image from S3");
+                        return false;
+                    }
 
+                }
+
+                String fileName = s3Util.uploadFile(file, "article");
+                ArticleImageEntity newArticleImage = new ArticleImageEntity();
+                newArticleImage.setFileName(fileName);
+                newArticleImage.setArticle(articleEntity);
+                articleImageRepository.save(newArticleImage);
+                log.info("Image File Saved");
+            }
+
+            articleRepository.save(articleEntity);
+            log.info("Successfully updated article");
+            return true;
+        } catch (Exception e) {
+            log.error("Error updating article: ", e);
+            return false;
+        }
     }
 }
+

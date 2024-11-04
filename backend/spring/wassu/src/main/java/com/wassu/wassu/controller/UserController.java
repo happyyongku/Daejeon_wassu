@@ -10,8 +10,10 @@ import com.wassu.wassu.util.UtilTool;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -39,12 +41,16 @@ public class UserController {
     }
 
     // 사용자 정보 수정
-    @PutMapping("/profile/edit")
-    public ResponseEntity<?> editProfile(@RequestHeader(value="Authorization") String accessToken, @RequestBody UserProfileUpdateDTO userProfileUpdateDTO) {
+    @PutMapping(value = "/profile/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editProfile(
+            @RequestHeader(value="Authorization") String accessToken,
+            @RequestPart("UserProfileUpdateDTO") UserProfileUpdateDTO userProfileUpdateDTO,
+            @RequestPart(value="file", required = false) MultipartFile file
+    ) {
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
-            userService.updateUser(userEmail, userProfileUpdateDTO);
+            userService.updateUser(userEmail, userProfileUpdateDTO, file);
             log.info("User profile updated: {}", userEmail);
             return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         }

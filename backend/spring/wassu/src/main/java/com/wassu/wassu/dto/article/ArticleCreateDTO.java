@@ -11,5 +11,4 @@ import org.springframework.web.multipart.MultipartFile;
 public class ArticleCreateDTO {
     private String title;
     private String content;
-    private MultipartFile image;
 }

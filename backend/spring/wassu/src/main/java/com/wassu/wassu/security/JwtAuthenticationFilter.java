@@ -47,7 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         System.out.println("Token Request------------------------------");
         try {
+            log.info("Request: " + request);
             String token = extractToken(request);
+            log.info("Token: " + token);
             if (token != null && jwtUtil.validateToken(token)) {
                 log.info("Token Validated");
                 String userEmail = jwtUtil.extractUserEmail(token);

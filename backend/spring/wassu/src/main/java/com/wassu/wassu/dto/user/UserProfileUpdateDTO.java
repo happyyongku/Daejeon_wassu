@@ -10,5 +10,5 @@ import lombok.Setter;
 @Builder
 public class UserProfileUpdateDTO {
     private String nickName;
-    private String profileImage;
+    private String introduction;
 }

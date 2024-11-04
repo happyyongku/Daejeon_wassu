@@ -5,12 +5,15 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
+import com.wassu.wassu.util.S3Util;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -22,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PasswordEncoder passwordEncoder;
+    private final S3Util s3Util;
 
     // 회원가입
     public UserEntity createUser(UserEntity userEntity) {
@@ -40,18 +44,30 @@ public class UserService {
     }
     
     // 회원 수정
-    public void updateUser(String email, UserProfileUpdateDTO userProfileUpdateDTO) {
+    public void updateUser(
+            String email,
+            UserProfileUpdateDTO userProfileUpdateDTO,
+            MultipartFile file
+    ) {
         Optional<UserEntity> userOptional = userRepository.findByEmail(email);
         logger.info("Starting Update ---------");
-        if (userOptional.isPresent()) {
-            UserEntity userEntity = userOptional.get();
-            userEntity.setNickname(userProfileUpdateDTO.getNickName());
-            userEntity.setProfileImage(userProfileUpdateDTO.getProfileImage());
-
-            userRepository.save(userEntity);
-            logger.info("User updated: " + email );
-        } else {
-            logger.error("User does not exist");
+        try {
+            if (userOptional.isPresent()) {
+                UserEntity userEntity = userOptional.get();
+                userEntity.setNickname(userProfileUpdateDTO.getNickName());
+                userEntity.setIntroduction(userProfileUpdateDTO.getIntroduction());
+                if (!file.isEmpty()) {
+                    String fileName = s3Util.uploadFile(file, "userProfile");
+                    userEntity.setProfileImage(fileName);
+                }
+                userRepository.save(userEntity);
+                logger.info("User updated: " + email );
+            } else {
+                logger.error("User does not exist");
+            }
+        } catch (Exception e) {
+            logger.error("Error while updating user", e);
+            throw new RuntimeException("Error while updating user");
         }
     }
 
