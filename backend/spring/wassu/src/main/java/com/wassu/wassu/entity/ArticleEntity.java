@@ -52,12 +52,12 @@ public class ArticleEntity {
     @JoinColumn(name="user_entity_id", nullable = false)
     private UserEntity user;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticleReadEntity> articleReads;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticleLikedEntity> articleLikes;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List <ArticleImageEntity> articleImages;
 }

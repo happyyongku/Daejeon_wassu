@@ -62,6 +62,10 @@ public class S3Util {
     // S3 파일 삭제
     public Boolean deleteFile(String fileName) {
         try {
+            if (fileName == null) {
+                log.info("S3 upload file is null");
+                return true;
+            }
             s3Client.deleteObject(
                     DeleteObjectRequest.builder()
                             .bucket(bucketName)

@@ -103,24 +103,16 @@ public class ArticleController {
     }
 
     // 포스팅 삭제
-//    @DeleteMapping(value="/{articleId}")
-//    public ResponseEntity<?> deleteArticle(
-//            @RequestHeader(value = "Authorization") String accessToken,
-//            @PathVariable Long articleId
-//    ) {
-//        log.info("Requested delete article");
-//        String token = accessToken.replace("Bearer ", "");
-//        String userEmail = jwtUtil.extractUserEmail(token);
-//        try {
-//            Optional<ArticleEntity> optinonalArticle = articleRepository.findById(articleId);
-//            if (optinonalArticle.isPresent()){
-//                ArticleEntity articleEntity = optinonalArticle.get();
-//            } else {
-//                log.error("Article Not Found");
-//                return ResponseEntity.status(404).body(utilTool.createResponse("status","Article Not Found"));
-//            }
-//        } catch (Exception e) {
-//
-//        }
-//    }
+    @DeleteMapping(value="/{articleId}")
+    public ResponseEntity<?> deleteArticle(
+            @RequestHeader(value = "Authorization") String accessToken,
+            @PathVariable Long articleId
+    ) {
+        log.info("Requested delete article");
+        String token = accessToken.replace("Bearer ", "");
+        String userEmail = jwtUtil.extractUserEmail(token);
+        articleService.checkArticleAndUser(userEmail, articleId);
+        articleService.deleteArticle(articleId);
+        return ResponseEntity.ok(utilTool.createResponse("status","success"));
+    }
 }

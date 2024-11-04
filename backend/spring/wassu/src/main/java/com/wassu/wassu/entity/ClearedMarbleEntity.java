@@ -27,6 +27,6 @@ public class ClearedMarbleEntity {
     @Column(nullable = false)
     private Integer score;
 
-    @OneToMany(mappedBy = "clearedMarble")
+    @OneToMany(mappedBy = "clearedMarble", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VisitedSpotEntity> vistedSpots;
 }
