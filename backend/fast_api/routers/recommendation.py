@@ -6,11 +6,11 @@ from typing import List
 import pandas as pd
 from geopy.distance import geodesic
 import joblib
+from config import DATA_PATH, MODEL_PATH
 
 # 저장된 데이터 및 모델 불러오기
-data = pd.read_csv(r'C:\Users\SSAFY\MCL\S11P31B105\backend\model\clustered_data.csv')
-kmeans = joblib.load(r'C:\Users\SSAFY\MCL\S11P31B105\backend\model\kmeans_model.joblib')
-
+data = pd.read_csv(DATA_PATH)
+kmeans = joblib.load(MODEL_PATH)
 # 라우터 생성
 recommendation_router = APIRouter()
 
