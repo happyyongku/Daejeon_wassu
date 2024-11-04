@@ -22,7 +22,7 @@ pipeline {
                 script {
                     echo 'secret.properties 파일 준비 시작...'
                     withCredentials([file(credentialsId: 'secret-properties', variable: 'SECRET_FILE')]) {
-                        sh 'cp $SECRET_FILE ./backend/spring/wassu/src/main/resources/secret.properties'
+                        sh 'sudo cp $SECRET_FILE ./backend/spring/wassu/src/main/resources/secret.properties'
                     }
                 }
             }
