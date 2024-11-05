@@ -103,8 +103,7 @@ pipeline {
                     #${env.BUILD_NUMBER} by ${Author_ID} (${Author_Email})
                     (<${env.BUILD_URL}|Details>)
                     """,
-                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
-                    channel: '착한말만하기'
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h'
                 )
             }
         }
@@ -121,8 +120,7 @@ pipeline {
                     #${env.BUILD_NUMBER} by ${Author_ID} (${Author_Email})
                     (<${env.BUILD_URL}|Details>)
                     """,
-                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
-                    channel: '착한말만하기'
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h'
                 )
             }
         }
