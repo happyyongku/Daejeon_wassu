@@ -103,7 +103,8 @@ pipeline {
                     #${env.BUILD_NUMBER} by ${Author_ID} (${Author_Email})
                     (<${env.BUILD_URL}|Details>)
                     """,
-                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h'
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
+                    channel: '6f9904adde1b56655e703998b592c88e'
                 )
             }
         }
@@ -120,7 +121,8 @@ pipeline {
                     #${env.BUILD_NUMBER} by ${Author_ID} (${Author_Email})
                     (<${env.BUILD_URL}|Details>)
                     """,
-                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h'
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
+                    channel: '6f9904adde1b56655e703998b592c88e'
                 )
             }
         }
