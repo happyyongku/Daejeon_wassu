@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -19,12 +19,39 @@ import ClockIcon from '../../assets/imgs/clock.svg';
 import PhoneIcon from '../../assets/imgs/phone.svg';
 import CompassIcon from '../../assets/imgs/compass.svg';
 import EditIcon from '../../assets/imgs/edit.svg';
+import CustomModal from '../common/CustomModal';
+import StepModal from '../common/StepModal';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../../router/Navigator';
+
+type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const {width} = Dimensions.get('window');
 
 type PlaceDetailRouteProp = {
   name: string;
 };
+const scheduleData = [
+  {
+    id: '1',
+    title: '현수의 대전 나들이',
+    date: '2024.10.24 ~ 2024.10.26',
+    image: require('../../assets/imgs/department.png'),
+  },
+  {
+    id: '2',
+    title: '현수 코스프레 대회',
+    date: '2024.10.20 ~ 2024.10.21',
+    image: require('../../assets/imgs/Gapcheon.png'),
+  },
+  {
+    id: '3',
+    title: '현수 코스프레 여행',
+    date: '2024.10.20 ~ 2024.10.21',
+    image: require('../../assets/imgs/department.png'),
+  },
+];
 
 const review = [
   {
@@ -64,8 +91,25 @@ const review = [
 ];
 
 const PlaceDetail = () => {
+  const navigation = useNavigation<PlaceDetailScreenNavigationProp>();
   const route = useRoute();
   const {name} = route.params as PlaceDetailRouteProp;
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
+  const [stampModalVisible, setStampModalVisible] = useState<any>(null);
+
+  const handleScheduleSelect = (schedule: any) => {
+    setSelectedSchedule(schedule);
+    setScheduleModalVisible(false);
+    setDetailModalVisible(true);
+  };
+
+  const gotoWrite = () => {
+    navigation.navigate('WriteReview');
+  };
 
   return (
     <>
@@ -89,15 +133,15 @@ const PlaceDetail = () => {
             <HearthIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>찜하기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => setScheduleModalVisible(true)}>
             <CalendarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>일정추가</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={gotoWrite}>
             <StarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>리뷰쓰기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => setStampModalVisible(true)}>
             <StempIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>스탬프</Text>
           </TouchableOpacity>
@@ -135,7 +179,9 @@ const PlaceDetail = () => {
             <Image source={require('../../assets/imgs/maphan.png')} style={styles.mapImage} />
             <View style={styles.addressRow}>
               <Text style={styles.addressText}>대전 서구 둔산대로 169</Text>
-              <TouchableOpacity style={styles.directionButton}>
+              <TouchableOpacity
+                style={styles.directionButton}
+                onPress={() => setModalVisible(true)}>
                 <Text style={styles.directionButtonText}>길찾기</Text>
               </TouchableOpacity>
             </View>
@@ -158,7 +204,7 @@ const PlaceDetail = () => {
         <View style={styles.reviewSection}>
           <View style={styles.reviewHeader}>
             <Text style={styles.reviewTitle}>방문 후기 207</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={gotoWrite}>
               <EditIcon width={20} height={20} />
             </TouchableOpacity>
           </View>
@@ -188,6 +234,59 @@ const PlaceDetail = () => {
             ))}
           </ScrollView>
         </View>
+
+        <CustomModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title="차량 길찾기"
+          content="거리: 7.8 km \n소요 시간: 17 분"
+          imageSource={require('../../assets/imgs/maphan.png')}
+          footerButtonText="확인"
+        />
+        <StepModal
+          visible={scheduleModalVisible}
+          onClose={() => setScheduleModalVisible(false)}
+          title="일정 추가"
+          footerButtonText="닫기"
+          content={
+            <View>
+              {scheduleData.map(schedule => (
+                <TouchableOpacity key={schedule.id} onPress={() => handleScheduleSelect(schedule)}>
+                  <View style={styles.scheduleItem}>
+                    <Image source={schedule.image} style={styles.scheduleImage} />
+                    <View>
+                      <Text style={styles.scheduleTitle}>{schedule.title}</Text>
+                      <Text style={styles.scheduleDate}>{schedule.date}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          }
+        />
+
+        <StepModal
+          visible={detailModalVisible}
+          onClose={() => setDetailModalVisible(false)}
+          title={selectedSchedule ? selectedSchedule.title : ''}
+          footerButtonText="완료"
+          content={
+            selectedSchedule && (
+              <View>
+                <Text style={styles.scheduleDetailDate}>{selectedSchedule.date}</Text>
+              </View>
+            )
+          }
+        />
+
+        <CustomModal
+          visible={stampModalVisible}
+          onClose={() => setStampModalVisible(false)}
+          title="한밭 수목원"
+          content="한밭 수목원에 스탬프 찍기를 \n성공하였습니다!!"
+          imageSource={require('../../assets/imgs/preview.png')}
+          footerButtonText="확인"
+        />
       </ScrollView>
     </>
   );
@@ -408,6 +507,39 @@ const styles = StyleSheet.create({
     height: 150,
     resizeMode: 'cover',
     marginRight: 10,
+  },
+  scheduleItem: {
+    flexDirection: 'row',
+    padding: 10,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  scheduleImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  scheduleTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  scheduleDate: {
+    fontSize: 14,
+    color: '#666',
+  },
+  scheduleDetailTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  scheduleDetailDate: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
   },
 });
 

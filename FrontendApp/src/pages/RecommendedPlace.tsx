@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   },
   categoryIcon: {
     marginBottom: 20,
+    alignItems: 'center',
   },
   cardSection: {
     marginBottom: 20,
