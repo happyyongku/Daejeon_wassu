@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/wassu/posts")
@@ -46,18 +47,18 @@ public class ArticleController {
     public ResponseEntity<?> createArticle(
         @RequestHeader(value="Authorization") String accessToken,
         @RequestPart("articleCreateDTO") ArticleCreateDTO articleCreateDTO,
-        @RequestPart(value = "file", required = false) MultipartFile file
+        @RequestPart(value = "file", required = false) List<MultipartFile> files
     ){
         log.info("Requested DTO: {}", articleCreateDTO);
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         try {
             if (userRepository.findByEmail(userEmail).isPresent()){
-                Boolean isCreated = articleService.createArticle(userEmail, articleCreateDTO, file);
-                if (isCreated){
-                    return ResponseEntity.ok(utilTool.createResponse("status","success"));
-                }
-                return ResponseEntity.status(404).body(utilTool.createResponse("status","Failed while creating article"));
+                articleService.createArticle(userEmail, articleCreateDTO, files);
+                return ResponseEntity.ok(utilTool.createResponse("status","success"));
+            } else {
+                log.error("User doesn't exist");
+                return ResponseEntity.status(404).body(utilTool.createResponse("status","failed"));
             }
         } catch (Exception e) {
             log.error("Error while creating article: ", e);

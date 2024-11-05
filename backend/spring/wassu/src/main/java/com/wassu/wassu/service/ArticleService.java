@@ -4,10 +4,12 @@ package com.wassu.wassu.service;
 import com.wassu.wassu.dto.article.ArticleCreateDTO;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.entity.ArticleImageEntity;
+import com.wassu.wassu.entity.ArticleTagEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.ArticleImageRepository;
 import com.wassu.wassu.repository.ArticleRepository;
+import com.wassu.wassu.repository.ArticleTagRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
@@ -22,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -31,11 +35,12 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleImageRepository articleImageRepository;
+    private final ArticleTagRepository articleTagRepository;
     private final S3Util s3Util;
     
     // 포스트 생성
     @Transactional(rollbackFor = Exception.class)
-    public Boolean createArticle(String userEmail, ArticleCreateDTO articleCreateDTO, MultipartFile imageFile) {
+    public void createArticle(String userEmail, ArticleCreateDTO articleCreateDTO, List<MultipartFile> imageFiles) {
 
         Optional<UserEntity> user = userRepository.findByEmail(userEmail);
 
@@ -48,31 +53,22 @@ public class ArticleService {
                 articleRepository.save(articleEntity);
 
                 //이미지 처리
-                if (imageFile != null && !imageFile.isEmpty()) {
-                    log.info("Image File Exists");
-                    String fileName = s3Util.uploadFile(imageFile, "article");
-                    if (fileName == null) {
-                        log.error("Image Uploading Failed");
-                        throw new RuntimeException("Image Uploading Failed");
-                    }
-                    ArticleImageEntity articleImageEntity = new ArticleImageEntity();
-                    articleImageEntity.setFileName(fileName);
-                    articleImageEntity.setArticle(articleEntity);
-                    articleImageRepository.save(articleImageEntity);
-                    log.info("Image File Saved");
-                } else {
-                    log.info("Image File Empty ------------ ");
+                createAndUploadImage(imageFiles, articleEntity);
+                // 태그 처리
+                List<String> tagList = articleCreateDTO.getTags() != null ? articleCreateDTO.getTags() : List.of();
+                if (!tagList.isEmpty()) {
+                    createArticleTag(tagList, articleEntity);
+
                 }
             } catch (Exception e) {
                 log.error("Error creating article: ", e);
-                return false;
+                throw new CustomException(CustomErrorCode.FAILED_TO_CREATE_ARTICLE);
             }
             log.info("Successfully created article");
-            return true;
 
         } else {
             log.error("User not found while creating article");
-            return false;
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND_WHILE_CREATING_ARTICLE);
         }
     }
     
@@ -109,6 +105,14 @@ public class ArticleService {
                 newArticleImage.setArticle(articleEntity);
                 articleImageRepository.save(newArticleImage);
                 log.info("Image File Saved");
+            }
+
+            List<String> tagList = articleCreateDTO.getTags() != null ? articleCreateDTO.getTags() : List.of();
+            if (!tagList.isEmpty()) {
+                log.info("Start to update article's tag");
+                updateArticleTags(tagList, articleEntity);
+            } else {
+                log.info("Empty tag list ------------ ");
             }
 
             articleRepository.save(articleEntity);
@@ -150,6 +154,79 @@ public class ArticleService {
         }else {
             log.error("Article not found");
             throw new CustomException(CustomErrorCode.ARTICLE_NOT_FOUND);
+        }
+    }
+
+    // Tag 저장
+    private void createArticleTag(List<String> tags, ArticleEntity articleEntity) {
+        try {
+            for (String tag : tags) {
+                ArticleTagEntity articleTagEntity = new ArticleTagEntity();
+                articleTagEntity.setArticleId(articleEntity);
+                articleTagEntity.setTag(tag);
+                articleTagRepository.save(articleTagEntity);
+            }
+        } catch (Exception e) {
+            log.error("Error creating article tag: ", e);
+            throw new CustomException(CustomErrorCode.FAILED_TO_CREATE_ARTICLE);
+        }
+    }
+
+    // Tag 수정
+    private void updateArticleTags(List<String> newTags, ArticleEntity articleEntity) {
+        // 기존 태그 목록 가져오기
+        try {
+            List<ArticleTagEntity> existingTags = articleTagRepository.findByArticleId(articleEntity);
+            // 기존 태그명 리스트
+            List<String> existingTagNames = existingTags.stream()
+                    .map(ArticleTagEntity::getTag)
+                    .toList();
+
+            // 삭제할 태그 식별 및 삭제
+            existingTags.stream()
+                    .filter(tagEntity -> !newTags.contains(tagEntity.getTag()))
+                    .forEach(tagEntity -> {
+                        articleTagRepository.delete(tagEntity);
+                        log.info("Deleted tag: " + tagEntity.getTag());
+                    });
+
+            newTags.stream()
+                    .filter(newTag -> !existingTagNames.contains(newTag))
+                    .forEach(newTag -> {
+                        ArticleTagEntity newTagEntity = new ArticleTagEntity();
+                        newTagEntity.setArticleId(articleEntity);
+                        newTagEntity.setTag(newTag);
+                        articleTagRepository.save(newTagEntity);
+                        log.info("Added new tag: " + newTagEntity.getTag());
+                    });
+        } catch (Exception e) {
+            log.error("Error updating article tags: ", e);
+            throw new CustomException(CustomErrorCode.FAILED_TO_UPDATE_TAG);
+        }
+    }
+
+    //이미지 파일 업로드
+    private void createAndUploadImage(List<MultipartFile> imageFileList, ArticleEntity articleEntity) {
+        if (imageFileList != null && !imageFileList.isEmpty()) {
+            try {
+                for (MultipartFile imageFile : imageFileList) {
+                    String fileName = s3Util.uploadFile(imageFile, "article");
+                    if (fileName == null) {
+                        log.error("Image Uploading Failed");
+                        throw new CustomException(CustomErrorCode.IMAGE_UPLOADING_FAILED);
+                    }
+                    ArticleImageEntity articleImageEntity = new ArticleImageEntity();
+                    articleImageEntity.setFileName(fileName);
+                    articleImageEntity.setArticle(articleEntity);
+                    articleImageRepository.save(articleImageEntity);
+                    log.info("Image File Saved");
+                }
+            } catch (Exception e) {
+                log.error("Error uploading image: ", e);
+                throw new CustomException(CustomErrorCode.IMAGE_UPLOADING_FAILED);
+            }
+        } else {
+            log.error("Empty image list ------------ ");
         }
     }
     
