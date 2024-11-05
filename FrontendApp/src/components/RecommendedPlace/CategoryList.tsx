@@ -40,7 +40,7 @@ const CategoryList = () => {
 const styles = StyleSheet.create({
   categoryItem: {
     alignItems: 'center',
-    marginRight: 30,
+    marginHorizontal: 15,
   },
   categoryText: {
     marginTop: 5,
