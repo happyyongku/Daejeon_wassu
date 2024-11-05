@@ -2,23 +2,38 @@ package com.wassu.wassu.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
+@Data
+@Document(indexName = "articleTag")
 public class ArticleTagEntity {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, length=10)
+    @Field(type = FieldType.Keyword)
     private String tag;
 
-    @ManyToOne
-    @JoinColumn(name="article_id", nullable=false)
-    private ArticleEntity articleId;
+    @Field(type = FieldType.Text)
+    private String articleId;
 }
+//@Getter
+//@Setter
+//@Builder
+//@AllArgsConstructor
+//@NoArgsConstructor
+//@Entity
+//public class ArticleTagEntity {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//
+//    @Column(nullable = false, length=10)
+//    private String tag;
+//
+//    @ManyToOne
+//    @JoinColumn(name="article_id", nullable=false)
+//    private ArticleEntity articleId;
+//}

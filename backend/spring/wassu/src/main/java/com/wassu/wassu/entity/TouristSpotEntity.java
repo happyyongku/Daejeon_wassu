@@ -25,6 +25,8 @@ public class TouristSpotEntity {
 
     private Integer userRatingsTotal;
 
+    private String spotDescription;
+
     @Column(nullable = false)
     private Double latitude;
 

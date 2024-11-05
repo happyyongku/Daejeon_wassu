@@ -72,7 +72,7 @@ public class ArticleController {
             @RequestHeader(value = "Authorization") String accessToken,
             @PathVariable Long articleId,
             @RequestPart("articleCreateDTO") ArticleCreateDTO articleCreateDTO,
-            @RequestPart(value="file") MultipartFile file
+            @RequestPart(value="file") List<MultipartFile> files
     ){
         String token = accessToken.replace("Bearer ", "");
         log.info("Requested Article update");
@@ -85,7 +85,7 @@ public class ArticleController {
                     log.error("User Not Authorized to update article");
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(utilTool.createResponse("status","User Not Authorized to update article"));
                 }
-                Boolean isUpdated = articleService.updateArticle(articleEntity, articleCreateDTO,file, articleId);
+                Boolean isUpdated = articleService.updateArticle(articleEntity, articleCreateDTO, files);
                 if (isUpdated){
                     log.info("Successfully updated article");
                     return ResponseEntity.ok(utilTool.createResponse("status","success"));

@@ -23,6 +23,7 @@ public class S3Util {
 
     private final S3Client s3Client;
     private final String bucketName;
+    private final String region;
 //
     public S3Util(
             @Value("${aws.s3.secretKey}") String secretKey,
@@ -37,6 +38,7 @@ public class S3Util {
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
+        this.region = region;
     }
 
     // 파일 고유 이름 생성 및 파일 업로드
@@ -47,11 +49,14 @@ public class S3Util {
                     PutObjectRequest.builder()
                             .bucket(bucketName)
                             .key(fileName)
+                            .contentType(file.getContentType())
+                            .contentDisposition("inline")
                             .build(),
                     RequestBody.fromBytes(file.getBytes())
             );
             log.info("File S3 Uploaded Successfully");
-            return fileName;
+
+            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
         } catch (Exception e) {
             log.error("File S3 Uploaded Failed: {}", e.getMessage());
 //            throw new RuntimeException("File S3 Uploaded Failed: ", e);

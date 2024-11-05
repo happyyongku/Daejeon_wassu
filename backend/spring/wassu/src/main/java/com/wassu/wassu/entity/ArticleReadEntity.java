@@ -18,7 +18,8 @@ public class ArticleReadEntity {
     @JoinColumn(name="user_entity_id", nullable = false)
     private UserEntity user;
 
-    @ManyToOne
-    @JoinColumn(name="article_entity_id", nullable = false)
-    private ArticleEntity article;
+//    @ManyToOne
+//    @JoinColumn(name="article_entity_id", nullable = false)
+    @Column(nullable = false)
+    private String article;
 }

@@ -76,37 +76,13 @@ public class ArticleService {
     public Boolean updateArticle(
             ArticleEntity articleEntity,
             ArticleCreateDTO articleCreateDTO,
-            MultipartFile file,
-            Long articleId
+            List<MultipartFile> files
     ) {
         try {
             articleEntity.setTitle(articleCreateDTO.getTitle());
             articleEntity.setContent(articleCreateDTO.getContent());
             log.info("Updating article");
-            if (file != null && !file.isEmpty()) {
-                log.info("Updating article with image");
-                Optional<ArticleImageEntity> optionalArticleImage = articleImageRepository.findByArticleId(articleId);
-                if (optionalArticleImage.isPresent()) {
-                    ArticleImageEntity articleImageEntity = optionalArticleImage.get();
-                    Boolean isDeleted = s3Util.deleteFile(articleImageEntity.getFileName());
-                    if (isDeleted) {
-                        articleImageRepository.delete(articleImageEntity);
-                        log.info("Deleted article image from S3 and DB");
-                    } else {
-                        log.error("Failed to delete existing image from S3");
-                        return false;
-                    }
-
-                }
-
-                String fileName = s3Util.uploadFile(file, "article");
-                ArticleImageEntity newArticleImage = new ArticleImageEntity();
-                newArticleImage.setFileName(fileName);
-                newArticleImage.setArticle(articleEntity);
-                articleImageRepository.save(newArticleImage);
-                log.info("Image File Saved");
-            }
-
+            updateArticleImage(articleEntity, files);
             List<String> tagList = articleCreateDTO.getTags() != null ? articleCreateDTO.getTags() : List.of();
             if (!tagList.isEmpty()) {
                 log.info("Start to update article's tag");
@@ -227,6 +203,49 @@ public class ArticleService {
             }
         } else {
             log.error("Empty image list ------------ ");
+        }
+    }
+
+    // 이미지 파일 수정
+    private void updateArticleImage(
+            ArticleEntity articleEntity,
+            List<MultipartFile> imageFiles
+        ) {
+        try {
+            if (imageFiles != null && !imageFiles.isEmpty()) {
+                List<ArticleImageEntity> existingImages = articleImageRepository.findByArticle(articleEntity);
+                List<String> newImageFiles = imageFiles.stream()
+                        .filter(imageFile -> !imageFile.isEmpty())
+                        .map(imageFile -> {
+                            String fileName = s3Util.uploadFile(imageFile, "article");
+                            return fileName;
+                        })
+                        .toList();
+                existingImages.stream()
+                        .filter(existingImage -> !newImageFiles.contains(existingImage.getFileName()))
+                        .forEach(existingImage -> {
+                            s3Util.deleteFile(existingImage.getFileName());
+                            articleImageRepository.delete(existingImage);
+                            log.info("Deleted image file: " + existingImage.getFileName());
+                        });
+
+                for (String fileName : newImageFiles) {
+                    if (existingImages.stream().noneMatch(
+                            existingImage -> existingImage.getFileName().equals(fileName))
+                    ) {
+                        ArticleImageEntity newImageEntity = new ArticleImageEntity();
+                        newImageEntity.setFileName(fileName);
+                        newImageEntity.setArticle(articleEntity);
+                        articleImageRepository.save(newImageEntity);
+                        log.info("Added new image file: " + fileName);
+                    }
+                }
+            } else {
+                log.error("Empty image list ------------ ");
+            }
+        } catch (Exception e) {
+            log.error("Error updating article image: ", e);
+            throw new CustomException(CustomErrorCode.FAILED_TO_UPDATE_ARTICLE);
         }
     }
     
