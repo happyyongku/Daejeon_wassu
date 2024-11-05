@@ -31,13 +31,13 @@ public class TouristSpotEntity {
     @Column(nullable = false)
     private Double longitude;
 
-    @OneToMany(mappedBy = "touristSpot")
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VisitedSpotEntity> visitedSpots;
 
-    @OneToMany(mappedBy = "touristSpot")
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotTagEntity> touristSpotTags;
 
-    @OneToMany(mappedBy = "touristSpot")
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotImageEntity> touristSpotImages;
 
 }
