@@ -71,8 +71,36 @@ pipeline {
     }
 
     post {
-        always { echo '파이프라인 실행 완료' }
-        success { echo 'Pipeline Execution Success.' }
-        failure { echo 'Pipeline Execution Failed.' }
+        always {
+            echo 'Pipeline Execution Complete.'
+        }
+        success {
+            echo 'Pipeline Execution Success.'
+            script {
+                echo '빌드 / 배포 Success'
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Email = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend(
+                    color: 'good',
+                    message: "빌드 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})",
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
+                    channel: '6f9904adde1b56655e703998b592c88e'
+                )
+            }
+        }
+        failure {
+            echo 'Pipeline Execution Failed.'
+            script {
+                echo '빌드 / 배포 Failed'
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Email = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                mattermostSend(
+                    color: 'danger',
+                    message: "빌드 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})",
+                    endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
+                    channel: '6f9904adde1b56655e703998b592c88e'
+                )
+            }
+        }
     }
 }
