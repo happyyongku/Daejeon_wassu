@@ -17,7 +17,7 @@ import java.util.UUID;
 @Setting(settingPath = "/nori_settings.json")
 public class ArticleTagEntity {
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     @Field(type = FieldType.Keyword)
     private String tag;

@@ -19,7 +19,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @Setting(settingPath = "/nori_settings.json")
 public class ArticleEntity {
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     @Field(type=FieldType.Long)
     private Long user;
