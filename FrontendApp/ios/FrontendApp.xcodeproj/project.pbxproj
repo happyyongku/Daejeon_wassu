@@ -23,6 +23,7 @@
 		6C88C3A0F47448CFA6995DF6 /* Pretendard-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4013AE51D7784DEAB276EBCE /* Pretendard-Regular.ttf */; };
 		BC102102610148CD870A6DC7 /* Pretendard-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 33799FADF0A14492B2950C21 /* Pretendard-SemiBold.ttf */; };
 		10836F8B0B1F49DDA8EC3EB0 /* Pretendard-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8773063B7524ED198D705A6 /* Pretendard-Thin.ttf */; };
+		57E55DE903BF42E385E03317 /* malssami815.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BB41BEBFD6E4EB2B07E80A1 /* malssami815.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 		4013AE51D7784DEAB276EBCE /* Pretendard-Regular.ttf */ = {isa = PBXFileReference; name = "Pretendard-Regular.ttf"; path = "../src/assets/fonts/Pretendard-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		33799FADF0A14492B2950C21 /* Pretendard-SemiBold.ttf */ = {isa = PBXFileReference; name = "Pretendard-SemiBold.ttf"; path = "../src/assets/fonts/Pretendard-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		C8773063B7524ED198D705A6 /* Pretendard-Thin.ttf */ = {isa = PBXFileReference; name = "Pretendard-Thin.ttf"; path = "../src/assets/fonts/Pretendard-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8BB41BEBFD6E4EB2B07E80A1 /* malssami815.ttf */ = {isa = PBXFileReference; name = "malssami815.ttf"; path = "../src/assets/fonts/malssami815.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +183,7 @@
 				4013AE51D7784DEAB276EBCE /* Pretendard-Regular.ttf */,
 				33799FADF0A14492B2950C21 /* Pretendard-SemiBold.ttf */,
 				C8773063B7524ED198D705A6 /* Pretendard-Thin.ttf */,
+				8BB41BEBFD6E4EB2B07E80A1 /* malssami815.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 				6C88C3A0F47448CFA6995DF6 /* Pretendard-Regular.ttf in Resources */,
 				BC102102610148CD870A6DC7 /* Pretendard-SemiBold.ttf in Resources */,
 				10836F8B0B1F49DDA8EC3EB0 /* Pretendard-Thin.ttf in Resources */,
+				57E55DE903BF42E385E03317 /* malssami815.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
