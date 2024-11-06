@@ -3,7 +3,7 @@ package com.wassu.wassu.controller;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
-import com.wassu.wassu.service.UserService;
+import com.wassu.wassu.service.user.UserService;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.util.UtilTool;

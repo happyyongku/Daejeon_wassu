@@ -1,5 +1,7 @@
 package com.wassu.wassu.util;
 
+import com.wassu.wassu.exception.CustomErrorCode;
+import com.wassu.wassu.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -60,22 +62,21 @@ public class S3Util {
                     RequestBody.fromBytes(file.getBytes())
             );
             log.info("File S3 Uploaded Successfully");
-
             return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
         } catch (Exception e) {
             log.error("File S3 Uploaded Failed: {}", e.getMessage());
-//            throw new RuntimeException("File S3 Uploaded Failed: ", e);
-            return null;
+            throw new CustomException(CustomErrorCode.FAILED_TO_UPLOAD_S3);
         }
     }
     
     // S3 파일 삭제
-    public Boolean deleteFile(String fileName) {
+    public void deleteFile(String fileURL) {
         try {
-            if (fileName == null) {
+            if (fileURL == null) {
                 log.info("S3 upload file is null");
-                return true;
+                throw new CustomException(CustomErrorCode.FAILED_TO_DELETE_IMAGE);
             }
+            String fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1);
             s3Client.deleteObject(
                     DeleteObjectRequest.builder()
                             .bucket(bucketName)
@@ -83,10 +84,9 @@ public class S3Util {
                             .build()
             );
             log.info("File S3 Deleted Successfully");
-            return true;
         } catch (Exception e) {
             log.error("File S3 Deleted Failed: {}", e.getMessage());
-            return false;
+            throw new CustomException(CustomErrorCode.FAILED_TO_DELETE_IMAGE);
         }
     }
 }

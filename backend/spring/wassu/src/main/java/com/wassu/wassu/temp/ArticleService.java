@@ -1,20 +1,17 @@
-package com.wassu.wassu.service;
+package com.wassu.wassu.temp;
 
 
-import com.wassu.wassu.dto.article.ArticleCreateDTO;
+import com.wassu.wassu.dto.article.ArticleDTO;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.entity.ArticleImageEntity;
 import com.wassu.wassu.entity.ArticleTagEntity;
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.ArticleImageRepository;
 import com.wassu.wassu.repository.ArticleRepository;
 import com.wassu.wassu.repository.ArticleTagRepository;
 import com.wassu.wassu.repository.UserRepository;
-import com.wassu.wassu.exception.CustomErrorCode;
-import com.wassu.wassu.exception.CustomException;
-
-
 import com.wassu.wassu.util.S3Util;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +36,7 @@ public class ArticleService {
     
     // 포스트 생성
     @Transactional(rollbackFor = Exception.class)
-    public void createArticle(String userEmail, ArticleCreateDTO articleCreateDTO, List<MultipartFile> imageFiles) {
+    public void createArticle(String userEmail, ArticleDTO articleDTO, List<MultipartFile> imageFiles) {
 
         Optional<UserEntity> user = userRepository.findByEmail(userEmail);
 
@@ -51,13 +45,17 @@ public class ArticleService {
                 Long userId = user.get().getId();
                 ArticleEntity articleEntity = new ArticleEntity();
                 articleEntity.setUser(userId);
-                articleEntity.setTitle(articleCreateDTO.getTitle());
-                articleEntity.setContent(articleCreateDTO.getContent());
+                articleEntity.setTitle(articleDTO.getTitle());
+                articleEntity.setContent(articleDTO.getContent());
+                if (articleDTO.getTags() != null && !articleDTO.getTags().isEmpty()) {
+                    articleEntity.setTags(articleDTO.getTags());
+                }
+
                 articleRepository.save(articleEntity);
                 //이미지 처리
                 createAndUploadImage(imageFiles, articleEntity.getId());
                 // 태그 처리
-                List<String> tagList = articleCreateDTO.getTags() != null ? articleCreateDTO.getTags() : List.of();
+                List<String> tagList = articleDTO.getTags() != null ? articleDTO.getTags() : List.of();
                 if (!tagList.isEmpty()) {
                     createArticleTag(tagList, articleEntity.getId());
                 }
@@ -76,17 +74,17 @@ public class ArticleService {
     // 게시글 수정
     public void updateArticle(
             ArticleEntity articleEntity,
-            ArticleCreateDTO articleCreateDTO,
+            ArticleDTO articleDTO,
             List<MultipartFile> files
     ) {
         try {
-            articleEntity.setTitle(articleCreateDTO.getTitle());
-            articleEntity.setContent(articleCreateDTO.getContent());
+            articleEntity.setTitle(articleDTO.getTitle());
+            articleEntity.setContent(articleDTO.getContent());
             articleEntity.setUpdatedAt(LocalDateTime.now());
             log.info("Updating article");
 
             updateArticleImage(files, articleEntity.getId());
-            List<String> tagList = articleCreateDTO.getTags() != null ? articleCreateDTO.getTags() : List.of();
+            List<String> tagList = articleDTO.getTags() != null ? articleDTO.getTags() : List.of();
             if (!tagList.isEmpty()) {
                 log.info("Start to update article's tag");
                 updateArticleTags(tagList, articleEntity.getId());

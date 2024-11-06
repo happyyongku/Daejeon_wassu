@@ -1,17 +1,15 @@
-package com.wassu.wassu.service;
+package com.wassu.wassu.service.auth;
 
 import com.wassu.wassu.dto.user.UserSignupDTO;
 import com.wassu.wassu.entity.BlackListEntity;
 import com.wassu.wassu.entity.UserEntity;
-import com.wassu.wassu.exception.CustomErrorCode;
-import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.BlackListRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
+import com.wassu.wassu.service.email.EmailService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;

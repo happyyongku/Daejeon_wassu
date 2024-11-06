@@ -1,4 +1,4 @@
-package com.wassu.wassu.service;
+package com.wassu.wassu.service.user;
 
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
