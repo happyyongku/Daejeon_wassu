@@ -10,7 +10,12 @@ import org.springframework.http.HttpStatus;
 public enum CustomErrorCode {
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "User Not Found"),
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
+    USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),
+
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Article Not Found"),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Not Found"),
+    REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Image Not Found"),
+
     FAILED_TO_UPDATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Article"),
     FAILED_TO_CREATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Article"),
     FAILED_TO_DELETE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Article"),
