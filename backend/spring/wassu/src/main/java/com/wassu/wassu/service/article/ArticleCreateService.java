@@ -39,11 +39,16 @@ public class ArticleCreateService {
                 articleEntity.setTitle(articleDTO.getTitle());
                 articleEntity.setContent(articleDTO.getContent());
                 if (articleDTO.getTags() != null && !articleDTO.getTags().isEmpty()) {
-                    articleEntity.setTags(articleDTO.getTags());
+                    List<ArticleEntity.Tag> tagEntities = articleDTO.getTags().stream()
+                            .map(ArticleEntity.Tag::new)
+                            .toList();
+                    articleEntity.setTags(tagEntities);
                 }
                 if (imageFiles != null && !imageFiles.isEmpty()) {
-                    List<String> imageFileList = uploadImage(imageFiles);
-                    articleEntity.setImages(imageFileList);
+                    List<ArticleEntity.Image> imageEntities = uploadImage(imageFiles).stream()
+                            .map(ArticleEntity.Image::new)
+                            .toList();
+                    articleEntity.setImages(imageEntities);
                 }
                 articleRepository.save(articleEntity);
                 log.info("End to create article");

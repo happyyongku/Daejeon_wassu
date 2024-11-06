@@ -33,16 +33,26 @@ public class ArticleUpdateService {
             articleEntity.setTitle(articleDTO.getTitle());
             articleEntity.setContent(articleDTO.getContent());
             articleEntity.setUpdatedAt(LocalDateTime.now());
-            articleEntity.setTags(articleDTO.getTags());
 
+            // 태그 업데이트
+            if (articleDTO.getTags() != null && !articleDTO.getTags().isEmpty()) {
+                List<ArticleEntity.Tag> tagEntities = articleDTO.getTags().stream()
+                        .map(ArticleEntity.Tag::new)
+                        .toList();
+                articleEntity.setTags(tagEntities);
+            }
             //
-            List<String> existingImages = articleEntity.getImages();
-
-            existingImages.forEach(s3Util::deleteFile);
+            List<ArticleEntity.Image> existingImages = articleEntity.getImages();
+            if (existingImages != null && !existingImages.isEmpty()) {
+                existingImages.forEach(image -> s3Util.deleteFile(image.getUrl()));
+                existingImages.clear();
+            }
 
             if (imageFiles != null && !imageFiles.isEmpty()) {
-                existingImages.clear();
-                imageFiles.forEach(file -> existingImages.add(s3Util.uploadFile(file, "article")));
+                List<ArticleEntity.Image> imageEntities = imageFiles.stream()
+                        .map(file -> new ArticleEntity.Image(s3Util.uploadFile(file, "article")))
+                        .toList();
+                articleEntity.setImages(imageEntities);
             }
 
             articleRepository.save(articleEntity);

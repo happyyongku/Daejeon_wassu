@@ -27,17 +27,16 @@ public class ArticleDeleteService {
                 throw new CustomException(CustomErrorCode.ARTICLE_NOT_FOUND);
             }
             ArticleEntity article = optionalArticle.get();
-            List<String> articleImageList = article.getImages();
+            List<ArticleEntity.Image> articleImageList = article.getImages();
             if (articleImageList != null && !articleImageList.isEmpty()){
-                articleImageList.forEach(imageURL -> s3util.deleteFile(imageURL));
+                articleImageList.forEach(imageURL -> s3util.deleteFile(imageURL.getUrl()));
             }
             articleRepository.deleteById(articleId);
+            log.info("Article Deleted Successfully");
         } catch (Exception e) {
             log.error("Failed to Delete Article");
             throw new CustomException(CustomErrorCode.FAILED_TO_DELETE_ARTICLE);
         }
     }
-
-
 
 }

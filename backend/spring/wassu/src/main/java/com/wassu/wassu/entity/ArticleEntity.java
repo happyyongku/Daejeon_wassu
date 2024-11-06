@@ -27,11 +27,11 @@ public class ArticleEntity {
     @Field(type= FieldType.Text, analyzer = "nori_analyzer")
     private String content;
 
-    @Field(type = FieldType.Text, analyzer = "nori_analyzer")
-    private List<String> tags = new ArrayList<>();
+    @Field(type = FieldType.Nested)
+    private List<Tag> tags = new ArrayList<>();
 
-    @Field(type = FieldType.Text)
-    private List<String> images = new ArrayList<>();
+    @Field(type = FieldType.Nested)
+    private List<Image> images = new ArrayList<>();
 
     @Field(type = FieldType.Integer)
     private Integer viewCount = 0;
@@ -44,6 +44,22 @@ public class ArticleEntity {
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Tag {
+        @Field(type = FieldType.Text, analyzer = "nori_analyzer")
+        private String tag;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Image {
+        @Field(type=FieldType.Text)
+        private String url;
+    }
 
 }
 
