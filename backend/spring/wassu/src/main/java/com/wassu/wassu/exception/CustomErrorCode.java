@@ -18,7 +18,9 @@ public enum CustomErrorCode {
     USER_NOT_FOUND_WHILE_CREATING_ARTICLE(HttpStatus.BAD_REQUEST, "User Not Found While Creating Article"),
     FAILED_TO_CREATE_TAG(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Tag"),
     FAILED_TO_UPDATE_TAG(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Tag"),
-    FAILED_TO_UPDATE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Image"),;
+    FAILED_TO_UPDATE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Image"),
+    FAILED_TO_DELETE_TAG(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Tag"),
+    FAILED_TO_DELETE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Image"),;
 
     private final HttpStatus status;
     private final String message;

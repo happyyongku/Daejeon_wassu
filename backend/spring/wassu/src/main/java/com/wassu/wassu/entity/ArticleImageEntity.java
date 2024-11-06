@@ -6,18 +6,32 @@ import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
+
+import java.util.UUID;
 
 @Data
-@Document(indexName = "articleImage")
+@Document(indexName = "articleimage")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Setting(settingPath = "/nori_settings.json")
 public class ArticleImageEntity {
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
     @Field(type = FieldType.Text)
     private String fileName;
 
     @Field(type=FieldType.Text)
     private String article;
+
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }
 
 //@Entity

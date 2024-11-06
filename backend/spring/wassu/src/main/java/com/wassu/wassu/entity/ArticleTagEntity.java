@@ -5,18 +5,32 @@ import lombok.*;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
+
+import java.util.UUID;
 
 @Data
-@Document(indexName = "articleTag")
+@Document(indexName = "articletag")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Setting(settingPath = "/nori_settings.json")
 public class ArticleTagEntity {
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
     @Field(type = FieldType.Keyword)
     private String tag;
 
     @Field(type = FieldType.Text)
     private String articleId;
+
+    @PrePersist
+    private void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }
 //@Getter
 //@Setter

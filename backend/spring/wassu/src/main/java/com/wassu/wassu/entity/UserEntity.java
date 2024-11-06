@@ -58,8 +58,8 @@ public class UserEntity {
         }
     }
 
-    @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticleEntity> articles;
+//    @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ArticleEntity> articles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticleLikedEntity> articleLikes;

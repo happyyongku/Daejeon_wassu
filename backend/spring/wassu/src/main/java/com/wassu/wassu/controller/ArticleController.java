@@ -2,6 +2,7 @@ package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.article.ArticleCreateDTO;
 import com.wassu.wassu.entity.ArticleImageEntity;
+import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.ArticleImageRepository;
 import com.wassu.wassu.repository.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
@@ -70,7 +71,7 @@ public class ArticleController {
     @PutMapping(value = "/{articleId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateArticle(
             @RequestHeader(value = "Authorization") String accessToken,
-            @PathVariable Long articleId,
+            @PathVariable String articleId,
             @RequestPart("articleCreateDTO") ArticleCreateDTO articleCreateDTO,
             @RequestPart(value="file") List<MultipartFile> files
     ){
@@ -81,20 +82,14 @@ public class ArticleController {
             Optional<ArticleEntity> optionalArticle = articleRepository.findById(articleId);
             if (optionalArticle.isPresent()){
                 ArticleEntity articleEntity = optionalArticle.get();
-                if (!articleEntity.getUser().getEmail().equals(userEmail)){
+                Optional<UserEntity> optionalUser = userRepository.findById(articleEntity.getUser());
+                if (optionalUser.isPresent() && !optionalUser.get().getEmail().equals(userEmail)){
                     log.error("User Not Authorized to update article");
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(utilTool.createResponse("status","User Not Authorized to update article"));
                 }
-                Boolean isUpdated = articleService.updateArticle(articleEntity, articleCreateDTO, files);
-                if (isUpdated){
-                    log.info("Successfully updated article");
-                    return ResponseEntity.ok(utilTool.createResponse("status","success"));
-                } else {
-                    log.error("Failed to update article");
-                    return ResponseEntity.status(404).body(utilTool.createResponse("status","Failed to update article"));
-                }
+                articleService.updateArticle(articleEntity, articleCreateDTO, files);
             } else {
-                log.warn("Article with id {} not found", articleId);
+                log.error("Article with id {} not found", articleId);
                 return ResponseEntity.status(404).body(utilTool.createResponse("status","Article Not Found"));
             }
         } catch (Exception e) {
@@ -107,7 +102,7 @@ public class ArticleController {
     @DeleteMapping(value="/{articleId}")
     public ResponseEntity<?> deleteArticle(
             @RequestHeader(value = "Authorization") String accessToken,
-            @PathVariable Long articleId
+            @PathVariable String articleId
     ) {
         log.info("Requested delete article");
         String token = accessToken.replace("Bearer ", "");

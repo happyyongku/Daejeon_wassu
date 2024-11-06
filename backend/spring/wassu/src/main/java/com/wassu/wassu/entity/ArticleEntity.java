@@ -4,33 +4,59 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Data
 @Document(indexName = "article")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Setting(settingPath = "/nori_settings.json")
 public class ArticleEntity {
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
-    @Field(type= FieldType.Text, analyzer = "standard")
+    @Field(type=FieldType.Long)
+    private Long user;
+
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer")
     private String title;
 
-    @Field(type= FieldType.Text, analyzer = "standard")
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer")
     private String content;
 
     @Field(type = FieldType.Integer)
     private Integer viewCount;
 
     @Field(type = FieldType.Integer)
-    private Integer Liked;
+    private Integer liked;
 
     @Field(type = FieldType.Date)
     private LocalDateTime createdAt;
 
     @Field(type = FieldType.Date)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        if (viewCount == null) {
+            viewCount = 0;
+        }
+        if (liked == null) {
+            liked = 0;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }
 
 

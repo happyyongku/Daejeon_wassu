@@ -14,7 +14,9 @@ import java.util.List;
 public class CORSConfig implements WebMvcConfigurer {
     private static final List<String> ALLOWED_ORIGINS = List.of(
             "http://localhost:8080",
-            "http://k11b105.p.ssafy.io"
+            "http://localhost:3000",
+            "http://k11b105.p.ssafy.io",
+            "https://k11b105.p.ssafy.io"
     );
 
     @Bean

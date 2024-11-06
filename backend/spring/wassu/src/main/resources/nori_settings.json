@@ -1,36 +1,16 @@
 {
-  "settings" : {
-    "analysis": {
-      "tokenizer": {
-        "nori_tokenizer": {
-          "type": "nori_tokenizer",
-          "decompound_mode": "mixed",
-          "discard_punctuation": "true"
-        }
-      },
-      "analyzer" : {
-        "korean_analyzer": {
-          "type": "custom",
-          "tokenizer": "nori_tokenizer",
-          "filter": [
-            "nori_readingform", "lowercase"
-          ]
-        }
+  "analysis": {
+    "tokenizer": {
+      "nori_tokenizer": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
       }
-    }
-  },
-  "mappings": {
-    "properties" : {
-      "title": {
-        "type": "text",
-        "analyzer": "korean_analyzer"
-      },
-      "content": {
-        "type": "text",
-        "analyzer": "korean_analyzer"
-      },
-      "tags": {
-        "type": "keyword"
+    },
+    "analyzer": {
+      "nori_analyzer": {
+        "type": "custom",
+        "tokenizer": "nori_tokenizer",
+        "filter": ["lowercase"]
       }
     }
   }
