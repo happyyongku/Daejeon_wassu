@@ -104,11 +104,12 @@ public class AuthController {
             }
         } catch (Exception e) {
             log.error("Failed to refresh access token: {}", e.getMessage());
-            return ResponseEntity.status(401).body(utilTool.createResponse("status", "failed"));
+            authService.logout(refreshToken);
+            return ResponseEntity.status(401).body(utilTool.createResponse("status", "logout"));
         }
         authService.logout(refreshToken);
         log.warn("Refresh token not validated: {}", refreshToken);
-        return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+        return ResponseEntity.status(404).body(utilTool.createResponse("status", "logout"));
     }
 
     // 회원탈퇴
@@ -126,6 +127,20 @@ public class AuthController {
         }
     }
 
+//    // 인증 이메일 발송
+//    @PostMapping("/send-verfication-email")
+//    private ResponseEntity<?> sendVerificationEmail(@RequestParam String email) {
+//        log.info("Sending verification email: {}", email);
+//        authService.sendVerificationEmail(email);
+//        return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+//    }
+//
+//    // 이메일 인증
+//    @GetMapping("/verify-email/{userEmail}")
+//    private ResponseEntity<?> verifyEmail(@PathVariable String userEmail) {
+//
+//    }
+    
     // 메일 전송
     @PostMapping("/send-verification-code")
     private ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
@@ -133,6 +148,8 @@ public class AuthController {
         return ResponseEntity.ok(utilTool.createResponse("status", "success"));
     }
 
+
+    // 코드 검증
     @PostMapping("/verify-code")
     private ResponseEntity<?> verifyCode(@RequestParam String email, @RequestParam String code) {
         Boolean isVerified = authService.verifyCode(email, code);
@@ -143,4 +160,8 @@ public class AuthController {
         }
         return ResponseEntity.status(401).body(utilTool.createResponse("status", "Invalid verification code"));
     }
+    
+
+    
+
 }

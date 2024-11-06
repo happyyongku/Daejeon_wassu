@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.regions.Region;
 
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.UUID;
 
 @Slf4j
@@ -45,11 +46,15 @@ public class S3Util {
     public String uploadFile(MultipartFile file, String folderName) {
         String fileName = folderName + "/" + UUID.randomUUID().toString() + '_' + file.getOriginalFilename();
         try {
+            String mimeType = URLConnection.guessContentTypeFromName(file.getOriginalFilename());
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
                             .key(fileName)
-                            .contentType(file.getContentType())
+                            .contentType(mimeType)
                             .contentDisposition("inline")
                             .build(),
                     RequestBody.fromBytes(file.getBytes())

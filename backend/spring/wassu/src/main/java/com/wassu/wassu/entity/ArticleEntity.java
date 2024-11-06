@@ -6,16 +6,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
+import org.springframework.data.elasticsearch.annotations.*;
 
 @Data
 @Document(indexName = "article")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Setting(settingPath = "/nori_settings.json")
 public class ArticleEntity {
     @Id
@@ -31,32 +27,32 @@ public class ArticleEntity {
     private String content;
 
     @Field(type = FieldType.Integer)
-    private Integer viewCount;
+    private Integer viewCount = 0;
 
     @Field(type = FieldType.Integer)
-    private Integer liked;
+    private Integer liked = 0;
 
-    @Field(type = FieldType.Date)
-    private LocalDateTime createdAt;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Field(type = FieldType.Date)
-    private LocalDateTime updatedAt;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            id = UUID.randomUUID().toString();
-        }
-        if (viewCount == null) {
-            viewCount = 0;
-        }
-        if (liked == null) {
-            liked = 0;
-        }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
+//    @PrePersist
+//    public void prePersist() {
+//        if (id == null) {
+//            id = UUID.randomUUID().toString();
+//        }
+//        if (viewCount == null) {
+//            viewCount = 0;
+//        }
+//        if (liked == null) {
+//            liked = 0;
+//        }
+//        if (createdAt == null) {
+//            createdAt = LocalDateTime.now();
+//        }
+//    }
 }
 
 

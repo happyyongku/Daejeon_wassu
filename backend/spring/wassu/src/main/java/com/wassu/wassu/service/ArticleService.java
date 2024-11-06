@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,6 +82,7 @@ public class ArticleService {
         try {
             articleEntity.setTitle(articleCreateDTO.getTitle());
             articleEntity.setContent(articleCreateDTO.getContent());
+            articleEntity.setUpdatedAt(LocalDateTime.now());
             log.info("Updating article");
 
             updateArticleImage(files, articleEntity.getId());
@@ -266,6 +268,9 @@ public class ArticleService {
             throw new CustomException(CustomErrorCode.FAILED_TO_UPDATE_ARTICLE);
         }
     }
+
+    // 태그 삭제
+
     
 }
 
