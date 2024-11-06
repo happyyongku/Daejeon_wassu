@@ -35,18 +35,15 @@ export default function SignupForm() {
       return;
     }
     setIsLoading(true);
-
+    const emailData = { email: email };
     try {
       const response = await axios.post(
-        "https://k11b105.p.ssafy.io/wassu/auth/send-verify-code",
-        {
-          email: email,
-        }
+        "https://k11b105.p.ssafy.io/wassu/auth/send-verification-code",
+        null,
+        { params: emailData }
       );
-      if (response.data.success) {
+      if (response.data) {
         alert("이메일 인증 링크가 전송되었습니다.");
-      } else {
-        alert("이메일 인증 실패. 다시 시도해 주세요.");
       }
     } catch (error) {
       console.error("인증 요청 실패:", error);
@@ -137,9 +134,54 @@ export default function SignupForm() {
     }
   };
 
+  const [isCheckLoading, setCheckLoading] = useState<boolean>(false);
+  const [checkError, setCheckError] = useState("");
+  const [checkText, setCheckText] = useState("인증");
+
+  // 인증번호 입력
+  const [checkNumber, setCheckNumber] = useState("");
+  const onChangeCheckNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checkNumberValue = e.target.value;
+    setCheckNumber(checkNumberValue);
+  };
+
+  // 인증 성공 여부
+  const [isChecked, setIsChecked] = useState("");
+
+  // 인증번호 확인 axios
+  const checkVerify = async () => {
+    const checkData = {
+      email: email,
+      code: checkNumber,
+    };
+    try {
+      const response = await axios.post(
+        "https://k11b105.p.ssafy.io/wassu/auth/verify-code",
+        null,
+        { params: checkData }
+      );
+      if (response.data) {
+        console.log("인증 성공", response.data);
+        alert("메일 인증에 성공하셨습니다.");
+        setIsChecked(response.data.status);
+        // console.log(response.data.status);
+        setCheckText("인증완료");
+        setCheckError("");
+      }
+    } catch (error) {
+      console.log("인증 실패", error);
+      alert("메일 인증에 실패했습니다.");
+      setCheckError("인증번호가 일치하지 않습니다.");
+    }
+  };
+
   // 회원가입 요청 axios
   const handleSignup = async () => {
     // 유효성 검사
+    if (isChecked !== "success") {
+      alert("메일 인증을 실시해주세요.");
+      return;
+    }
     if (!emailPattern.test(email)) {
       alert("이메일 형식이 올바르지 않습니다.");
       return;
@@ -169,17 +211,20 @@ export default function SignupForm() {
       email: email,
       password: password1,
       gender: gender,
-      birth_year: birth,
+      birthYear: Number(birth),
       nickname: nickname,
     };
-    // console.log(userData);
+
+    console.log(userData);
+
     try {
       const response = await axios.post(
         "https://k11b105.p.ssafy.io/wassu/auth/signup",
         userData
       );
 
-      if (response.data.success) {
+      if (response.data) {
+        console.log("회원가입 성공", response.data);
         alert("회원가입 완료");
         router.push("/main");
       }
@@ -210,11 +255,36 @@ export default function SignupForm() {
             onClick={handleEmailVerification}
             disabled={isLoading}
           >
-            {isLoading ? "인증 중..." : "인증"}
+            {isLoading ? "전송 중..." : "전송"}
           </button>
         </div>
 
         {emailError && <div className={style.email_error}>{emailError}</div>}
+      </div>
+
+      <div className={style.input_container}>
+        <label className={style.label_st} htmlFor="checknumber">
+          인증번호
+        </label>
+        <div className={style.email_container}>
+          <input
+            className={style.email_input}
+            type="text"
+            id="checknumber"
+            name="checknumber"
+            placeholder="인증번호를 입력해주세요."
+            onChange={onChangeCheckNumber}
+          />
+          <button
+            className={style.auth_button}
+            onClick={checkVerify}
+            disabled={isCheckLoading}
+          >
+            {checkText}
+          </button>
+        </div>
+
+        {checkError && <div className={style.email_error}>{checkError}</div>}
       </div>
 
       <div className={style.input_container}>

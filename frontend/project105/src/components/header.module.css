@@ -1,0 +1,15 @@
+.header {
+  width: 100%;
+  height: 65px;
+  /* background-color: bisque; */
+  border: none;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+}
+
+.logotext {
+  width: 130px;
+  height: auto;
+  margin-left: 15px;
+}
