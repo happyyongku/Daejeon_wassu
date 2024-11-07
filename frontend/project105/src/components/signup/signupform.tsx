@@ -226,7 +226,7 @@ export default function SignupForm() {
       if (response.data) {
         console.log("회원가입 성공", response.data);
         alert("회원가입 완료");
-        router.push("/main");
+        router.push("/login");
       }
     } catch (error) {
       console.log("회원가입 요청 실패", error);

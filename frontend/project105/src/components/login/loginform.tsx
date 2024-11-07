@@ -25,7 +25,6 @@ export default function LoginForm() {
   // 로그인 요청
   const loginRequest = async () => {
     const userData = { email: email, password: password };
-    // console.log(userData);
     try {
       const response = await axios.post(
         "https://k11b105.p.ssafy.io/wassu/auth/login",
@@ -33,6 +32,7 @@ export default function LoginForm() {
       );
       if (response.data) {
         console.log("로그인 성공", response.data);
+        localStorage.setItem("authToken", response.data.access);
         router.push("/main");
       }
     } catch (error) {
