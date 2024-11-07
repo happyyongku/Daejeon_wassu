@@ -3,7 +3,7 @@ package com.wassu.wassu.service.article;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
-import com.wassu.wassu.repository.ArticleRepository;
+import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.util.S3Util;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,27 +1,27 @@
 package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.article.ArticleDTO;
+import com.wassu.wassu.dto.article.ArticleResponseDTO;
+import com.wassu.wassu.dto.article.ArticleSearchRequestDTO;
 import com.wassu.wassu.entity.UserEntity;
-import com.wassu.wassu.repository.ArticleImageRepository;
-import com.wassu.wassu.repository.ArticleRepository;
+import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
-import com.wassu.wassu.service.article.ArticleCreateService;
-import com.wassu.wassu.service.article.ArticleDeleteService;
-import com.wassu.wassu.service.article.ArticleUpdateService;
-import com.wassu.wassu.service.article.ArticleUtilService;
-import com.wassu.wassu.util.S3Util;
+import com.wassu.wassu.service.article.*;
 import com.wassu.wassu.util.UtilTool;
 import com.wassu.wassu.entity.ArticleEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class ArticleController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
-    private final S3Util s3Util;
+    private final ArticleSearchServiceImpl articleSearchServiceImpl;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -100,5 +100,34 @@ public class ArticleController {
         articleUtilService.checkArticleAndUser(userEmail, articleId);
         articleDeleteService.deleteArticle(articleId);
         return ResponseEntity.ok(utilTool.createResponse("status","success"));
+    }
+
+    // 포스팅 검색
+    @PostMapping(value="/search")
+    public ResponseEntity<Page<ArticleResponseDTO>> searchArticle(
+            @RequestBody ArticleSearchRequestDTO requestDTO,
+            Pageable pageable
+    ){
+        try {
+            Page<ArticleEntity> articles = articleSearchServiceImpl.searchByTitleAndContentWithTags(
+                    requestDTO.getSearchText(), requestDTO.getTags(), pageable
+            );
+
+            Page<ArticleResponseDTO> dtoPage = articles.map(article -> new ArticleResponseDTO(
+                    article.getId(),
+                    article.getTitle(),
+                    article.getContent(),
+                    article.getTags()
+                            .stream()
+                            .map(ArticleEntity.Tag::getTag)
+                            .toList()
+            ));
+            System.out.println("Search Completed --------------------------");
+            log.info("Search Completed");
+            return ResponseEntity.ok(dtoPage);
+        } catch (Exception e) {
+            log.error("IOException while search article: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

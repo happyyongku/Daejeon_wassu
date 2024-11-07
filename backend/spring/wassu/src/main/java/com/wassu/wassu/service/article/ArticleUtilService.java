@@ -1,15 +1,12 @@
 package com.wassu.wassu.service.article;
 
 
-import com.wassu.wassu.dto.article.ArticleDTO;
 import com.wassu.wassu.entity.ArticleEntity;
-import com.wassu.wassu.entity.ArticleImageEntity;
-import com.wassu.wassu.entity.ArticleTagEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.exception.CustomException;
-import com.wassu.wassu.repository.ArticleImageRepository;
-import com.wassu.wassu.repository.ArticleRepository;
-import com.wassu.wassu.repository.ArticleTagRepository;
+import com.wassu.wassu.repository.article.ArticleImageRepository;
+import com.wassu.wassu.repository.article.ArticleRepository;
+import com.wassu.wassu.repository.article.ArticleTagRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.exception.CustomErrorCode;
 
@@ -18,12 +15,8 @@ import com.wassu.wassu.util.S3Util;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.List;
 
 @Service
 @AllArgsConstructor

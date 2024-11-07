@@ -4,7 +4,7 @@ import com.wassu.wassu.dto.article.ArticleDTO;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.exception.CustomException;
-import com.wassu.wassu.repository.ArticleRepository;
+import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.exception.CustomErrorCode;
 

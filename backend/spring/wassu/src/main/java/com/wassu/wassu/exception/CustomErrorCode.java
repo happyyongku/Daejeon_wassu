@@ -23,7 +23,8 @@ public enum CustomErrorCode {
     FAILED_TO_DELETE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Image"),
     FAILED_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Send Email"),
     FAILED_TO_UPLOAD_S3(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Upload S3"),
-    IMAGEFILE_IS_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Image File Is Null"),;
+    IMAGEFILE_IS_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Image File Is Null"),
+    FAILED_TO_SEARCH(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Search"),;
 
     private final HttpStatus status;
     private final String message;
