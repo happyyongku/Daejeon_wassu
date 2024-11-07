@@ -2,7 +2,7 @@ import axios from 'axios';
 import {api, Authapi} from './core';
 import {saveTokens, getTokens, removeTokens} from '../utills/tokenStorage';
 
-//회원가입 이메일 인증
+//회원가입 이메일 인증 확인
 export async function sendVerificationCode(email: string) {
   try {
     const response = await api.post('/auth/send-verification-code', null, {
