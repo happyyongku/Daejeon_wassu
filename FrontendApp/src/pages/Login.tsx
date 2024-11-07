@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
+import {login} from '../api/user';
 
 const {width} = Dimensions.get('window');
 
@@ -18,10 +19,39 @@ const Login = (): React.JSX.Element => {
 
   const emailLabelStyle = isEmailFocused ? styles.focusedLabel : styles.defaultLabel;
   const passwordLabelStyle = isPasswordFocused ? styles.focusedLabel : styles.defaultLabel;
-  const emailInputStyle = isEmailFocused ? styles.focusedInput : styles.defaultInput;
-  const passwordInputStyle = isPasswordFocused ? styles.focusedInput : styles.defaultInput;
 
-  const handleLogin = () => {};
+  const emailInputStyle = [
+    styles.defaultInput,
+    isEmailFocused && styles.focusedInput,
+    email ? styles.textWithValue : styles.placeholderText,
+  ];
+
+  const passwordInputStyle = [
+    styles.defaultInput,
+    isPasswordFocused && styles.focusedInput,
+    password ? styles.textWithValue : styles.placeholderText,
+  ];
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('이메일과 비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    try {
+      const response = await login(email, password);
+      if (response && response.status === 200) {
+        Alert.alert('로그인 성공!', '메인 화면으로 이동합니다.');
+        navigation.navigate('Main');
+      } else {
+        console.log(response?.status);
+        Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해 주세요.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('로그인 오류', '다시 시도해 주세요.');
+    }
+  };
 
   const handleSignUp = () => {
     navigation.navigate('SignUp');
@@ -133,6 +163,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     textDecorationLine: 'underline',
+  },
+  placeholderText: {
+    color: '#F1F1F1', // 회색 (입력값이 없는 경우)
+  },
+  textWithValue: {
+    color: '#333', // 진한 회색 (입력값이 있는 경우)
   },
 });
 
