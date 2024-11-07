@@ -14,7 +14,6 @@ import java.util.UUID;
 @Document(indexName = "articleimage")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Setting(settingPath = "/nori_settings.json")
 public class ArticleImageEntity {
     @Id
@@ -26,12 +25,12 @@ public class ArticleImageEntity {
     @Field(type=FieldType.Text)
     private String article;
 
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            id = UUID.randomUUID().toString();
-        }
-    }
+//    @PrePersist
+//    public void prePersist() {
+//        if (id == null) {
+//            id = UUID.randomUUID().toString();
+//        }
+//    }
 }
 
 //@Entity

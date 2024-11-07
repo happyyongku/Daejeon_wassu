@@ -13,7 +13,6 @@ import java.util.UUID;
 @Document(indexName = "articletag")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Setting(settingPath = "/nori_settings.json")
 public class ArticleTagEntity {
     @Id
@@ -25,12 +24,12 @@ public class ArticleTagEntity {
     @Field(type = FieldType.Text)
     private String articleId;
 
-    @PrePersist
-    private void prePersist() {
-        if (id == null) {
-            id = UUID.randomUUID().toString();
-        }
-    }
+//    @PrePersist
+//    private void prePersist() {
+//        if (id == null) {
+//            id = UUID.randomUUID().toString();
+//        }
+//    }
 }
 //@Getter
 //@Setter

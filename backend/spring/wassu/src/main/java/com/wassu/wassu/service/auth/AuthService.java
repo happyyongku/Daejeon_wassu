@@ -1,4 +1,4 @@
-package com.wassu.wassu.service;
+package com.wassu.wassu.service.auth;
 
 import com.wassu.wassu.dto.user.UserSignupDTO;
 import com.wassu.wassu.entity.BlackListEntity;
@@ -6,7 +6,9 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.BlackListRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
+import com.wassu.wassu.service.email.EmailService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,20 +17,21 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.text.MessageFormat;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final PasswordEncoder passwordEncoder;
     private final BlackListRepository blackListRepository;
+
+//    @Value("${server.domain}")
+//    private String serverDomain;
 
     @Autowired
     private EmailService emailService;
@@ -77,6 +80,8 @@ public class AuthService {
     }
 
     private final Map<String, String> verificationCodes = new HashMap<>();
+
+//    private final Map<String, Boolean> verificationEmail = new HashMap<>();
     
     // 검증 코드 이메일 발송
     public String sendVerificationCode(String email) {
@@ -90,7 +95,32 @@ public class AuthService {
 
         return "Verification Code sent to your email";
     }
-    
+
+//    // 인증 이메일 발송
+//    public void sendVerificationEmail(String email) {
+//        try {
+//            verificationEmail.put(email, false);
+//            String EmailLink = "http://localhost:8080/wassu/auth/verify-email/" + email;
+//            log.info("Ready to send verification email");
+//            String title = "대전 왔슈 인증 이메일입니다";
+//            String content = MessageFormat.format("""
+//                    <html>
+//                    <body>
+//                        <h2>안녕하세요, 대전 왔슈 인증 이메일입니다.</h2>
+//                        <p>아래 링크를 클릭하셔서 인증하신 후 회원 가입을 계속 진행해주세요. </p>
+//                        <a href="{0}">이메일 인증하기</a>
+//                    </body>
+//                    </html>
+//                    """, EmailLink);
+//
+//            emailService.sendEmail(email, title, content);
+//        } catch (Exception e) {
+//            log.error("Exception in Send Verification Email: {}", e.getMessage());
+//            throw new CustomException(CustomErrorCode.FAILED_TO_SEND_EMAIL);
+//        }
+//
+//    }
+
     //로그아웃
     public void logout(String token) {
         BlackListEntity blacklistEntity = new BlackListEntity();
@@ -108,6 +138,8 @@ public class AuthService {
         return code.toString();
 
     }
+
+
 
     // 코드 검증
     public Boolean verifyCode(String email, String code) {
