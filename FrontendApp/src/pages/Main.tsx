@@ -110,6 +110,9 @@ const MainPage = () => {
   const goToLogin = () => {
     navigation.navigate('Login');
   };
+  const goToMap = () => {
+    navigation.navigate('Map');
+  };
 
   const insertLineBreak = (text: string, maxChars: number) => {
     const words = text.split(' ');
@@ -311,6 +314,9 @@ const MainPage = () => {
             </View>
           ))}
         </View>
+        <TouchableOpacity style={styles.communityLink} onPress={goToMap}>
+          <Text style={styles.communityLinkText}>맵</Text>
+        </TouchableOpacity>
       </ScrollView>
     </>
   );
