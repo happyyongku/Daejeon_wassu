@@ -27,6 +27,7 @@ import PlaceDetail from '../components/RecommendedPlace/PlaceDetail';
 import Writing from '../components/Community/Writing';
 import CommunitySearch from '../components/Community/CommunitySearch';
 import WriteReview from '../components/RecommendedPlace/WriteReview';
+import Map from '../pages/Map';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -56,6 +57,7 @@ export type RootStackParamList = {
   Writing: undefined;
   CommunitySearch: undefined;
   WriteReview: undefined;
+  Map: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -125,6 +127,7 @@ function Navigator() {
       <Stack.Screen name="PlaceDetail" component={PlaceDetail} options={{headerShown: false}} />
       <Stack.Screen name="Writing" component={Writing} options={{headerShown: false}} />
       <Stack.Screen name="WriteReview" component={WriteReview} options={{headerShown: false}} />
+      <Stack.Screen name="Map" component={Map} options={{headerShown: false}} />
       <Stack.Screen
         name="CommunitySearch"
         component={CommunitySearch}
