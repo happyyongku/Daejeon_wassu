@@ -72,6 +72,10 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def googleMapApiKey = properties.getProperty('google_map_api_key')
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -86,6 +90,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        
+        manifestPlaceholders = [googleMapApiKey:googleMapApiKey]
     }
 
     signingConfigs {
@@ -124,3 +130,4 @@ dependencies {
     // ARCore 라이브러리를 추가하여 AR 기능을 활성화합니다.
     implementation 'com.google.ar:core:1.33.0'
 }
+

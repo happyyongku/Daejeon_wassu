@@ -82,8 +82,8 @@ const PlaceList = () => {
 
             <ScrollView nestedScrollEnabled={true}>
               {places.map(item => (
-                <TouchableOpacity onPress={() => goToPlaceDetail(item.name)}>
-                  <View key={item.id} style={styles.card}>
+                <TouchableOpacity key={item.id} onPress={() => goToPlaceDetail(item.name)}>
+                  <View style={styles.card}>
                     <View style={styles.imageWrapper}>
                       <ImageBackground source={item.image} style={styles.image}>
                         <View style={styles.overlay}>

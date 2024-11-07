@@ -24,6 +24,7 @@ import StepModal from '../common/StepModal';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 
 type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -176,7 +177,27 @@ const PlaceDetail = () => {
               <CompassIcon width={20} height={20} />
               <Text style={styles.detailText}>위치</Text>
             </View>
-            <Image source={require('../../assets/imgs/maphan.png')} style={styles.mapImage} />
+
+            <View style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                initialRegion={{
+                  latitude: 36.367771,
+                  longitude: 127.3886019,
+                  latitudeDelta: 0.008,
+                  longitudeDelta: 0.0001,
+                }}
+                provider={PROVIDER_GOOGLE}>
+                <Marker
+                  coordinate={{
+                    latitude: 36.367771,
+                    longitude: 127.3886019,
+                  }}
+                  title={name}
+                />
+              </MapView>
+            </View>
+
             <View style={styles.addressRow}>
               <Text style={styles.addressText}>대전 서구 둔산대로 169</Text>
               <TouchableOpacity
@@ -540,6 +561,17 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  mapContainer: {
+    width: '100%',
+    height: 150,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginVertical: 10,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
   },
 });
 

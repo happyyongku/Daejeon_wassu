@@ -36,5 +36,9 @@
         <!-- AR 액티비티 추가 -->
         <activity android:name=".ArActivity"
             android:screenOrientation="portrait" />
+
+        <meta-data                                                    
+            android:name="com.google.android.geo.API_KEY" 
+            android:value="${googleMapApiKey}"/>
     </application>
 </manifest>
