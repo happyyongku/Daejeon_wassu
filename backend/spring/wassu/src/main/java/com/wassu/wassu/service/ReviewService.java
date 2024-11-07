@@ -8,9 +8,11 @@ import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.review.ReviewImageEntity;
+import com.wassu.wassu.entity.review.ReviewLikes;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.review.ReviewImageRepository;
+import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.review.ReviewRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.util.S3Util;
@@ -31,6 +33,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReviewLikesRepository reviewLikesRepository;
 
     private final UserService userService;
     private final S3Util s3Util;
@@ -74,7 +77,7 @@ public class ReviewService {
         return null;
     }
 
-    public ReviewDTO findReviewById(Long reviewId) {
+    public ReviewDTO findReviewById(String email, Long reviewId) {
         ReviewEntity review = reviewRepository.findByIdWithJoin(reviewId).orElseThrow(() -> new CustomException(CustomErrorCode.REVIEW_NOT_FOUND));
         // 작성자 프로필
         UserEntity user = review.getUser();
@@ -82,7 +85,15 @@ public class ReviewService {
         // 리뷰 이미지 정보
         List<ReviewImageDTO> reviewImages = review.getImages().stream()
                 .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
-        return new ReviewDTO(reviewId, review.getContent(), profile, reviewImages, review.getCreatedAt());
+        // dto 변환
+        return ReviewDTO.builder()
+                .reviewId(reviewId)
+                .content(review.getContent())
+                .likeCount(review.getLikeCount())
+                .profile(profile)
+                .reviewImages(reviewImages)
+                .isLiked(reviewLikesRepository.existsByReviewIdAndUserEmail(reviewId, email))
+                .createdAt(review.getCreatedAt()).build();
     }
 
     public void deleteReview(String email, Long reviewId) {
@@ -94,6 +105,29 @@ public class ReviewService {
         // s3에서도 이미지 삭제
         review.getImages().forEach(image -> s3Util.deleteFile(image.getImageUrl()));
         reviewRepository.delete(review);
+    }
+
+    public void likesReview(String email, Long reviewId) {
+        ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(CustomErrorCode.REVIEW_NOT_FOUND));
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        // 이미 좋아요 했으면 또 못함
+        if (reviewLikesRepository.existsByReviewIdAndUserEmail(reviewId, email)) {
+            throw new CustomException(CustomErrorCode.ALREADY_LIKED_REVIEW);
+        }
+        // 좋아요 생성
+        ReviewLikes likes = new ReviewLikes(review, user);
+        reviewLikesRepository.save(likes);
+        // 해당 후기 좋아요 수 +1
+        review.setLikeCount(review.getLikeCount()+1);
+    }
+
+    public void unlikesReview(String email, Long reviewId) {
+        ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(CustomErrorCode.REVIEW_NOT_FOUND));
+        ReviewLikes likes = reviewLikesRepository.findByReviewIdAndUserEmail(reviewId, email).orElseThrow(() -> new CustomException(CustomErrorCode.LIKE_NOT_FOUND));
+        // 좋아요 삭제
+        reviewLikesRepository.delete(likes);
+        // 해당 후기 좋아요 수 -1
+        review.setLikeCount(review.getLikeCount()-1);
     }
 
     // 이미지 목록 업로드

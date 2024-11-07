@@ -40,8 +40,10 @@ public class ReviewController {
     }
 
     @GetMapping("/review/{reviewId}")
-    public ResponseEntity<?> getReview(@PathVariable Long reviewId) {
-        ReviewDTO result = reviewService.findReviewById(reviewId);
+    public ResponseEntity<?> getReview(@AuthenticationPrincipal UserDetails userDetails,
+                                       @PathVariable Long reviewId) {
+        String username = userDetails.getUsername();
+        ReviewDTO result = reviewService.findReviewById(username, reviewId);
         return ResponseEntity.ok(result);
     }
 
@@ -51,6 +53,22 @@ public class ReviewController {
         String username = userDetails.getUsername();
         reviewService.deleteReview(username, reviewId);
         return ResponseEntity.ok("review deleted");
+    }
+
+    @PostMapping("/review/{reviewId}/likes")
+    public ResponseEntity<?> likesReview(@AuthenticationPrincipal UserDetails userDetails,
+                                         @PathVariable Long reviewId) {
+        String username = userDetails.getUsername();
+        reviewService.likesReview(username, reviewId);
+        return ResponseEntity.ok("review liked");
+    }
+
+    @DeleteMapping("/review/{reviewId}/likes")
+    public ResponseEntity<?> unlikesReview(@AuthenticationPrincipal UserDetails userDetails,
+                                           @PathVariable Long reviewId) {
+        String username = userDetails.getUsername();
+        reviewService.unlikesReview(username, reviewId);
+        return ResponseEntity.ok("review unliked");
     }
 
 }

@@ -24,6 +24,8 @@ public class ReviewEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    private int likeCount = 0;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
