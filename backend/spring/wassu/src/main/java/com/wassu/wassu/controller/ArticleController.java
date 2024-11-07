@@ -50,7 +50,7 @@ public class ArticleController {
     @PostMapping(value="/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createArticle(
         @RequestHeader(value="Authorization") String accessToken,
-        @RequestPart("articleCreateDTO") ArticleDTO articleDTO,
+        @RequestPart("articleDTO") ArticleDTO articleDTO,
         @RequestPart(value = "file", required = false) List<MultipartFile> files
     ){
         log.info("Requested DTO: {}", articleDTO);
@@ -109,22 +109,26 @@ public class ArticleController {
             Pageable pageable
     ){
         try {
-            Page<ArticleEntity> articles = articleSearchServiceImpl.searchByTitleAndContentWithTags(
+//            Page<ArticleEntity> articles = articleSearchServiceImpl.searchByTitleAndContentWithTags(
+//                    requestDTO.getSearchText(), requestDTO.getTags(), pageable
+//            );
+            articleSearchServiceImpl.searchByTitleAndContentWithTags(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
 
-            Page<ArticleResponseDTO> dtoPage = articles.map(article -> new ArticleResponseDTO(
-                    article.getId(),
-                    article.getTitle(),
-                    article.getContent(),
-                    article.getTags()
-                            .stream()
-                            .map(ArticleEntity.Tag::getTag)
-                            .toList()
-            ));
+//            Page<ArticleResponseDTO> dtoPage = articles.map(article -> new ArticleResponseDTO(
+//                    article.getId(),
+//                    article.getTitle(),
+//                    article.getContent(),
+//                    article.getTags()
+//                            .stream()
+//                            .map(ArticleEntity.Tag::getTag)
+//                            .toList()
+//            ));
             System.out.println("Search Completed --------------------------");
             log.info("Search Completed");
-            return ResponseEntity.ok(dtoPage);
+//            return ResponseEntity.ok(dtoPage);
+            return null;
         } catch (Exception e) {
             log.error("IOException while search article: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

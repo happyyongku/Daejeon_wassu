@@ -1,14 +1,14 @@
 package com.wassu.wassu.dto.article;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArticleDTO {
     private String title;
     private String content;
