@@ -1,6 +1,43 @@
 import axios from 'axios';
 import {Authapi} from './core';
 
+export interface Article {
+  id: string;
+  user: number;
+  title: string;
+  content: string;
+  tags: {tag: string}[];
+  images: {url: string}[];
+  viewCount: number;
+  liked: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FilteredPostsResponse {
+  content: Article[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    empty: boolean;
+    unsorted: boolean;
+  };
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
 // 게시글 작성 (이미지 파일 업로드)
 export async function createPost(
   title: string,
@@ -203,5 +240,27 @@ export async function searchPosts(
       console.error('Unexpected error during search:', err);
       return null;
     }
+  }
+}
+
+// 게시글 태그 필터링
+export async function filterPosts(category?: string): Promise<FilteredPostsResponse | null> {
+  try {
+    const response = await Authapi.get('/posts/filter', {
+      params: {
+        category: category || '',
+      },
+    });
+
+    if (response.status === 200) {
+      console.log('Filtered posts:', response.data);
+      return response.data as FilteredPostsResponse;
+    } else {
+      console.error('Failed to fetch filtered posts:', response.status);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching filtered posts:', error);
+    return null;
   }
 }
