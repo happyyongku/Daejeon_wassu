@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,14 @@ import {
   Image,
   FlatList,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import HeartIcon from '../assets/imgs/heart.svg'; // 좋아요 누르기 전 아이콘
 import HearthIcon from '../assets/imgs/hearth.svg'; // 좋아요 누른 후 아이콘
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
+import {filterPosts} from '../api/community';
 
 const {width} = Dimensions.get('window');
 
@@ -23,12 +25,10 @@ const Community = () => {
   const navigation = useNavigation<CommunityNavigationProp>();
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [likedPosts, setLikedPosts] = useState<{[key: string]: boolean}>({});
-  const [likesCount, setLikesCount] = useState<{[key: string]: number}>({
-    '1': 10,
-    '2': 10,
-    '3': 10,
-  });
+  const [likesCount, setLikesCount] = useState<{[key: string]: number}>({});
   const [currentPages, setCurrentPages] = useState<{[key: string]: number}>({});
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const goToWriting = () => {
     navigation.navigate('Writing');
@@ -39,6 +39,34 @@ const Community = () => {
   };
 
   const categories = ['전체', '맛집', '숙소', '우천', '스포츠', '예술', '빵', '역사', '과학'];
+
+  const fetchPosts = async (category: string) => {
+    setLoading(true);
+    try {
+      const response = await filterPosts(category === '전체' ? '' : category);
+      if (response) {
+        setPosts(response.content);
+        const initialLikes = response.content.reduce((acc: any, post: any) => {
+          acc[post.id] = post.liked;
+          return acc;
+        }, {});
+        const initialLikesCount = response.content.reduce((acc: any, post: any) => {
+          acc[post.id] = post.liked;
+          return acc;
+        }, {});
+        setLikesCount(initialLikesCount);
+        setLikedPosts(initialLikes);
+      }
+    } catch (error) {
+      console.error('게시글 불러오기 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(selectedCategory);
+  }, [selectedCategory]);
 
   const toggleLike = (postId: string) => {
     const isLiked = likedPosts[postId];
@@ -54,7 +82,6 @@ const Community = () => {
     setLikesCount(updatedLikesCount);
   };
 
-  // Handle next image
   const handleNextImage = (postId: string, imagesLength: number) => {
     setCurrentPages(prevPages => {
       const nextPage = (prevPages[postId] || 0) + 1;
@@ -62,7 +89,6 @@ const Community = () => {
     });
   };
 
-  // Handle previous image
   const handlePreviousImage = (postId: string, imagesLength: number) => {
     setCurrentPages(prevPages => {
       const prevPage = (prevPages[postId] || 0) - 1;
@@ -79,7 +105,6 @@ const Community = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Categories with horizontal scrolling */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -104,109 +129,81 @@ const Community = () => {
         ))}
       </ScrollView>
 
-      {/* Divider under categories */}
       <View style={styles.categoryDivider} />
 
-      {/* Community posts */}
-      <FlatList
-        data={[
-          {
-            id: '1',
-            nickname: '지날준두',
-            title: '힐링 여행 좋아요',
-            content:
-              '이번에 100기념으로 대전 여행 와서 한밭 수목원 들렀는데 힐링되고 너무 좋더라고요~ 정말 다양한 식물이 있어요.',
-            location: '한밭 수목원',
-            time: '50분 전',
-            images: [
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-            ],
-          },
-          {
-            id: '2',
-            nickname: '지날준두',
-            title: '힐링 여행 좋아요',
-            content:
-              '이번에 100기념으로 대전 여행 와서 한밭 수목원 들렀는데 힐링되고 너무 좋더라고요~ 정말 다양한 식물이 있어요.',
-            location: '한밭 수목원',
-            time: '50분 전',
-            images: [
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-              require('../assets/imgs/example.jpg'),
-            ],
-          },
-          // 더 많은 데이터...
-        ]}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <View style={styles.postContainer}>
-            <View style={styles.postHeader}>
-              <Image source={require('../assets/imgs/profile1.png')} style={styles.profileImage} />
-              <Text style={styles.nickname}>{item.nickname}</Text>
-            </View>
-            <Text style={styles.postTitle}>{item.title}</Text>
-            <Text style={styles.postContent}>{item.content}</Text>
-            {/* Image Carousel with buttons */}
-            <View style={styles.carouselContainer}>
-              <TouchableOpacity
-                onPress={() => handlePreviousImage(item.id, item.images.length)}
-                style={styles.arrowButton}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#418663" />
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <View style={styles.postContainer}>
+              <View style={styles.postHeader}>
                 <Image
-                  source={require('../assets/imgs/chevron-left.png')}
-                  style={styles.arrowIcon}
+                  source={require('../assets/imgs/profile1.png')}
+                  style={styles.profileImage}
                 />
-              </TouchableOpacity>
-              <Image
-                source={item.images[currentPages[item.id] || 0]}
-                style={styles.carouselImage}
-              />
-              <TouchableOpacity
-                onPress={() => handleNextImage(item.id, item.images.length)}
-                style={styles.arrowButton}>
-                <Image
-                  source={require('../assets/imgs/chevron-right.png')}
-                  style={styles.arrowIcon}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.postDetails}>
-              <Text style={styles.location}>{item.location}</Text>
-              <Text style={styles.time}>{item.time}</Text>
-            </View>
-            {/* Pagination Dots */}
-            <View style={styles.paginationContainer}>
-              {item.images.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.paginationDot,
-                    (currentPages[item.id] || 0) === index && styles.paginationDotActive,
-                  ]}
-                />
-              ))}
-            </View>
-            <View style={styles.likeContainer}>
-              <Text style={styles.likes}>좋아요 {likesCount[item.id]}</Text>
-              <TouchableOpacity onPress={() => toggleLike(item.id)}>
-                {likedPosts[item.id] ? (
-                  <HearthIcon width={20} height={20} /> // 좋아요 누른 후 아이콘
-                ) : (
-                  <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+                <Text style={styles.nickname}>{item.nickname}</Text>
+              </View>
+              <Text style={styles.postTitle}>{item.title}</Text>
+              <Text style={styles.postContent}>{item.content}</Text>
 
-      {/* Floating "Write" Button */}
+              <View style={styles.carouselContainer}>
+                <TouchableOpacity
+                  onPress={() => handlePreviousImage(item.id, item.images.length)}
+                  style={styles.arrowButton}>
+                  <Image
+                    source={require('../assets/imgs/chevron-left.png')}
+                    style={styles.arrowIcon}
+                  />
+                </TouchableOpacity>
+                <Image
+                  source={{uri: item.images[currentPages[item.id] || 0].url}}
+                  style={styles.carouselImage}
+                />
+                <TouchableOpacity
+                  onPress={() => handleNextImage(item.id, item.images.length)}
+                  style={styles.arrowButton}>
+                  <Image
+                    source={require('../assets/imgs/chevron-right.png')}
+                    style={styles.arrowIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.postDetails}>
+                <Text style={styles.location}>{item.location}</Text>
+                <Text style={styles.time}>{item.createdAt}</Text>
+              </View>
+
+              <View style={styles.paginationContainer}>
+                {item.images.map((_: any, index: React.Key | null | undefined) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.paginationDot,
+                      (currentPages[item.id] || 0) === index && styles.paginationDotActive,
+                    ]}
+                  />
+                ))}
+              </View>
+
+              <View style={styles.likeContainer}>
+                <Text style={styles.likes}>좋아요 {likesCount[item.id]}</Text>
+                <TouchableOpacity onPress={() => toggleLike(item.id)}>
+                  {likedPosts[item.id] ? (
+                    <HearthIcon width={20} height={20} /> // 좋아요 누른 후 아이콘
+                  ) : (
+                    <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        />
+      )}
+
       <TouchableOpacity style={styles.floatingButton} onPress={goToWriting}>
         <Text style={styles.floatingButtonText}>+</Text>
       </TouchableOpacity>
