@@ -2,6 +2,7 @@ import axios, {AxiosRequestHeaders, InternalAxiosRequestConfig, AxiosResponse} f
 import {getTokens, saveTokens} from '../utills/tokenStorage';
 
 export const BASE_URL = 'https://k11b105.p.ssafy.io/wassu';
+export const FAST_URL = 'https://k11b105.p.ssafy.io/fast_api';
 
 const config = {
   baseURL: BASE_URL,
@@ -10,9 +11,17 @@ const config = {
   },
 };
 
+const fastconfig = {
+  baseURL: FAST_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
 // axios 인스턴스 생성
 export const api = axios.create(config);
 export const Authapi = axios.create(config);
+export const fastapi = axios.create(fastconfig);
 
 // 요청 인터셉터: 요청 시 액세스 토큰을 자동으로 추가
 Authapi.interceptors.request.use(
