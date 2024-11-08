@@ -4,6 +4,8 @@ import com.wassu.wassu.dto.article.ArticleDTO;
 import com.wassu.wassu.dto.article.ArticleResponseDTO;
 import com.wassu.wassu.dto.article.ArticleSearchRequestDTO;
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.exception.CustomErrorCode;
+import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.List;
 
@@ -40,6 +44,8 @@ public class ArticleController {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleSearchServiceImpl articleSearchServiceImpl;
+    private final ArticleCategoryFilterService articleCategoryFilterService;
+    private final ArticleReadService articleReadService;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -56,9 +62,9 @@ public class ArticleController {
         log.info("Requested DTO: {}", articleDTO);
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
-        articleCreateService.createArticle(userEmail, articleDTO, files);
+        String articleId = articleCreateService.createArticle(userEmail, articleDTO, files);
 
-        return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+        return ResponseEntity.ok(utilTool.createResponse("articleId", articleId));
     }
     
     // 포스팅 수정
@@ -104,34 +110,52 @@ public class ArticleController {
 
     // 포스팅 검색
     @PostMapping(value="/search")
-    public ResponseEntity<Page<ArticleResponseDTO>> searchArticle(
+    public ResponseEntity<?> searchArticleTest(
             @RequestBody ArticleSearchRequestDTO requestDTO,
             Pageable pageable
     ){
         try {
-//            Page<ArticleEntity> articles = articleSearchServiceImpl.searchByTitleAndContentWithTags(
-//                    requestDTO.getSearchText(), requestDTO.getTags(), pageable
-//            );
-            articleSearchServiceImpl.searchByTitleAndContentWithTags(
+            log.info("Requested search test -----------------------------");
+            Page<Map<String, Object>> response = articleSearchServiceImpl.searchByText(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
 
-//            Page<ArticleResponseDTO> dtoPage = articles.map(article -> new ArticleResponseDTO(
-//                    article.getId(),
-//                    article.getTitle(),
-//                    article.getContent(),
-//                    article.getTags()
-//                            .stream()
-//                            .map(ArticleEntity.Tag::getTag)
-//                            .toList()
-//            ));
-            System.out.println("Search Completed --------------------------");
+            System.out.println("Search Test Completed --------------------------");
             log.info("Search Completed");
-//            return ResponseEntity.ok(dtoPage);
-            return null;
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("IOException while search article: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 포스팅 카테고리 별 필터링
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterArticle(@RequestParam(required = false) String category, Pageable pageable){
+        try {
+            Page<Map<String, Object>> articles = articleCategoryFilterService.searchByTag(category, pageable);
+            return ResponseEntity.ok(articles);
+
+        } catch (Exception e) {
+            log.error("Error while filtering article: ", e);
+            return ResponseEntity.status(500).body(utilTool.createResponse("status","error"));
+        }
+    }
+
+    // 게시글 조회
+    @GetMapping("/read/{articleId}")
+    public ResponseEntity<?> readArticle(@PathVariable String articleId){
+        try {
+            ArticleResponseDTO article = articleReadService.searchById(articleId);
+            if (article != null) {
+                log.info("Article Read Completed");
+                return ResponseEntity.ok(utilTool.createResponse("status",article));
+            } else {
+                return ResponseEntity.status(404).body(utilTool.createResponse("status","Article Not Found"));
+            }
+        } catch(Exception e){
+            log.error("Error while reading article: ", e);
+            throw new CustomException(CustomErrorCode.ERROR_WHILE_READ_ARTICLE);
         }
     }
 }

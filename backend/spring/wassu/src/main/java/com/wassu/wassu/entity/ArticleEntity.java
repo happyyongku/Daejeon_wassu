@@ -51,7 +51,7 @@ public class ArticleEntity {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Tag {
-        @Field(type = FieldType.Text, analyzer = "nori_analyzer")
+        @Field(type = FieldType.Keyword)
         private String tag;
     }
 

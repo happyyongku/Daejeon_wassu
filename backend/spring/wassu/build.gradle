@@ -54,7 +54,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'co.elastic.clients:elasticsearch-java:8.10.0'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-	
+
+	//Jackson
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 tasks.named('test') {

@@ -7,8 +7,8 @@ import java.util.Map;
 
 @Component
 public class UtilTool {
-    public Map<String, String> createResponse(String key, String value) {
-        Map<String, String> response = new HashMap<>();
+    public Map<String, Object> createResponse(String key, Object value) {
+        Map<String, Object> response = new HashMap<>();
         response.put(key, value);
         return response;
     }

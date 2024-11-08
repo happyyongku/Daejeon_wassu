@@ -24,7 +24,10 @@ public enum CustomErrorCode {
     FAILED_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Send Email"),
     FAILED_TO_UPLOAD_S3(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Upload S3"),
     IMAGEFILE_IS_NULL(HttpStatus.INTERNAL_SERVER_ERROR, "Image File Is Null"),
-    FAILED_TO_SEARCH(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Search"),;
+    FAILED_TO_SEARCH(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Search"),
+    FAILED_TO_SEARCH_BY_TAG(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Search By Tag"),
+    ERROR_WHILE_SEARCH_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Search Article"),
+    ERROR_WHILE_READ_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Read Article"),;
 
     private final HttpStatus status;
     private final String message;
