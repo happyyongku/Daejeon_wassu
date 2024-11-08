@@ -8,6 +8,7 @@ import TravelChallenge from '../pages/TravelChallenge';
 import MonopolyPage from '../pages/MonopolyPage';
 import Community from '../pages/Community';
 import Ar from '../pages/Ar';
+import Gps from '../pages/Gps';
 import FindPassword from '../pages/FindPassword';
 import MyPage from '../pages/MyPage';
 import TravelItinerary from '../pages/TravelItinerary';
@@ -38,6 +39,7 @@ export type RootStackParamList = {
   MonopolyPage: undefined;
   Community: undefined;
   Ar: undefined;
+  Gps: undefined;
   FindPassword: undefined;
   MyPage: undefined;
   TravelItinerary: undefined;
@@ -81,6 +83,7 @@ function Navigator() {
       <Stack.Screen name="MonopolyPage" component={MonopolyPage} options={{headerShown: false}} />
       <Stack.Screen name="Community" component={Community} options={{headerShown: false}} />
       <Stack.Screen name="Ar" component={Ar} options={{headerShown: false}} />
+      <Stack.Screen name="Gps" component={Gps} options={{headerShown: false}} />
       <Stack.Screen name="FindPassword" component={FindPassword} options={{headerShown: false}} />
       <Stack.Screen name="MyPage" component={MyPage} options={{headerShown: false}} />
       <Stack.Screen
