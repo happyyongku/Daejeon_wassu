@@ -33,7 +33,7 @@ const SignUp = (): React.JSX.Element => {
     }
 
     try {
-      const response = await signUp(email, password, gender, parseInt(birthYear), nickname);
+      const response = await signUp(email, password, gender, parseInt(birthYear, 10), nickname);
       if (response) {
         Alert.alert('회원가입이 성공적으로 완료되었습니다.');
         navigation.navigate('Login');
