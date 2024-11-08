@@ -21,12 +21,14 @@ import HomeIcon from '../assets/imgs/home.svg';
 import RainIcon from '../assets/imgs/rain.svg';
 import SportIcon from '../assets/imgs/sport.svg';
 import ArtIcon from '../assets/imgs/art.svg';
-import BreadIcon from '../assets/imgs/breadB.svg';
-import FlameIcon from '../assets/imgs/flame.svg';
+import BreadIcon from '../assets/imgs/mainbread.svg';
+import FlameIcon from '../assets/imgs/mainhot.svg';
 import NatureIcon from '../assets/imgs/na.svg';
 import ScienceIcon from '../assets/imgs/sei.svg';
-import CalendarIcon from '../assets/imgs/calendar.svg';
+import CalendarIcon from '../assets/imgs/maincalendar.svg';
 import MonopolyIcon from '../assets/imgs/monopoly.svg';
+import LoginIcon from '../assets/imgs/user.svg';
+import {getTokens} from '../utills/tokenStorage';
 
 const {width} = Dimensions.get('window');
 
@@ -107,11 +109,17 @@ const MainPage = () => {
     navigation.navigate('TravelItinerary');
   };
 
-  const goToLogin = () => {
-    navigation.navigate('Login');
-  };
   const goToMap = () => {
     navigation.navigate('Map');
+  };
+
+  const goToLoginOrProfile = async () => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      navigation.navigate('MyPage');
+    } else {
+      navigation.navigate('Login');
+    }
   };
 
   const insertLineBreak = (text: string, maxChars: number) => {
@@ -160,8 +168,8 @@ const MainPage = () => {
           <Text style={styles.logoText}>대전왔슈</Text>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={goToLogin}>
-          <Text>로그인</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={goToLoginOrProfile}>
+          <LoginIcon width={25} height={25} />
         </TouchableOpacity>
       </View>
 
@@ -190,7 +198,7 @@ const MainPage = () => {
             <Text style={styles.categoryTitle}>
               대전 관광지 <Text style={styles.categorySubtitle}>모두 담아놨슈~</Text>
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={goToRecommend}>
               <Text style={styles.categoryMore}>&gt;</Text>
             </TouchableOpacity>
           </View>
