@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Header from '../common/Header';
@@ -25,6 +26,8 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+import {GOOGLE_MAPS_API_KEY} from '@env';
 
 type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -91,16 +94,32 @@ const review = [
   },
 ];
 
+const origin = {
+  latitude: 36.33229969,
+  longitude: 127.4341122,
+};
+
+const destination = {
+  latitude: 36.367771,
+  longitude: 127.3886019,
+};
+
+const midPoint = {
+  latitude: (origin.latitude + destination.latitude) / 2,
+  longitude: (origin.longitude + destination.longitude) / 2,
+};
+
 const PlaceDetail = () => {
   const navigation = useNavigation<PlaceDetailScreenNavigationProp>();
   const route = useRoute();
   const {name} = route.params as PlaceDetailRouteProp;
 
-  const [modalVisible, setModalVisible] = useState(false);
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
   const [stampModalVisible, setStampModalVisible] = useState<any>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [travelInfo, setTravelInfo] = useState<{duration: number; distance: number} | null>(null);
 
   const handleScheduleSelect = (schedule: any) => {
     setSelectedSchedule(schedule);
@@ -110,6 +129,14 @@ const PlaceDetail = () => {
 
   const gotoWrite = () => {
     navigation.navigate('WriteReview');
+  };
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -200,11 +227,67 @@ const PlaceDetail = () => {
 
             <View style={styles.addressRow}>
               <Text style={styles.addressText}>대전 서구 둔산대로 169</Text>
-              <TouchableOpacity
-                style={styles.directionButton}
-                onPress={() => setModalVisible(true)}>
+              <TouchableOpacity style={styles.directionButton} onPress={handleOpenModal}>
                 <Text style={styles.directionButtonText}>길찾기</Text>
               </TouchableOpacity>
+
+              <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>약도보기</Text>
+                    <MapView
+                      provider={PROVIDER_GOOGLE}
+                      style={styles.maps}
+                      initialRegion={{
+                        latitude: midPoint.latitude,
+                        longitude: midPoint.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                      }}>
+                      <Marker coordinate={origin} title="출발지" />
+                      <Marker coordinate={destination} title={name} />
+
+                      <MapViewDirections
+                        origin={{
+                          latitude: 36.33229969,
+                          longitude: 127.4341122,
+                        }}
+                        destination={{
+                          latitude: 36.367771,
+                          longitude: 127.3886019,
+                        }}
+                        apikey={GOOGLE_MAPS_API_KEY}
+                        mode="TRANSIT"
+                        strokeWidth={4}
+                        strokeColor="blue"
+                        onReady={result => {
+                          setTravelInfo({
+                            duration: result.duration,
+                            distance: result.distance,
+                          });
+                        }}
+                        onError={errorMessage => {
+                          console.error('Directions API Error:', errorMessage);
+                        }}
+                      />
+                    </MapView>
+                    {travelInfo && (
+                      <View style={styles.travelInfoContainer}>
+                        <Text style={styles.travelInfoText}>
+                          거리: {travelInfo.distance.toFixed(1)} km
+                        </Text>
+                        <Text style={styles.travelInfoText}>
+                          대중교통 소요 시간: {Math.round(travelInfo.duration)} 분
+                        </Text>
+                      </View>
+                    )}
+
+                    <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
+                      <Text style={styles.closeButtonText}>닫기</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
             </View>
           </View>
         </View>
@@ -256,14 +339,6 @@ const PlaceDetail = () => {
           </ScrollView>
         </View>
 
-        <CustomModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          title="차량 길찾기"
-          content="거리: 7.8 km \n소요 시간: 17 분"
-          imageSource={require('../../assets/imgs/maphan.png')}
-          footerButtonText="확인"
-        />
         <StepModal
           visible={scheduleModalVisible}
           onClose={() => setScheduleModalVisible(false)}
@@ -572,6 +647,49 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+    fontFamily: 'Pretendard-Bold',
+  },
+  maps: {
+    width: '100%',
+    height: 200,
+  },
+  travelInfoContainer: {
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  travelInfoText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium',
+    color: '#333',
+    marginVertical: 2,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: '#418663',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontFamily: 'Pretendard-Bold',
   },
 });
 

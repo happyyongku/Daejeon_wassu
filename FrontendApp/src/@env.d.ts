@@ -1,3 +1,3 @@
 declare module '@env' {
-  export const KAKAO_NATIVE_APP_KEY: string;
+  export const GOOGLE_MAPS_API_KEY: string;
 }
