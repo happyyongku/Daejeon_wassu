@@ -5,8 +5,6 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 
 import com.wassu.wassu.repository.article.ArticleRepository;
-import com.wassu.wassu.repository.article.ArticleImageRepository;
-import com.wassu.wassu.repository.article.ArticleTagRepository;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -30,14 +28,10 @@ import java.util.Base64;
 @EnableElasticsearchRepositories(
         basePackageClasses = {
                 ArticleRepository.class,
-                ArticleImageRepository.class,
-                ArticleTagRepository.class,
         }
 )
 public class ElasticsearchConfig {
 
-//    @Value("${elasticsearch.url}")
-//    private String elastichUrl;
     @Value("${server.domain}")
     private String serverDomain;
 
@@ -50,11 +44,6 @@ public class ElasticsearchConfig {
     @Value("${elasticsearch.password}")
     private String password ;
 
-//    @PostConstruct
-//    public void logCredentials() {
-//        System.out.println("Username: " + username + "-----------------------");
-//        System.out.println("Password: " + password + "-----------------------");
-//    }
 
     @Primary
     @Bean
@@ -90,6 +79,7 @@ public class ElasticsearchConfig {
         RestClient restclient = builder.build();
         RestClientTransport transport = new RestClientTransport(restclient, new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
+
     }
 
 }

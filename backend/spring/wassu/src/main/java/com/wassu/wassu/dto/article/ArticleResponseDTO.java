@@ -1,24 +1,27 @@
 package com.wassu.wassu.dto.article;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wassu.wassu.entity.ArticleEntity;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 public class ArticleResponseDTO {
     private String id;
     private String title;
     private String content;
-    private List<String> tags;
+    private List<ArticleEntity.Tag> tags;
+    private List<ArticleEntity.Image> images;
+    private Integer viewCount;
+    private Integer liked;
 
-    public ArticleResponseDTO (String id, String title, String content, List<String> tags) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.tags = tags;
-    }
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 }

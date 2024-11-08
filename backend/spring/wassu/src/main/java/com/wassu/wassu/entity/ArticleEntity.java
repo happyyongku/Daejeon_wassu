@@ -1,5 +1,6 @@
 package com.wassu.wassu.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setting(settingPath = "/nori_settings.json")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleEntity {
     @Id
     private String id;
@@ -49,7 +51,7 @@ public class ArticleEntity {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Tag {
-        @Field(type = FieldType.Text, analyzer = "nori_analyzer")
+        @Field(type = FieldType.Keyword)
         private String tag;
     }
 

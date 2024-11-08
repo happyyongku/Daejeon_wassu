@@ -28,7 +28,7 @@ public class ArticleCreateService {
     private final S3Util s3Util;
     
     // 게시글 작성
-    public void createArticle(String userEMail, ArticleDTO articleDTO, List<MultipartFile> imageFiles) {
+    public String createArticle(String userEMail, ArticleDTO articleDTO, List<MultipartFile> imageFiles) {
         Optional<UserEntity> user = userRepository.findByEmail(userEMail);
         if (user.isPresent()) {
             try {
@@ -52,6 +52,7 @@ public class ArticleCreateService {
                 }
                 articleRepository.save(articleEntity);
                 log.info("End to create article");
+                return articleEntity.getId();
 
             } catch (Exception e) {
                 log.error("Failed to create article: ", e);

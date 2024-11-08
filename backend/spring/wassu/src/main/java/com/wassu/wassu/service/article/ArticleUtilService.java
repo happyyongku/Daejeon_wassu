@@ -4,9 +4,7 @@ package com.wassu.wassu.service.article;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.exception.CustomException;
-import com.wassu.wassu.repository.article.ArticleImageRepository;
 import com.wassu.wassu.repository.article.ArticleRepository;
-import com.wassu.wassu.repository.article.ArticleTagRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.exception.CustomErrorCode;
 
@@ -25,8 +23,6 @@ public class ArticleUtilService {
 
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
-    private final ArticleImageRepository articleImageRepository;
-    private final ArticleTagRepository articleTagRepository;
     private final S3Util s3Util;
 
     // 게시글 및 유저 매칭 확인
