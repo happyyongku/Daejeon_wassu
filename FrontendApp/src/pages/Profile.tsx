@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Dimensions, Image} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import AccountDeletionModal from '../components/Profile/AccountDeletionModal';
 import ProfileImagePickerModal from '../components/Profile/ProfileImagePickerModal';
+import {deleteAccount} from '../api/user';
 
 const {width} = Dimensions.get('window');
 
@@ -27,8 +28,15 @@ const Profile = () => {
 
   const openDeleteModal = () => setDeleteModalVisible(true);
   const closeDeleteModal = () => setDeleteModalVisible(false);
-  const handleConfirmDelete = () => {
-    // 계정 삭제 처리 로직
+
+  const handleConfirmDelete = async () => {
+    const success = await deleteAccount();
+    if (success) {
+      Alert.alert('계정 삭제 완료', '계정이 성공적으로 삭제되었습니다.');
+      navigation.navigate('Login');
+    } else {
+      Alert.alert('계정 삭제 실패', '계정 삭제에 실패했습니다. 다시 시도해 주세요.');
+    }
     closeDeleteModal();
   };
 
