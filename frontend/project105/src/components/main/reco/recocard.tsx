@@ -7,7 +7,7 @@ export default function RecoCard() {
       <div>
         <div className={style.title}>성심당</div>
         <div className={style.desc}>
-          대전의 유명한 빵집. 다들 와서 한입 맛보고 즐기...
+          대전의 유명한 빵집. 다들 와서 한입 맛보고 즐기셔와요
         </div>
         <div className={style.iconbox}>
           <img className={style.icon} src="/images/pencil.png" alt="" />
@@ -17,7 +17,7 @@ export default function RecoCard() {
         </div>
         <div className={style.address}>대전 노은동 463-3</div>
       </div>
-      <img className={style.img} src="/images/bread.png" alt="" />
+      <img className={style.img} src="/images/default.png" alt="" />
     </div>
   );
 }
