@@ -10,6 +10,7 @@ export default function Page() {
         다양한 관광지에 대한 사용자들의 후기를 접하고,
       </p>
       <p className={style.desc}>다양한 방법으로 관광지를 즐겨보세요.</p>
+
       <div className={style.card_container}>
         <CommunityCard />
         <CommunityCard />

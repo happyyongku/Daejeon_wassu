@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ToLoginModal from "../../../components/main/tologinmodal";
 import style from "./page.module.css";
 
+import Reco from "@/components/main/reco/reco";
 import Community from "../../../components/main/community/community";
 
 export default function Page() {
@@ -57,6 +58,8 @@ export default function Page() {
             </div>
           </div>
           <div className={style.content_container}>
+            <Reco />
+            <div className={style.bar}></div>
             <Community />
           </div>
         </div>

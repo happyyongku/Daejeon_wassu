@@ -1,0 +1,18 @@
+.buttonbox {
+  width: 40px;
+  height: 40px;
+  background-color: #ffffff;
+  border: 1.5px solid #418663;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  margin-bottom: 3px;
+  cursor: pointer;
+}
+
+.button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

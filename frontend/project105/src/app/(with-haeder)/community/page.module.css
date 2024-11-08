@@ -2,6 +2,7 @@
   font-size: 30px;
   font-weight: bold;
   color: #333333;
+  margin-top: 20px;
 }
 
 .title_green {
@@ -16,8 +17,16 @@
   opacity: 50%;
 }
 
+.cardbox {
+  width: 750px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .card_container {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
   margin-top: 30px;
