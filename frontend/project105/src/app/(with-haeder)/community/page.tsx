@@ -1,7 +1,14 @@
 import style from "./page.module.css";
 import CommunityCard from "../../../components/main/community/communitycard";
+import axios from "axios";
 
-export default function Page() {
+// 타입도 가져와야 한다. import 해야한다.
+
+export default async function Page() {
+  // const response = await axios.get(
+  //   `https://k11b105.p.ssafy.io/wassu/posts/filter`
+  // );
+
   return (
     <div>
       <div className={style.title}>다양한 관광지에 대한 소감,</div>
