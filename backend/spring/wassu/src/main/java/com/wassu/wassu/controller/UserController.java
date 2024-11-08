@@ -3,6 +3,8 @@ package com.wassu.wassu.controller;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
+import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.service.user.UserProfileUpdateService;
 import com.wassu.wassu.service.user.UserService;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.repository.UserRepository;
@@ -26,6 +28,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final UtilTool utilTool;
+    private final UserProfileUpdateService userProfileUpdateService;
 
 
     // 사용자 정보 조회
@@ -40,22 +43,41 @@ public class UserController {
         return Optional.empty();
     }
 
-    // 사용자 정보 수정
-    @PutMapping(value = "/profile/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> editProfile(
-            @RequestHeader(value="Authorization") String accessToken,
-            @RequestPart("UserProfileUpdateDTO") UserProfileUpdateDTO userProfileUpdateDTO,
-            @RequestPart(value="file", required = false) MultipartFile file
-    ) {
+    // 사용자 프로필 정보 수정
+    @PutMapping("/profile/edit/inform")
+    public ResponseEntity<?> editProfileInform(
+            @RequestHeader(value = "Authorization") String accessToken,
+            @RequestBody UserProfileUpdateDTO userProfileUpdateDTO
+            ){
+        log.info("START");
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
-            userService.updateUser(userEmail, userProfileUpdateDTO, file);
-            log.info("User profile updated: {}", userEmail);
+            UserEntity userEntity = userRepository.findByEmail(userEmail).get();
+            userProfileUpdateService.updateProfile(userEntity, userProfileUpdateDTO);
+            log.info("Update profile completed");
             return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+        } else {
+            log.error("User not found while update profile: {}", userEmail);
+            return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
         }
-        log.info("User not found: {}", userEmail);
-        return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+    }
+
+    @PutMapping("/profile/edit/image")
+    public ResponseEntity<?> editProfileImage(
+            @RequestHeader(value = "Authorization") String accessToken,
+            MultipartFile profileImage
+            ) {
+        String token = accessToken.replace("Bearer ", "");
+        String userEmail = jwtUtil.extractUserEmail(token);
+        if (userRepository.findByEmail(userEmail).isPresent()) {
+            UserEntity userEntity = userRepository.findByEmail(userEmail).get();
+            userProfileUpdateService.updateProfileImage(userEntity, profileImage);
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+        } else {
+            log.error("User not found while update profile image: {}", userEmail);
+            return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+        }
     }
 
     // 사용자 비밀번호 수정

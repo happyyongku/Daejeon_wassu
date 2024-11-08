@@ -34,9 +34,6 @@ public class UserEntity {
     @Column(length = 10)
     private String level;
 
-    @Column(length = 50)
-    private String introduction;
-
     private Integer exp;
 
     private String profileImage;
@@ -52,9 +49,6 @@ public class UserEntity {
         }
         if (this.profileImage == null) {
             this.profileImage = "default";
-        }
-        if (this.introduction == null) {
-            this.introduction = "";
         }
     }
 
