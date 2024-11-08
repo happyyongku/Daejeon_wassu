@@ -107,3 +107,38 @@ export async function verifyCode(email: string, code: string) {
     }
   }
 }
+
+// 회원가입
+export async function signUp(
+  email: string,
+  password: string,
+  gender: string,
+  birthYear: number,
+  nickname: string,
+) {
+  try {
+    const response = await api.post('/auth/signup', {
+      email,
+      password,
+      gender,
+      birthYear,
+      nickname,
+    });
+
+    if (response && response.status === 200 && response.data.status === 'success') {
+      console.log('Sign-up successful.');
+      return response.data;
+    } else {
+      console.error('Sign-up failed:', response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Sign-up error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during sign-up:', err);
+      return null;
+    }
+  }
+}

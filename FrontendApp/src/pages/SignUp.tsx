@@ -1,19 +1,50 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert} from 'react-native';
-import {sendVerificationCode, verifyCode} from '../api/user';
+import {sendVerificationCode, verifyCode, signUp} from '../api/user';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../router/Navigator';
 
 const {width} = Dimensions.get('window');
+
+type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
 
 const SignUp = (): React.JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [code, setCode] = useState('');
   const [gender, setGender] = useState<string | null>(null);
   const [birthYear, setBirthYear] = useState('');
   const [nickname, setNickname] = useState('');
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const handleSignUp = () => {};
+  const navigation = useNavigation<SignUpScreenNavigationProp>();
+
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (!email || !password || !gender || !birthYear || !nickname) {
+      Alert.alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await signUp(email, password, gender, parseInt(birthYear), nickname);
+      if (response) {
+        Alert.alert('회원가입이 성공적으로 완료되었습니다.');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert('회원가입에 실패했습니다. 다시 시도해 주세요.');
+      }
+    } catch (error) {
+      console.error('Sign-up error:', error);
+      Alert.alert('오류가 발생했습니다. 다시 시도해 주세요.');
+    }
+  };
 
   const handleEmailVerification = async () => {
     if (!email) {
@@ -93,6 +124,20 @@ const SignUp = (): React.JSX.Element => {
         onChangeText={setPassword}
         secureTextEntry
         onFocus={() => setFocusedField('password')}
+        onBlur={() => setFocusedField(null)}
+      />
+
+      <Text style={[styles.label, focusedField === 'confirmPassword' && styles.focusedLabel]}>
+        비밀번호 확인
+      </Text>
+      <TextInput
+        style={[styles.input, focusedField === 'confirmPassword' && styles.focusedInput]}
+        placeholder="비밀번호 확인"
+        placeholderTextColor="#F1F1F1"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        secureTextEntry
+        onFocus={() => setFocusedField('confirmPassword')}
         onBlur={() => setFocusedField(null)}
       />
 
