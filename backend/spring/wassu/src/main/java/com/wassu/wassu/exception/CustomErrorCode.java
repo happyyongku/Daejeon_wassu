@@ -12,6 +12,7 @@ public enum CustomErrorCode {
     USER_NOT_FOUND_WHILE_CREATING_ARTICLE(HttpStatus.BAD_REQUEST, "User Not Found While Creating Article"),
     ALREADY_LIKED_REVIEW(HttpStatus.BAD_REQUEST, "Already Liked Review"),
     ALREADY_LIKED_ARTICLE(HttpStatus.BAD_REQUEST, "Already Liked Article"),
+    ALREADY_LIKED_TOURISTSPOT(HttpStatus.BAD_REQUEST, "Already Liked TouristSpot"),
 
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
     USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),

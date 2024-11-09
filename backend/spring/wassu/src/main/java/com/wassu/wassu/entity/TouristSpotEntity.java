@@ -1,5 +1,6 @@
 package com.wassu.wassu.entity;
 
+import com.wassu.wassu.entity.review.ReviewEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -25,6 +26,8 @@ public class TouristSpotEntity {
 
     private Integer userRatingsTotal;
 
+    private int favoritesCount;
+
     private String spotDescription;
 
     @Column(nullable = false)
@@ -41,5 +44,8 @@ public class TouristSpotEntity {
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotImageEntity> touristSpotImages;
+
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewEntity> reviews;
 
 }
