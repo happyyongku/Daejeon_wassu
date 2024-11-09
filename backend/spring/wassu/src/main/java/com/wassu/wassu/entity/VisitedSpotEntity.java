@@ -16,13 +16,12 @@ public class VisitedSpotEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String spotId;
+
     @ManyToOne
     @JoinColumn(name="user_entity_id", nullable = false)
     private UserEntity user;
-
-    @ManyToOne
-    @JoinColumn(name="spot_entity_id", nullable = false)
-    private TouristSpotEntity touristSpot;
 
     @ManyToOne
     @JoinColumn(name="cleared_marble_entity_id", nullable = true)
