@@ -1,6 +1,7 @@
 package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.article.ArticleDTO;
+import com.wassu.wassu.dto.article.ArticleLikeDTO;
 import com.wassu.wassu.dto.article.ArticleResponseDTO;
 import com.wassu.wassu.dto.article.ArticleSearchRequestDTO;
 import com.wassu.wassu.entity.UserEntity;
@@ -170,18 +171,16 @@ public class ArticleController {
     // 게시글 좋아요
     @PostMapping("/{articleId}/likes")
     public ResponseEntity<?> likeArticle(@AuthenticationPrincipal UserDetails userDetails,
-                                         @PathVariable String articleId){
+                                         @PathVariable String articleId,
+                                         @RequestParam String action){
         String userEmail = userDetails.getUsername();
-        articleLikeService.likeArticle(userEmail, articleId);
-        return ResponseEntity.ok(Map.of("status","article liked"));
-    }
-
-    @DeleteMapping("/{articleId}/likes")
-    public ResponseEntity<?> unLikeArticle(@AuthenticationPrincipal UserDetails userDetails,
-                                           @PathVariable String articleId){
-        String userEmail = userDetails.getUsername();
-        articleLikeService.unlikeArticle(userEmail, articleId);
-        return ResponseEntity.ok(Map.of("status","article unliked"));
+        ArticleLikeDTO result;
+        if ("like".equals(action)){
+            result = articleLikeService.likeArticle(userEmail, articleId);
+        } else {
+            result = articleLikeService.unlikeArticle(userEmail, articleId);
+        }
+        return ResponseEntity.ok(result);
     }
 
 }

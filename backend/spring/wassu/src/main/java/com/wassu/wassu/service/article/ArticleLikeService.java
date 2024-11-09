@@ -1,5 +1,6 @@
 package com.wassu.wassu.service.article;
 
+import com.wassu.wassu.dto.article.ArticleLikeDTO;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.entity.ArticleLikedEntity;
 import com.wassu.wassu.entity.UserEntity;
@@ -23,7 +24,7 @@ public class ArticleLikeService {
     private final UserRepository userRepository;
     private final ArticleLikedRepository articleLikedRepository;
 
-    public void likeArticle(String email, String articleId) {
+    public ArticleLikeDTO likeArticle(String email, String articleId) {
         ArticleEntity article = articleRepository.findById(articleId).orElseThrow(() -> new CustomException(CustomErrorCode.ARTICLE_NOT_FOUND));
         // 게시글 중복 좋아요 불가
         if (articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email)) {
@@ -33,20 +34,24 @@ public class ArticleLikeService {
         // 좋아요 생성
         ArticleLikedEntity likes = new ArticleLikedEntity(user, articleId);
         articleLikedRepository.save(likes);
+        Integer totalLikes = article.getLiked();
         // 게시글 좋아요 수 +1
-        article.setLiked(article.getLiked() + 1);
+        article.setLiked(totalLikes + 1);
         articleRepository.save(article);
+        return new ArticleLikeDTO("Post successfully liked", totalLikes + 1);
     }
 
-    public void unlikeArticle(String email, String articleId) {
+    public ArticleLikeDTO unlikeArticle(String email, String articleId) {
         ArticleEntity article = articleRepository.findById(articleId).orElseThrow(() -> new CustomException(CustomErrorCode.ARTICLE_NOT_FOUND));
         // 좋아요한 적 없는 게시글 취소 불가
         ArticleLikedEntity likes = articleLikedRepository.findByArticleIdAndUserEmail(articleId, email).orElseThrow(() -> new CustomException(CustomErrorCode.LIKE_NOT_FOUND));
         // 좋아요 삭제
         articleLikedRepository.delete(likes);
+        Integer totalLikes = article.getLiked();
         // 게시글 좋아요 수 -1
-        article.setLiked(article.getLiked() - 1);
+        article.setLiked(totalLikes - 1);
         articleRepository.save(article);
+        return new ArticleLikeDTO("Post successfully unliked", totalLikes - 1);
     }
 
 }
