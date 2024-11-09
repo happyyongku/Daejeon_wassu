@@ -5,6 +5,7 @@ import com.wassu.wassu.dto.article.ArticleResponseDTO;
 import com.wassu.wassu.entity.ArticleEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
+import com.wassu.wassu.repository.article.ArticleLikedRepository;
 import com.wassu.wassu.repository.article.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,9 @@ import java.util.Optional;
 public class ArticleReadService {
 
     private final ArticleRepository articleRepository;
+    private final ArticleLikedRepository articleLikedRepository;
 
-    public ArticleResponseDTO searchById(String articleId) {
+    public ArticleResponseDTO searchById(String email, String articleId) {
         try {
             Optional<ArticleEntity> optionalArticle = articleRepository.findById(articleId);;
             if (optionalArticle.isPresent()) {
@@ -34,6 +36,7 @@ public class ArticleReadService {
                         article.getImages(),
                         article.getViewCount(),
                         article.getLiked(),
+                        articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email),
                         article.getCreatedAt(),
                         article.getUpdatedAt()
                 );
