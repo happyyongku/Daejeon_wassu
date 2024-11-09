@@ -49,6 +49,7 @@ public class ArticleController {
     private final ArticleCategoryFilterService articleCategoryFilterService;
     private final ArticleReadService articleReadService;
     private final ArticleLikeService articleLikeService;
+    private final ArticleProfileService articleProfileService;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -122,6 +123,7 @@ public class ArticleController {
             Page<Map<String, Object>> response = articleSearchServiceImpl.searchByText(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
+            articleProfileService.matchingProfileWithArticleList(response);
 
             System.out.println("Search Test Completed --------------------------");
             log.info("Search Completed");
@@ -155,6 +157,7 @@ public class ArticleController {
         }
         try {
             ArticleResponseDTO article = articleReadService.searchById(userEmail, articleId);
+            log.info("Article class: {}", article.getClass());
             if (article != null) {
                 log.info("Article Read Completed");
                 return ResponseEntity.ok(utilTool.createResponse("status",article));
