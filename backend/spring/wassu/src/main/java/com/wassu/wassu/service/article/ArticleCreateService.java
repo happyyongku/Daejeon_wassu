@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +36,7 @@ public class ArticleCreateService {
                 log.info("Start to create article");
                 Long userId = user.get().getId();
                 ArticleEntity articleEntity = new ArticleEntity();
+                articleEntity.setId(UUID.randomUUID().toString());
                 articleEntity.setUser(userId);
                 articleEntity.setTitle(articleDTO.getTitle());
                 articleEntity.setContent(articleDTO.getContent());

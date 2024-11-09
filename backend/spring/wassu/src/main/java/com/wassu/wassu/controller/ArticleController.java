@@ -67,6 +67,7 @@ public class ArticleController {
         @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) throws JsonProcessingException {
         log.info("Requested DTO: {}", articleDTOJson);
+        log.info("Requested Files: {}", files);
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         ObjectMapper objectMapper = new ObjectMapper();
