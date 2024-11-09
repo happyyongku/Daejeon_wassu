@@ -18,6 +18,7 @@ public class ArticleResponseDTO {
     private List<ArticleEntity.Image> images;
     private Integer viewCount;
     private Integer liked;
+    private boolean isLiked;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

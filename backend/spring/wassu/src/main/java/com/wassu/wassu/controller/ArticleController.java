@@ -147,9 +147,11 @@ public class ArticleController {
 
     // 게시글 조회
     @GetMapping("/read/{articleId}")
-    public ResponseEntity<?> readArticle(@PathVariable String articleId){
+    public ResponseEntity<?> readArticle(@AuthenticationPrincipal UserDetails userDetails,
+                                         @PathVariable String articleId){
+        String userEmail = userDetails.getUsername();
         try {
-            ArticleResponseDTO article = articleReadService.searchById(articleId);
+            ArticleResponseDTO article = articleReadService.searchById(userEmail, articleId);
             if (article != null) {
                 log.info("Article Read Completed");
                 return ResponseEntity.ok(utilTool.createResponse("status",article));
