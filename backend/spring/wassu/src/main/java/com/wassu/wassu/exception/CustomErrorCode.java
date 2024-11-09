@@ -12,6 +12,7 @@ public enum CustomErrorCode {
     USER_NOT_FOUND_WHILE_CREATING_ARTICLE(HttpStatus.BAD_REQUEST, "User Not Found While Creating Article"),
     ALREADY_LIKED_REVIEW(HttpStatus.BAD_REQUEST, "Already Liked Review"),
     ALREADY_LIKED_ARTICLE(HttpStatus.BAD_REQUEST, "Already Liked Article"),
+    ALREADY_LIKED_TOURISTSPOT(HttpStatus.BAD_REQUEST, "Already Liked TouristSpot"),
 
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
     USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),
@@ -20,6 +21,7 @@ public enum CustomErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Not Found"),
     REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Image Not Found"),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Not Found"),
+    TOURIST_NOT_FOUND(HttpStatus.NOT_FOUND, "TouristSpot Not Found"),
 
     FAILED_TO_UPDATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Article"),
     FAILED_TO_CREATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Article"),

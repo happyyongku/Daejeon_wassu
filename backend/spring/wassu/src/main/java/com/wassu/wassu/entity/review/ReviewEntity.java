@@ -1,5 +1,6 @@
 package com.wassu.wassu.entity.review;
 
+import com.wassu.wassu.entity.TouristSpotEntity;
 import com.wassu.wassu.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -36,16 +37,19 @@ public class ReviewEntity {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImageEntity> images = new ArrayList<>();
 
-    // 여기에 관광지 연관관계 추가 예정
-
+    @ManyToOne
+    @JoinColumn(name = "tourist_spot_entity_id")
+    private TouristSpotEntity touristSpot;
 
     public ReviewEntity(String content) {
         this.content = content;
     }
 
-    public void addUser(UserEntity user) {
+    public void addUserAndSpot(UserEntity user, TouristSpotEntity touristSpot) {
         this.user = user;
+        this.touristSpot = touristSpot;
         user.getReviews().add(this);
+        touristSpot.getReviews().add(this);
     }
 
 }
