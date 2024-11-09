@@ -50,7 +50,14 @@ public class ArticleCreateService {
                             .toList();
                     articleEntity.setImages(imageEntities);
                 }
-                articleRepository.save(articleEntity);
+
+                try {
+                    log.info("Ready to Save");
+                    articleRepository.save(articleEntity);
+                } catch (Exception e) {
+                    log.error("Failed to Save Article");
+                    throw new CustomException(CustomErrorCode.FAILED_TO_SAVE_ARTICLE);
+                }
                 log.info("End to create article");
                 return articleEntity.getId();
 

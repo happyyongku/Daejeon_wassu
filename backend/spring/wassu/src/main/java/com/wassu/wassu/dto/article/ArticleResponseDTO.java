@@ -10,8 +10,13 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ArticleResponseDTO {
     private String id;
+    private Long userId;
+    private String nickName;
+    private String profileImage;
     private String title;
     private String content;
     private List<ArticleEntity.Tag> tags;
