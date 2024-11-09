@@ -87,7 +87,7 @@ public class ArticleSearchServiceImpl implements ArticleSearchService {
                         try {
                             return (Map<String, Object>) hit.source().to(Map.class);
                         } catch (Exception e) {
-                            log.error("Error converting to Map<String, Object> whild searching", e);
+                            log.error("Error converting to Map<String, Object> while searching", e);
                             return null;
                         }
                     })
