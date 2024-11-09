@@ -140,6 +140,7 @@ public class ArticleController {
     public ResponseEntity<?> filterArticle(@RequestParam(required = false) String category, Pageable pageable){
         try {
             Page<Map<String, Object>> articles = articleCategoryFilterService.searchByTag(category, pageable);
+            articleProfileService.matchingProfileWithArticleList(articles);
             return ResponseEntity.ok(articles);
 
         } catch (Exception e) {
