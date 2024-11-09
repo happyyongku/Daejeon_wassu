@@ -5,6 +5,7 @@ import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewImageDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
 import com.wassu.wassu.dto.user.UserProfileDTO;
+import com.wassu.wassu.entity.TouristSpotEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.review.ReviewImageEntity;
@@ -15,6 +16,7 @@ import com.wassu.wassu.repository.review.ReviewImageRepository;
 import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.review.ReviewRepository;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
 import com.wassu.wassu.service.user.UserService;
 import com.wassu.wassu.util.S3Util;
 import lombok.RequiredArgsConstructor;
@@ -35,14 +37,16 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewLikesRepository reviewLikesRepository;
+    private final TouristSpotRepository spotRepository;
 
     private final UserService userService;
     private final S3Util s3Util;
 
-    public void createReview(String email, List<MultipartFile> images, ReviewCreateDTO dto) {
+    public void createReview(String email, Long spotId, List<MultipartFile> images, ReviewCreateDTO dto) {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        TouristSpotEntity spot = spotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         ReviewEntity review = new ReviewEntity(dto.getContent());
-        review.addUser(user);
+        review.addUserAndSpot(user, spot);
         ReviewEntity savedReview = reviewRepository.save(review);
         // 이미지 업로드
         uploadReviewImages(images, savedReview);

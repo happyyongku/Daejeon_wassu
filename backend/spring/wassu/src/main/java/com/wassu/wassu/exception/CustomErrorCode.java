@@ -20,6 +20,7 @@ public enum CustomErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Not Found"),
     REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Image Not Found"),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Not Found"),
+    TOURIST_NOT_FOUND(HttpStatus.NOT_FOUND, "TouristSpot Not Found"),
 
     FAILED_TO_UPDATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Article"),
     FAILED_TO_CREATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Article"),
