@@ -36,11 +36,17 @@ public class ElasticTouristSpotEntity {
     @Field(type = FieldType.Text)
     private String spotDescription = null;
 
-    @Field(type = FieldType.Double)
-    private Double latitude;
+    @Field(type = FieldType.Text)
+    private String phoneNumber = null;
+
+    @Field(type = FieldType.Text)
+    private String businessHour = null;
 
     @Field(type = FieldType.Double)
-    private Double longitude;
+    private Double latitude = null;
+
+    @Field(type = FieldType.Double)
+    private Double longitude = null;
 
     @Field(type = FieldType.Nested)
     private List<Tag> tags = new ArrayList<>();

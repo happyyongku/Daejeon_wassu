@@ -50,7 +50,7 @@ public class ArticleReadService {
                         .images(article.getImages())
                         .viewCount(article.getViewCount())
                         .liked(article.getLiked())
-                        .isLiked(isUserLiked)
+                        .isUserLiked(isUserLiked)
                         .isMatched(isMatched)
                         .build();
             } else {
