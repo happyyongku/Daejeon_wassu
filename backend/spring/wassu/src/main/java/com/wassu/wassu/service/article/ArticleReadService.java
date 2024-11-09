@@ -23,6 +23,10 @@ public class ArticleReadService {
     private final ArticleLikedRepository articleLikedRepository;
 
     public ArticleResponseDTO searchById(String email, String articleId) {
+        boolean isLiked = false;
+        if (email != null) {
+            isLiked = articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email);
+        }
         try {
             Optional<ArticleEntity> optionalArticle = articleRepository.findById(articleId);;
             if (optionalArticle.isPresent()) {
@@ -36,7 +40,7 @@ public class ArticleReadService {
                         article.getImages(),
                         article.getViewCount(),
                         article.getLiked(),
-                        articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email),
+                        isLiked,
                         article.getCreatedAt(),
                         article.getUpdatedAt()
                 );
