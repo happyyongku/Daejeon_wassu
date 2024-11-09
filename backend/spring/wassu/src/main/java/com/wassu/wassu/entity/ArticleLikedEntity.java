@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ArticleLikedEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,8 +16,12 @@ public class ArticleLikedEntity {
     @JoinColumn(name="user_entity_id", nullable = false)
     private UserEntity user;
 
-//    @ManyToOne
-//    @JoinColumn(name="article_entity_id", nullable = false)
     @Column(nullable = false)
-    private String article;
+    private String articleId; // 엘라스틱 article 문서 id (UUID)
+
+    public ArticleLikedEntity(UserEntity user, String articleId) {
+        this.user = user;
+        user.getArticleLikes().add(this);
+        this.articleId = articleId;
+    }
 }

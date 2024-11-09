@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +48,7 @@ public class ArticleController {
     private final ArticleSearchServiceImpl articleSearchServiceImpl;
     private final ArticleCategoryFilterService articleCategoryFilterService;
     private final ArticleReadService articleReadService;
+    private final ArticleLikeService articleLikeService;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -158,4 +161,22 @@ public class ArticleController {
             throw new CustomException(CustomErrorCode.ERROR_WHILE_READ_ARTICLE);
         }
     }
+
+    // 게시글 좋아요
+    @PostMapping("/{articleId}/likes")
+    public ResponseEntity<?> likeArticle(@AuthenticationPrincipal UserDetails userDetails,
+                                         @PathVariable String articleId){
+        String userEmail = userDetails.getUsername();
+        articleLikeService.likeArticle(userEmail, articleId);
+        return ResponseEntity.ok(Map.of("status","article liked"));
+    }
+
+    @DeleteMapping("/{articleId}/likes")
+    public ResponseEntity<?> unLikeArticle(@AuthenticationPrincipal UserDetails userDetails,
+                                           @PathVariable String articleId){
+        String userEmail = userDetails.getUsername();
+        articleLikeService.unlikeArticle(userEmail, articleId);
+        return ResponseEntity.ok(Map.of("status","article unliked"));
+    }
+
 }
