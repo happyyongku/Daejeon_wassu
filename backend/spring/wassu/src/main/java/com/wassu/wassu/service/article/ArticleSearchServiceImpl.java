@@ -82,8 +82,6 @@ public class ArticleSearchServiceImpl implements ArticleSearchService {
 
             log.info("Elasticsearch Query Response: {}", response);
 
-            log.info("Temp : {}", response.hits().hits());
-
             List<Map<String, Object>> articles = response.hits().hits().stream()
                     .map(hit -> {
                         try {
