@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-@Service
-@Slf4j
-@AllArgsConstructor
-public class ArticleProfileService {
-    private final UserRepository userRepository;
-
-    public Page<Map<String, Object>> matchingProfileWithArticle(Page<Map<String, Object>> searchResponse) {
-
-    }
-}
+//@Service
+//@Slf4j
+//@AllArgsConstructor
+//public class ArticleProfileService {
+//    private final UserRepository userRepository;
+//
+//    public Page<Map<String, Object>> matchingProfileWithArticle(Page<Map<String, Object>> searchResponse) {
+//
+//    }
+//}

@@ -38,7 +38,8 @@ public enum CustomErrorCode {
     ERROR_WHILE_SEARCH_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Search Article"),
     ERROR_WHILE_READ_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Read Article"),
     FAILED_TO_UPDATE_PROFILE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Profile"),
-    FAILED_TO_UPDATE_PROFILE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Profile Image"),;
+    FAILED_TO_UPDATE_PROFILE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Profile Image"),
+    FAILED_TO_SAVE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Save Article"),;
 
     private final HttpStatus status;
     private final String message;
