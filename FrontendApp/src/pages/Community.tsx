@@ -140,37 +140,39 @@ const Community = () => {
           renderItem={({item}) => (
             <View style={styles.postContainer}>
               <View style={styles.postHeader}>
-                <Image
-                  source={require('../assets/imgs/profile1.png')}
-                  style={styles.profileImage}
-                />
-                <Text style={styles.nickname}>{item.nickname}</Text>
+                <Image source={{uri: item.profileImage}} style={styles.profileImage} />
+                <Text style={styles.nickname}>{item.nickName || '익명'}</Text>
               </View>
               <Text style={styles.postTitle}>{item.title}</Text>
               <Text style={styles.postContent}>{item.content}</Text>
 
-              <View style={styles.carouselContainer}>
-                <TouchableOpacity
-                  onPress={() => handlePreviousImage(item.id, item.images.length)}
-                  style={styles.arrowButton}>
+              {/* 이미지 캐러셀 렌더링 */}
+              {item.images && item.images.length > 0 ? (
+                <View style={styles.carouselContainer}>
+                  <TouchableOpacity
+                    onPress={() => handlePreviousImage(item.id, item.images.length)}
+                    style={styles.arrowButton}>
+                    <Image
+                      source={require('../assets/imgs/chevron-left.png')}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
                   <Image
-                    source={require('../assets/imgs/chevron-left.png')}
-                    style={styles.arrowIcon}
+                    source={{uri: item.images[currentPages[item.id] || 0]?.url}}
+                    style={styles.carouselImage}
                   />
-                </TouchableOpacity>
-                <Image
-                  source={{uri: item.images[currentPages[item.id] || 0].url}}
-                  style={styles.carouselImage}
-                />
-                <TouchableOpacity
-                  onPress={() => handleNextImage(item.id, item.images.length)}
-                  style={styles.arrowButton}>
-                  <Image
-                    source={require('../assets/imgs/chevron-right.png')}
-                    style={styles.arrowIcon}
-                  />
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    onPress={() => handleNextImage(item.id, item.images.length)}
+                    style={styles.arrowButton}>
+                    <Image
+                      source={require('../assets/imgs/chevron-right.png')}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <Text> </Text>
+              )}
 
               <View style={styles.postDetails}>
                 <Text style={styles.location}>{item.location}</Text>
@@ -178,15 +180,16 @@ const Community = () => {
               </View>
 
               <View style={styles.paginationContainer}>
-                {item.images.map((_: any, index: React.Key | null | undefined) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.paginationDot,
-                      (currentPages[item.id] || 0) === index && styles.paginationDotActive,
-                    ]}
-                  />
-                ))}
+                {item.images &&
+                  item.images.map((_: any, index: React.Key | null | undefined) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.paginationDot,
+                        (currentPages[item.id] || 0) === index && styles.paginationDotActive,
+                      ]}
+                    />
+                  ))}
               </View>
 
               <View style={styles.likeContainer}>

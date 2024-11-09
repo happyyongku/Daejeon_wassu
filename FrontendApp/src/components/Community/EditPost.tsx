@@ -13,17 +13,19 @@ import {
   Alert,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {createPost} from '../../api/community';
-import {useNavigation} from '@react-navigation/native';
+import {updatePost} from '../../api/community';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import type {RootStackParamList} from '../../router/Navigator';
 import type {StackNavigationProp} from '@react-navigation/stack';
 
 const {width} = Dimensions.get('window');
 
-type CommunityScreenProp = StackNavigationProp<RootStackParamList, 'Community'>;
+type EditPostScreenProp = StackNavigationProp<RootStackParamList, 'EditPost'>;
 
-const Writing = () => {
-  const navigation = useNavigation<CommunityScreenProp>();
+const EditPost = () => {
+  const navigation = useNavigation<EditPostScreenProp>();
+  const route = useRoute();
+  const {articleId} = route.params as {articleId: string};
 
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [isLocationModalVisible, setLocationModalVisible] = useState(false);
@@ -84,8 +86,8 @@ const Writing = () => {
     }
   };
 
-  // 등록 버튼 핸들러
-  const handleRegister = async () => {
+  // 수정 버튼 핸들러
+  const handleUpdate = async () => {
     if (!title || !content || selectedCategory === '카테고리 선택') {
       Alert.alert('모든 필드를 입력해 주세요.');
       return;
@@ -98,13 +100,12 @@ const Writing = () => {
     };
 
     try {
-      const response = await createPost(articleDTO, images);
-      console.log({response});
-      Alert.alert('게시글이 작성되었습니다.');
+      await updatePost(articleId, articleDTO, images);
+      Alert.alert('게시글이 수정되었습니다.');
       navigation.navigate('Community');
     } catch (error) {
-      console.error('게시글 등록 실패:', error);
-      Alert.alert('등록 실패', '게시글 등록 중 오류가 발생했습니다.');
+      console.error('게시글 수정 실패:', error);
+      Alert.alert('수정 실패', '게시글 수정 중 오류가 발생했습니다.');
     }
   };
 
@@ -112,9 +113,9 @@ const Writing = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>새 여행기</Text>
-        <TouchableOpacity onPress={handleRegister} style={styles.registerButton}>
-          <Text style={styles.registerButtonText}>등록</Text>
+        <Text style={styles.title}>게시글 수정</Text>
+        <TouchableOpacity onPress={handleUpdate} style={styles.registerButton}>
+          <Text style={styles.registerButtonText}>수정</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.divider} />
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     position: 'absolute',
-    right: 10, // 오른쪽 끝으로 위치
+    right: 10,
   },
   registerButtonText: {
     fontSize: 16,
@@ -263,7 +264,6 @@ const styles = StyleSheet.create({
   selectionText: {
     fontSize: 16,
     fontFamily: 'Pretendard-SemiBold',
-
     color: '#333333',
   },
   chevronIcon: {
@@ -345,4 +345,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Writing;
+export default EditPost;

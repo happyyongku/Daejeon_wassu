@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {Authapi} from './core';
+import {Authapi, api} from './core';
 
 export interface Article {
   id: string;
@@ -38,109 +38,87 @@ export interface FilteredPostsResponse {
   empty: boolean;
 }
 
-// 게시글 작성 (이미지 파일 업로드)
-export async function createPost(
-  title: string,
-  content: string,
-  images: File[], // 이미지 파일 배열
-) {
+interface ArticleDTO {
+  title: string;
+  content: string;
+  tags: string[];
+}
+
+// 게시글 작성
+export const createPost = async (
+  articleDTO: ArticleDTO,
+  files: any[],
+): Promise<string | undefined> => {
   try {
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('content', content);
+    formData.append('articleDTO', JSON.stringify(articleDTO));
 
-    // 이미지 파일들을 FormData에 추가
-    images.forEach((image, index) => {
-      formData.append(`images[${index}]`, image);
+    files.forEach((file, index) => {
+      formData.append(`file`, {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.fileName || `image_${index}.jpg`,
+      });
     });
 
-    const response = await Authapi.post('/posts', formData, {
+    const response = await Authapi.post('/posts/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    if (response && response.data) {
-      console.log('Post successfully created:', response.data);
-      return response.data;
-    } else {
-      console.error('Failed to create post.');
-      return null;
-    }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      console.error('Create post error (Axios):', err.response);
-      return null;
-    } else {
-      console.error('Unexpected error during post creation:', err);
-      return null;
-    }
+    return response.data.articleId;
+  } catch (error) {
+    console.error('게시글 생성 실패:', error);
+    throw error;
   }
-}
+};
 
-// 게시글 수정 (이미지 파일 업로드)
-export async function updatePost(
-  postId: string,
-  title: string,
-  content: string,
-  images: File[], // 이미지 파일 배열
-) {
+// 게시글 수정
+export const updatePost = async (
+  articleId: string,
+  articleDTO: ArticleDTO,
+  files: any[],
+): Promise<void> => {
   try {
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('content', content);
+    formData.append('articleDTO', JSON.stringify(articleDTO));
 
-    // 이미지 파일들을 FormData에 추가
-    images.forEach((image, index) => {
-      formData.append(`images[${index}]`, image);
+    files.forEach((file, index) => {
+      formData.append('file', {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.fileName || `image_${index}.jpg`,
+      });
     });
 
-    const response = await Authapi.put(`/posts/${postId}`, formData, {
+    const response = await Authapi.put(`/posts/${articleId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    if (response && response.data) {
-      console.log('Post successfully updated:', response.data);
-      return response.data;
-    } else {
-      console.error('Failed to update post.');
-      return null;
-    }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      console.error('Update post error (Axios):', err.response);
-      return null;
-    } else {
-      console.error('Unexpected error during post update:', err);
-      return null;
-    }
+    console.log('게시글 수정 성공:', response.data);
+  } catch (error) {
+    console.error('게시글 수정 실패:', error);
+    throw error;
   }
-}
+};
 
 // 게시글 삭제
-export async function deletePost(postId: string) {
+export const deletePost = async (postId: string): Promise<void> => {
   try {
     const response = await Authapi.delete(`/posts/${postId}`);
-
-    if (response && response.data) {
-      console.log('Post successfully deleted:', response.data);
-      return response.data;
+    console.log('게시글 삭제 성공:', response.data);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('게시글 삭제 실패 (Axios 에러):', error.response);
     } else {
-      console.error('Failed to delete post.');
-      return null;
+      console.error('게시글 삭제 실패 (예기치 않은 에러):', error);
     }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      console.error('Delete post error (Axios):', err.response);
-      return null;
-    } else {
-      console.error('Unexpected error during post deletion:', err);
-      return null;
-    }
+    throw error;
   }
-}
+};
 
 // 게시글 조회
 export async function getPosts(category: string) {
@@ -166,23 +144,22 @@ export async function getPosts(category: string) {
 }
 
 // 게시글 상세 조회
-export async function getPostDetail(postId: string) {
+export async function getPostDetail(articleId: string) {
   try {
-    const response = await Authapi.get(`/posts/${postId}`);
+    const response = await Authapi.get(`/posts/read/${articleId}`);
 
     if (response && response.data) {
-      console.log('Post detail retrieved successfully:', response.data);
       return response.data;
     } else {
-      console.error('Failed to retrieve post detail.');
+      console.error('디테일 결과 수신 실패');
       return null;
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Get post detail error (Axios):', err.response);
+      console.error(err.response);
       return null;
     } else {
-      console.error('Unexpected error during post detail retrieval:', err);
+      console.error(err);
       return null;
     }
   }
@@ -214,30 +191,22 @@ export async function toggleLike(postId: string, action: 'like' | 'unlike') {
 }
 
 // 게시글 검색
-export async function searchPosts(
-  query: string,
-  category: string = '',
-  page: number = 1,
-  size: number = 10,
-) {
+export async function searchPosts(searchText: string) {
   try {
-    const response = await Authapi.post('/posts/search', null, {
-      params: {query, category, page, size},
-    });
+    const response = await api.post('/posts/search', {searchText: searchText});
 
     if (response && response.data) {
-      console.log('Search results retrieved successfully:', response.data);
       return response.data;
     } else {
-      console.error('Failed to retrieve search results.');
+      console.error('검색 결과 수신 실패');
       return null;
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Search posts error (Axios):', err.response);
+      console.error(err.response);
       return null;
     } else {
-      console.error('Unexpected error during search:', err);
+      console.error(err);
       return null;
     }
   }
@@ -246,21 +215,20 @@ export async function searchPosts(
 // 게시글 태그 필터링
 export async function filterPosts(category?: string): Promise<FilteredPostsResponse | null> {
   try {
-    const response = await Authapi.get('/posts/filter', {
+    const response = await api.get('/posts/filter', {
       params: {
         category: category || '',
       },
     });
 
     if (response.status === 200) {
-      console.log('Filtered posts:', response.data);
       return response.data as FilteredPostsResponse;
     } else {
-      console.error('Failed to fetch filtered posts:', response.status);
+      console.error(response.status);
       return null;
     }
   } catch (error) {
-    console.error('Error fetching filtered posts:', error);
+    console.error(error);
     return null;
   }
 }
