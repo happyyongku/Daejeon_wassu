@@ -1,5 +1,7 @@
 package com.wassu.wassu.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wassu.wassu.dto.article.ArticleDTO;
 import com.wassu.wassu.dto.article.ArticleLikeDTO;
 import com.wassu.wassu.dto.article.ArticleResponseDTO;
@@ -61,12 +63,15 @@ public class ArticleController {
     @PostMapping(value="/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createArticle(
         @RequestHeader(value="Authorization") String accessToken,
-        @RequestPart("articleDTO") ArticleDTO articleDTO,
+        @RequestParam("articleDTO") String articleDTOJson,
         @RequestPart(value = "file", required = false) List<MultipartFile> files
-    ){
-        log.info("Requested DTO: {}", articleDTO);
+    ) throws JsonProcessingException {
+        log.info("Requested DTO: {}", articleDTOJson);
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
+
         String articleId = articleCreateService.createArticle(userEmail, articleDTO, files);
 
         return ResponseEntity.ok(utilTool.createResponse("articleId", articleId));
@@ -77,9 +82,9 @@ public class ArticleController {
     public ResponseEntity<?> updateArticle(
             @RequestHeader(value = "Authorization") String accessToken,
             @PathVariable String articleId,
-            @RequestPart("articleCreateDTO") ArticleDTO articleDTO,
-            @RequestPart(value="file") List<MultipartFile> files
-    ){
+            @RequestParam("articleDTO") String articleDTOJson,
+            @RequestPart(value="file", required = false) List<MultipartFile> files
+    ) throws JsonProcessingException {
         String token = accessToken.replace("Bearer ", "");
         log.info("Requested Article update");
         String userEmail = jwtUtil.extractUserEmail(token);
@@ -91,6 +96,9 @@ public class ArticleController {
                 log.error("User Not Authorized to update article");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(utilTool.createResponse("status","User Not Authorized to update article"));
             }
+            ObjectMapper objectMapper = new ObjectMapper();
+            ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
+
             articleUpdateService.updateArticle(articleEntity, articleDTO, files);
         } else {
             log.error("Article with id {} not found", articleId);
