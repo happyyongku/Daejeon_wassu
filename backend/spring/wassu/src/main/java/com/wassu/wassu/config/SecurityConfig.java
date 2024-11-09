@@ -59,6 +59,7 @@ public class SecurityConfig {
                                         "/wassu/auth/verify-code",
                                         "/wassu/posts/filter",
                                         "/wassu/posts/search",
+                                        "/wassu/posts/read",
                                         "/error"
                                 ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")

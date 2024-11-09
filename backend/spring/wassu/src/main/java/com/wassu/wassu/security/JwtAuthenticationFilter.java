@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/wassu/auth/signup",
             "/wassu/auth/login",
             "/wassu/posts/search",
-            "/wassu/posts/filter"
+            "/wassu/posts/filter",
+            "/wassu/posts/read"
     );
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
