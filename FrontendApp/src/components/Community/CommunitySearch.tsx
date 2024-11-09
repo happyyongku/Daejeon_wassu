@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   TextInput,
@@ -8,23 +8,49 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import {searchPosts} from '../../api/community';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../../router/Navigator';
 
 const {width} = Dimensions.get('window');
 
-const CommunitySearch = () => {
-  const [searchText, setSearchText] = useState('');
+type CommunitySearchNavigationProp = StackNavigationProp<RootStackParamList>;
 
-  // 예제 데이터 (여행기에서 검색했던 리스트들)
-  const searchResults = [
-    {id: '1', title: '힐링 여행 좋아요', location: '한밭 수목원'},
-    {id: '2', title: '맛집 탐방', location: '대전 중구'},
-    {id: '3', title: '숙소 추천', location: '유성구 온천호텔'},
-  ];
+const CommunitySearch = () => {
+  const navigation = useNavigation<CommunitySearchNavigationProp>();
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = useCallback(async () => {
+    setLoading(true);
+    const result = await searchPosts(searchText);
+    if (result && result.content) {
+      setSearchResults(result.content);
+    } else {
+      setSearchResults([]);
+    }
+    setLoading(false);
+  }, [searchText]);
+
+  useEffect(() => {
+    if (searchText.length > 0) {
+      handleSearch();
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchText, handleSearch]);
+
+  const handlePostPress = (articleId: string) => {
+    console.log('Navigating to PostDetail with articleId:', articleId);
+    navigation.navigate('PostDetail', {articleId});
+  };
 
   return (
     <View style={styles.container}>
-      {/* 검색창 */}
       <View style={styles.searchBar}>
         <Image source={require('../../assets/imgs/search.png')} style={styles.searchIcon} />
         <TextInput
@@ -35,16 +61,26 @@ const CommunitySearch = () => {
         />
       </View>
 
-      {/* 검색 결과 리스트 */}
+      {loading && <ActivityIndicator size="large" color="#418663" />}
+
       <FlatList
         data={searchResults}
         keyExtractor={item => item.id}
         renderItem={({item}) => (
-          <TouchableOpacity style={styles.resultItem}>
+          <TouchableOpacity
+            style={styles.resultItem}
+            onPress={() => handlePostPress(item.articleId || item.id)}>
             <Text style={styles.resultTitle}>{item.title}</Text>
-            <Text style={styles.resultLocation}>{item.location}</Text>
+            <Text style={styles.resultLocation}>{item.location || '위치 정보 없음'}</Text>
           </TouchableOpacity>
         )}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>결과가 없습니다</Text>
+            </View>
+          ) : null
+        }
       />
     </View>
   );
@@ -86,6 +122,14 @@ const styles = StyleSheet.create({
   },
   resultLocation: {
     fontSize: 14,
+    color: '#666',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  emptyText: {
+    fontSize: 16,
     color: '#666',
   },
 });
