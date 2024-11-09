@@ -15,6 +15,7 @@ import com.wassu.wassu.repository.review.ReviewImageRepository;
 import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.review.ReviewRepository;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.service.user.UserService;
 import com.wassu.wassu.util.S3Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
