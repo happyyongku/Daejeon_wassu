@@ -98,7 +98,7 @@ pipeline {
                 def Author_Email = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
                 mattermostSend(
                     color: 'good',
-                    message: "빌드 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})\n(<${env.BUILD_URL}|details>)",
+                    message: "빌드 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})",
                     endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
                     channel: '6f9904adde1b56655e703998b592c88e'
                 )
@@ -112,7 +112,7 @@ pipeline {
                 def Author_Email = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
                 mattermostSend(
                     color: 'danger',
-                    message: "빌드 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})\n(<${env.BUILD_URL}|details>)",
+                    message: "빌드 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER} by ${Author_ID}(${Author_Email})",
                     endpoint: 'https://meeting.ssafy.com/hooks/gj9893o8r3fn5bswy3cc7kxn5h',
                     channel: '6f9904adde1b56655e703998b592c88e'
                 )

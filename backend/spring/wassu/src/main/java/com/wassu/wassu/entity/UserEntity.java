@@ -1,5 +1,6 @@
 package com.wassu.wassu.entity;
 
+import com.wassu.wassu.entity.review.ReviewEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -72,6 +73,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticleReadEntity> articleReads;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewEntity> reviews;
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

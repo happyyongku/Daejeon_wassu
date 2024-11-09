@@ -92,7 +92,7 @@ public class UserService {
         }
     }
 
-    private UserProfileDTO convertToDTO(UserEntity userEntity) {
+    public UserProfileDTO convertToDTO(UserEntity userEntity) {
         return UserProfileDTO.builder()
                 .email(userEntity.getEmail())
                 .nickname(userEntity.getNickname())
