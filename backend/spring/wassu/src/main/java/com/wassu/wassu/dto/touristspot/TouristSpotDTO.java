@@ -16,6 +16,7 @@ public class TouristSpotDTO {
     private Float rating;
     private Integer userRatingsTotal;
     private int favoritesCount;
+    private boolean isFavorite;
     private String spotDescription;
     private Double latitude;
     private Double longitude;

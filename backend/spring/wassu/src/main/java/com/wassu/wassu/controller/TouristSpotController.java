@@ -18,8 +18,13 @@ public class TouristSpotController {
 
     // 관광지 상세조회
     @GetMapping("/details/{spotId}")
-    public ResponseEntity<?> getTouristSpotDetails(@PathVariable Long spotId) {
-        TouristSpotDTO result = touristSpotService.getTouristSpotDetails(spotId);
+    public ResponseEntity<?> getTouristSpotDetails(@AuthenticationPrincipal UserDetails userDetails,
+                                                   @PathVariable Long spotId) {
+        String userEmail = null;
+        if (userDetails != null) {
+            userEmail = userDetails.getUsername();
+        }
+        TouristSpotDTO result = touristSpotService.getTouristSpotDetails(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
 

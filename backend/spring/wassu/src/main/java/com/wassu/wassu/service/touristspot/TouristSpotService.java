@@ -14,6 +14,7 @@ import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotFavoritesRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
 import com.wassu.wassu.service.user.UserService;
@@ -37,14 +38,23 @@ public class TouristSpotService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
+    private final ReviewLikesRepository reviewLikesRepository;
 
-    public TouristSpotDTO getTouristSpotDetails(Long spotId) {
+    public TouristSpotDTO getTouristSpotDetails(String email, Long spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         List<TouristSpotTagDto> tagDto = spot.getTouristSpotTags().stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<TouristSpotImageDto> imageDto = spot.getTouristSpotImages().stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
         List<ReviewEntity> reviews = spot.getReviews();
         List<ReviewDTO> reviewDto = new ArrayList<>();
+        boolean isFavorite = false;
+        if (email != null) {
+            isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserEmail(spotId, email);
+        }
         for (ReviewEntity review : reviews) {
+            boolean isLiked = false;
+            if (email != null) {
+                isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+            }
             UserEntity user = review.getUser();
             List<ReviewImageDTO> reviewImages = review.getImages().stream()
                     .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
@@ -53,6 +63,7 @@ public class TouristSpotService {
                     .reviewId(review.getId())
                     .content(review.getContent())
                     .likeCount(review.getLikeCount())
+                    .isLiked(isLiked)
                     .profile(profile)
                     .reviewImages(reviewImages)
                     .createdAt(review.getCreatedAt()).build();
@@ -64,6 +75,7 @@ public class TouristSpotService {
                 .rating(spot.getRating())
                 .userRatingsTotal(spot.getUserRatingsTotal())
                 .favoritesCount(spot.getFavoritesCount())
+                .isFavorite(isFavorite)
                 .spotDescription(spot.getSpotDescription())
                 .latitude(spot.getLatitude())
                 .longitude(spot.getLongitude())
