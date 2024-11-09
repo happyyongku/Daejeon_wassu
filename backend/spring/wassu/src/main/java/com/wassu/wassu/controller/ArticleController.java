@@ -149,7 +149,10 @@ public class ArticleController {
     @GetMapping("/read/{articleId}")
     public ResponseEntity<?> readArticle(@AuthenticationPrincipal UserDetails userDetails,
                                          @PathVariable String articleId){
-        String userEmail = userDetails.getUsername();
+        String userEmail = null;
+        if (userDetails != null) {
+            userEmail = userDetails.getUsername();
+        }
         try {
             ArticleResponseDTO article = articleReadService.searchById(userEmail, articleId);
             if (article != null) {
