@@ -42,34 +42,6 @@ public class UserService {
         Optional<UserEntity> userEntity = userRepository.findByEmail(email);
         return userEntity.map(this::convertToDTO);
     }
-    
-    // 회원 수정
-    public void updateUser(
-            String email,
-            UserProfileUpdateDTO userProfileUpdateDTO,
-            MultipartFile file
-    ) {
-        Optional<UserEntity> userOptional = userRepository.findByEmail(email);
-        logger.info("Starting Update ---------");
-        try {
-            if (userOptional.isPresent()) {
-                UserEntity userEntity = userOptional.get();
-                userEntity.setNickname(userProfileUpdateDTO.getNickName());
-                userEntity.setIntroduction(userProfileUpdateDTO.getIntroduction());
-                if (!file.isEmpty()) {
-                    String fileName = s3Util.uploadFile(file, "userProfile");
-                    userEntity.setProfileImage(fileName);
-                }
-                userRepository.save(userEntity);
-                logger.info("User updated: " + email );
-            } else {
-                logger.error("User does not exist");
-            }
-        } catch (Exception e) {
-            logger.error("Error while updating user", e);
-            throw new RuntimeException("Error while updating user");
-        }
-    }
 
     //비밀번호 변경
     public Boolean updateUserPassword(String email, UserPasswordUpdateDTO userPasswordUpdateDTO) {

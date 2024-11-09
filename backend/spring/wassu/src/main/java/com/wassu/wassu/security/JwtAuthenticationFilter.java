@@ -26,7 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final List<String> EXCLUDED_PATHS = List.of(
             "/wassu/auth/signup",
-            "/wassu/auth/login"
+            "/wassu/auth/login",
+            "/wassu/posts/search",
+            "/wassu/posts/filter"
     );
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
