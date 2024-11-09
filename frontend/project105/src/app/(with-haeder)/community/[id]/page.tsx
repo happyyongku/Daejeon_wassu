@@ -5,7 +5,30 @@ import style from "./page.module.css";
 import LikeButton from "../../../../components/community/likebutton";
 import UpdateDelete from "@/components/community/updatedelete";
 
-export default function Page() {
+import axios from "axios";
+import { ArticleData } from "@/types";
+
+export default async function Page({
+  params,
+}: {
+  params: { id: string | string[] };
+}) {
+  let article: ArticleData | null = null;
+  // 게시글 상세 조회 요청 axios
+  try {
+    const response = await axios.get(
+      `https://k11b105.p.ssafy.io/wassu/posts/read/${params.id}`
+    );
+    if (response.data) {
+      console.log("커뮤니티 게시글 상세 조회 성공", response.data);
+      article = response.data.status;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  console.log(article);
+
   return (
     <div>
       <div className={style.userbox}>
@@ -17,13 +40,13 @@ export default function Page() {
         <p className={style.username}>노은맨</p>
       </div>
       <div className={style.contentbox}>
-        <div className={style.title}>성심당 케익부띠끄에 다녀왔어요</div>
-        <p className={style.date}>2024.10.30</p>
+        <div className={style.title}>{article?.title}</div>
+        <p className={style.date}>{article?.createdAt}</p>
       </div>
       <div className={style.ectbox}>
         <div className={style.likenumber}>
           <p className={style.heartimg}>❤️</p>
-          <p className={style.heartnumber}>534</p>
+          <p className={style.heartnumber}>{article?.liked}</p>
         </div>
         {/* 여기는 클라이언트 컴포넌트 */}
         <div>
@@ -35,19 +58,7 @@ export default function Page() {
       </div>
       <div className={style.descbox}>
         <div className={style.desctext}>설명</div>
-        <p className={style.desc}>
-          한밭 수목원입니다. 이곳은 자연 카테고리에 속하며 모든 사람들이
-          편안하게 와서 휴식하다가 가면 되는 대전의 유명 관광 코스 중
-          하나입니다. 편하게 와서 쉬다가 가면 될 것 같습니다. 한밭 수목원입니다.
-          이곳은 자연 카테고리에 속하며 모든 사람들이 편안하게 와서 휴식하다가
-          가면 되는 대전의 유명 관광 코스 중 하나입니다. 편하게 와서 쉬다가 가면
-          될 것 같습니다.한밭 수목원입니다. 이곳은 자연 카테고리에 속하며 모든
-          사람들이 편안하게 와서 휴식하다가 가면 되는 대전의 유명 관광 코스 중
-          하나입니다. 편하게 와서 쉬다가 가면 될 것 같습니다. 한밭 수목원입니다.
-          이곳은 자연 카테고리에 속하며 모든 사람들이 편안하게 와서 휴식하다가
-          가면 되는 대전의 유명 관광 코스 중 하나입니다. 편하게 와서 쉬다가 가면
-          될 것 같습니다.
-        </p>
+        <p className={style.desc}>{article?.content}</p>
         {/* 클라이언트 컴포넌트로 작성 */}
         <div className={style.button}>
           <LikeButton></LikeButton>
