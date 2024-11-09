@@ -24,6 +24,7 @@ public class ArticleResponseDTO {
     private Integer viewCount;
     private Integer liked;
     private boolean isLiked;
+    private boolean isMatched;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

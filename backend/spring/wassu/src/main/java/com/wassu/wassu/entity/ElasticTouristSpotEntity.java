@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Setting(settingPath = "/nori_settings.json")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TouristSpotEntity {
+public class ElasticTouristSpotEntity {
     @Id
     private String id;
 

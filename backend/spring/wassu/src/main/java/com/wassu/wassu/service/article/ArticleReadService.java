@@ -26,7 +26,7 @@ public class ArticleReadService {
     private final ArticleLikedRepository articleLikedRepository;
     private final UserRepository userRepository;
 
-    public ArticleResponseDTO searchById(String email, String articleId) {
+    public ArticleResponseDTO searchById(String email, String articleId, Boolean isMatched) {
         boolean isUserLiked = false;
         if (email != null) {
             isUserLiked = articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email);
@@ -51,6 +51,7 @@ public class ArticleReadService {
                         .viewCount(article.getViewCount())
                         .liked(article.getLiked())
                         .isLiked(isUserLiked)
+                        .isMatched(isMatched)
                         .build();
             } else {
                 log.error("Article not found");
@@ -59,6 +60,33 @@ public class ArticleReadService {
         } catch(Exception e) {
             log.error("Error occurred while searching article by id: {}", articleId, e);
             throw new CustomException(CustomErrorCode.ERROR_WHILE_READ_ARTICLE);
+        }
+    }
+
+    public Boolean isMatchWithArticleOwner(String tokenEmail, String articleId) {
+        Optional<UserEntity> optionalTokenUser = userRepository.findByEmail(tokenEmail);
+        if (optionalTokenUser.isPresent()) {
+            Long tokenUserId = optionalTokenUser.get().getId();
+            Optional<ArticleEntity> optionalArticle = articleRepository.findById(articleId);
+            if (optionalArticle.isPresent()) {
+                ArticleEntity article = optionalArticle.get();
+                Long articleOwnerId = ((Number) article.getUser()).longValue();
+                if (articleOwnerId.equals(tokenUserId)) {
+                    log.info("Article owner matched");
+                    return true;
+                }
+                else {
+                    log.info("Article owner did not match");
+                    return false;
+                }
+            } else {
+                log.error("Article not found");
+                return false;
+            }
+
+        } else {
+            log.error("Token not found");
+            return false;
         }
     }
 }
