@@ -7,8 +7,8 @@ import com.wassu.wassu.dto.touristspot.TouristSpotFavoriteDTO;
 import com.wassu.wassu.dto.touristspot.TouristSpotImageDto;
 import com.wassu.wassu.dto.touristspot.TouristSpotTagDto;
 import com.wassu.wassu.dto.user.UserProfileDTO;
-import com.wassu.wassu.entity.TouristSpotEntity;
-import com.wassu.wassu.entity.TouristSpotFavorites;
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
@@ -17,6 +17,7 @@ import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotFavoritesRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
+import com.wassu.wassu.service.ReviewService;
 import com.wassu.wassu.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -36,39 +36,21 @@ public class TouristSpotService {
     private final TouristSpotRepository touristSpotRepository;
     private final TouristSpotFavoritesRepository favoritesRepository;
     private final UserRepository userRepository;
+    private final ReviewService reviewService;
     private final UserService userService;
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
     private final ReviewLikesRepository reviewLikesRepository;
 
-    public TouristSpotDTO getTouristSpotDetails(String email, Long spotId) {
+    public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         List<TouristSpotTagDto> tagDto = spot.getTouristSpotTags().stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<TouristSpotImageDto> imageDto = spot.getTouristSpotImages().stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
         List<ReviewEntity> reviews = spot.getReviews();
-        List<ReviewDTO> reviewDto = new ArrayList<>();
         boolean isFavorite = false;
         if (email != null) {
-            isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserEmail(spotId, email);
+            isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserEmail(spot.getId(), email);
         }
-        for (ReviewEntity review : reviews) {
-            boolean isLiked = false;
-            if (email != null) {
-                isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
-            }
-            UserEntity user = review.getUser();
-            List<ReviewImageDTO> reviewImages = review.getImages().stream()
-                    .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
-            UserProfileDTO profile = userService.convertToDTO(user);
-            ReviewDTO dto = ReviewDTO.builder()
-                    .reviewId(review.getId())
-                    .content(review.getContent())
-                    .likeCount(review.getLikeCount())
-                    .isLiked(isLiked)
-                    .profile(profile)
-                    .reviewImages(reviewImages)
-                    .createdAt(review.getCreatedAt()).build();
-            reviewDto.add(dto);
-        }
+        List<ReviewDTO> reviewDto = reviewService.getReviewDTOS(email, reviews);
         return TouristSpotDTO.builder()
                 .spotName(spot.getSpotName())
                 .spotAddress(spot.getSpotAddress())

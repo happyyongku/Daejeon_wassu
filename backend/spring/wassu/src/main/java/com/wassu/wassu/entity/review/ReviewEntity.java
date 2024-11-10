@@ -1,7 +1,7 @@
 package com.wassu.wassu.entity.review;
 
-import com.wassu.wassu.entity.TouristSpotEntity;
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

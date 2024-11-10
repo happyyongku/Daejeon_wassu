@@ -1,5 +1,6 @@
-package com.wassu.wassu.entity;
+package com.wassu.wassu.entity.touristspot;
 
+import com.wassu.wassu.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

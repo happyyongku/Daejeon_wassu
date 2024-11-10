@@ -5,11 +5,11 @@ import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewImageDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
 import com.wassu.wassu.dto.user.UserProfileDTO;
-import com.wassu.wassu.entity.TouristSpotEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.review.ReviewImageEntity;
 import com.wassu.wassu.entity.review.ReviewLikes;
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.review.ReviewImageRepository;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -145,6 +146,30 @@ public class ReviewService {
                 reviewImageRepository.save(reviewImage);
             }
         }
+    }
+
+    public List<ReviewDTO> getReviewDTOS(String email, List<ReviewEntity> reviews) {
+        List<ReviewDTO> reviewDto = new ArrayList<>();
+        for (ReviewEntity review : reviews) {
+            boolean isLiked = false;
+            if (email != null) {
+                isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+            }
+            UserEntity user = review.getUser();
+            List<ReviewImageDTO> reviewImages = review.getImages().stream()
+                    .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
+            UserProfileDTO profile = userService.convertToDTO(user);
+            ReviewDTO dto = ReviewDTO.builder()
+                    .reviewId(review.getId())
+                    .content(review.getContent())
+                    .likeCount(review.getLikeCount())
+                    .isLiked(isLiked)
+                    .profile(profile)
+                    .reviewImages(reviewImages)
+                    .createdAt(review.getCreatedAt()).build();
+            reviewDto.add(dto);
+        }
+        return reviewDto;
     }
 
 }
