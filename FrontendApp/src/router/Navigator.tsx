@@ -50,7 +50,7 @@ export type RootStackParamList = {
   Profile: undefined;
   Dogam: undefined;
   ChangePassword: undefined;
-  ChangeInfo: undefined;
+  ChangeInfo: {nickname: string};
   CreateSchedule: undefined;
   Details: undefined;
   Course: undefined;
@@ -63,7 +63,13 @@ export type RootStackParamList = {
   WriteReview: undefined;
   Map: undefined;
   PostDetail: {articleId: string};
-  EditPost: {articleId: string};
+  EditPost: {
+    articleId: string;
+    initialTitle: string;
+    initialContent: string;
+    initialImages: any[];
+    initialtags: string;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();

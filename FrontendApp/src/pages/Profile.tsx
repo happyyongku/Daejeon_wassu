@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, Alert} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import AccountDeletionModal from '../components/Profile/AccountDeletionModal';
 import ProfileImagePickerModal from '../components/Profile/ProfileImagePickerModal';
-import {deleteAccount} from '../api/user';
+import {deleteAccount, logout} from '../api/user';
+import {getUserProfile, updateProfileImage} from '../api/mypage';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const {width} = Dimensions.get('window');
 
@@ -16,14 +18,43 @@ const Profile = () => {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isImagePickerModalVisible, setImagePickerModalVisible] = useState(false);
 
-  const ProfileImage = require('../assets/imgs/basic.png'); // 기본 이미지를 require로 불러오기
+  const [profile, setProfile] = useState<{
+    nickname: string;
+    email: string;
+    profileImage: string | null;
+  }>({
+    nickname: '',
+    email: '',
+    profileImage: null,
+  });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserProfile = async () => {
+        const userProfile = await getUserProfile();
+        if (userProfile) {
+          setProfile({
+            nickname: userProfile.nickname,
+            email: userProfile.email,
+            profileImage: userProfile.profileImage,
+          });
+        }
+      };
+      fetchUserProfile();
+    }, []),
+  );
+
+  const profileImageSource =
+    !profile.profileImage || profile.profileImage === 'default'
+      ? require('../assets/imgs/basic.png')
+      : {uri: profile.profileImage};
 
   const goToChangePassword = () => {
     navigation.navigate('ChangePassword');
   };
 
   const goToChangeInfo = () => {
-    navigation.navigate('ChangeInfo');
+    navigation.navigate('ChangeInfo', {nickname: profile.nickname});
   };
 
   const openDeleteModal = () => setDeleteModalVisible(true);
@@ -40,24 +71,89 @@ const Profile = () => {
     closeDeleteModal();
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigation.navigate('Main');
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
+    }
+  };
+
   const openImagePickerModal = () => setImagePickerModalVisible(true);
   const closeImagePickerModal = () => setImagePickerModalVisible(false);
+
+  const handleResetImage = async () => {
+    const defaultImage = Image.resolveAssetSource(require('../assets/imgs/basic.png'));
+
+    const file = {
+      uri: defaultImage.uri,
+      type: 'image/png',
+      name: 'profile_image.png',
+    };
+
+    const success = await updateProfileImage(file);
+    if (success) {
+      setProfile(prevProfile => ({...prevProfile, profileImage: defaultImage.uri}));
+      Alert.alert('프로필 이미지 변경 완료', '기본 이미지로 변경되었습니다.');
+    } else {
+      Alert.alert('프로필 이미지 변경 실패', '이미지 변경에 실패했습니다. 다시 시도해 주세요.');
+    }
+    closeImagePickerModal();
+  };
+
+  const handleSelectImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 1,
+    });
+
+    if (result.didCancel) {
+      console.log('이미지 선택 취소');
+    } else if (result.errorCode) {
+      console.error('이미지 선택 오류:', result.errorMessage);
+      Alert.alert(
+        '이미지 선택 오류',
+        '이미지를 선택하는 중 오류가 발생했습니다. 다시 시도해 주세요.',
+      );
+    } else if (result.assets && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      const file = {
+        uri: selectedImage.uri,
+        type: selectedImage.type,
+        name: selectedImage.fileName,
+      };
+
+      const success = await updateProfileImage(file);
+      if (success) {
+        setProfile(prevProfile => ({
+          ...prevProfile,
+          profileImage: selectedImage.uri || null,
+        }));
+        Alert.alert('프로필 이미지 변경 완료', '프로필 이미지가 성공적으로 변경되었습니다.');
+      } else {
+        Alert.alert('프로필 이미지 변경 실패', '이미지 변경에 실패했습니다. 다시 시도해 주세요.');
+      }
+    }
+    closeImagePickerModal();
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>프로필</Text>
-      <Image source={ProfileImage} style={styles.profileImage} />
+      <Image source={profileImageSource} style={styles.profileImage} />
       <TouchableOpacity onPress={openImagePickerModal}>
         <Text style={styles.editProfileText}>프로필 사진 바꾸기</Text>
       </TouchableOpacity>
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoLabel}>닉네임</Text>
-        <Text style={styles.infoText}>대전의 아들 장현수</Text>
+        <Text style={styles.infoText}>{profile.nickname}</Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.infoLabel}>이메일</Text>
-        <Text style={styles.infoText}>JANG@gmail.com</Text>
+        <Text style={styles.infoText}>{profile.email}</Text>
       </View>
 
       <View style={styles.actionContainer}>
@@ -72,6 +168,10 @@ const Profile = () => {
           <Text style={styles.arrow}>〉</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity onPress={handleLogout}>
+        <Text style={styles.logoutAccountText}>로그 아웃</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={openDeleteModal}>
         <Text style={styles.deleteAccountText}>계정 삭제</Text>
@@ -88,14 +188,8 @@ const Profile = () => {
       <ProfileImagePickerModal
         visible={isImagePickerModalVisible}
         onClose={closeImagePickerModal}
-        onSelectImage={() => {
-          // 앨범에서 이미지 선택 로직 추가
-          closeImagePickerModal();
-        }}
-        onResetImage={() => {
-          // 기본 이미지로 변경 로직 추가
-          closeImagePickerModal();
-        }}
+        onSelectImage={handleSelectImage}
+        onResetImage={handleResetImage}
       />
     </View>
   );
@@ -163,6 +257,11 @@ const styles = StyleSheet.create({
   deleteAccountText: {
     fontSize: 12,
     color: '#999',
+    marginTop: 20,
+  },
+  logoutAccountText: {
+    fontSize: 12,
+    color: 'rgb(0,0,250)',
     marginTop: 20,
   },
 });

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -9,14 +9,15 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
-import {getPostDetail, deletePost} from '../../api/community';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
+import {getPostDetail, deletePost, toggleLike} from '../../api/community';
 import HeartIcon from '../../assets/imgs/heart.svg';
 import HearthIcon from '../../assets/imgs/hearth.svg';
 import EditIcon from '../../assets/imgs/edit.svg';
 import TrashIcon from '../../assets/imgs/trash.svg';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
+import userPlaceholder from '../../assets/imgs/user.png';
 
 type PostDetailNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -28,35 +29,48 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
 
-  useEffect(() => {
-    const fetchPostDetail = async () => {
-      setLoading(true);
-      const result = await getPostDetail(articleId);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchPostDetail = async () => {
+        setLoading(true);
+        const result = await getPostDetail(articleId);
 
-      console.log('Fetched Post Detail:', result);
-      if (result) {
-        setPostDetail(result.status);
+        if (result) {
+          setPostDetail(result.status);
+          setLiked(result.status.userLiked); // userLiked 상태 저장
+        }
+        setLoading(false);
+      };
+
+      fetchPostDetail();
+    }, [articleId]),
+  );
+
+  const handleToggleLike = async () => {
+    try {
+      const updatedData = await toggleLike(articleId, liked); // 좋아요/취소 API 호출
+      if (updatedData) {
+        // API에서 최신 데이터를 다시 가져옵니다
+        const updatedPostDetail = await getPostDetail(articleId);
+        if (updatedPostDetail) {
+          setPostDetail(updatedPostDetail.status); // 최신의 liked와 userLiked를 포함한 데이터를 설정
+          setLiked(!liked); // 좋아요 상태 반전
+        }
       }
-      setLoading(false);
-    };
-
-    fetchPostDetail();
-  }, [articleId]);
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#418663" />
-      </View>
-    );
-  }
-
-  const toggleLike = () => {
-    setLiked(!liked);
+    } catch (error) {
+      console.error('좋아요 처리 실패:', error);
+      Alert.alert('오류', '좋아요 처리 중 오류가 발생했습니다.');
+    }
   };
 
   const handleEditPress = () => {
-    navigation.navigate('EditPost', {articleId});
+    navigation.navigate('EditPost', {
+      articleId,
+      initialTitle: postDetail.title,
+      initialContent: postDetail.content,
+      initialImages: postDetail.images,
+      initialtags: postDetail.tags,
+    });
   };
 
   const handleDeletePress = async () => {
@@ -69,13 +83,28 @@ const PostDetail = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#418663" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {postDetail ? (
         <>
           <View style={styles.profileContainer}>
             <View style={styles.profileInfo}>
-              <Image source={{uri: postDetail.profileImage}} style={styles.profileImage} />
+              <Image
+                source={
+                  postDetail.profileImage === 'default'
+                    ? userPlaceholder
+                    : {uri: postDetail.profileImage}
+                }
+                style={styles.profileImage}
+              />
               <Text style={styles.nickname}>{postDetail.nickName || '작성자 이름'}</Text>
             </View>
             {postDetail.matched === true && (
@@ -116,16 +145,14 @@ const PostDetail = () => {
           </View>
 
           <View style={styles.likeContainer}>
-            <TouchableOpacity onPress={toggleLike}>
+            <TouchableOpacity onPress={handleToggleLike}>
               {liked ? (
                 <HearthIcon width={20} height={20} /> // 좋아요 누른 후 아이콘
               ) : (
                 <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
               )}
             </TouchableOpacity>
-            <Text style={styles.likes}>
-              좋아요 {liked ? postDetail.liked + 1 : postDetail.liked}
-            </Text>
+            <Text style={styles.likes}>좋아요 {postDetail.liked}</Text>
           </View>
         </>
       ) : (
@@ -150,7 +177,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // 아이콘을 오른쪽 끝으로 배치
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   profileInfo: {
@@ -173,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    marginLeft: 10, // 아이콘들 사이의 간격 조정
+    marginLeft: 10,
   },
   title: {
     fontSize: 18,
@@ -210,7 +237,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   image: {
-    width: 300, // 이미지의 실제 크기 사용
+    width: 300,
     height: 200,
     borderRadius: 8,
     marginRight: 10,
