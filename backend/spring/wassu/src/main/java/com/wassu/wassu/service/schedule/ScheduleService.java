@@ -36,7 +36,7 @@ public class ScheduleService {
     public void createSchedule(String email, CreateScheduleDTO dto) {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         // 새 일정 생성
-        ScheduleEntity schedule = new ScheduleEntity(dto.getStartDate(), dto.getEndDate(), user);
+        ScheduleEntity schedule = new ScheduleEntity(dto.getStartDate(), dto.getEndDate(), dto.getTitle(), user);
         ScheduleEntity savedSchedule = scheduleRepository.save(schedule);
         // 일일 계획 생성 후 일정에 추가
         List<CreateDailyPlanDTO> dailyPlans = dto.getDailyPlans();
@@ -51,12 +51,8 @@ public class ScheduleService {
     }
 
     public void updateSchedule(String email, Long coursesId, UpdateScheduleDTO dto) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         // 본인 아니면 수정 불가
-        if (!schedule.getUser().equals(user)) {
-            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
-        }
+        validateIsCreator(email, coursesId);
         List<UpdateDailyPlanDTO> dailyPlans = dto.getDailyPlans();
         for (UpdateDailyPlanDTO dailyPlan : dailyPlans) {
             DailyPlanEntity plan = planRepository.findById(dailyPlan.getPlanId()).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
@@ -64,6 +60,12 @@ public class ScheduleService {
             planOrderRepository.deleteByPlanId(plan.getId());
             generatePlanOrders(dailyPlan.getUpdatedOrder(), plan, 0);
         }
+    }
+
+    public void updateScheduleTitle(String email, Long coursesId, UpdateScheduleTitleDTO dto) {
+        // 본인 아니면 수정 불가
+        ScheduleEntity schedule = validateIsCreator(email, coursesId);
+        schedule.setTitle(dto.getTitle());
     }
 
     public void insertSchedule(String email, Long planId, InsertDailyPlanDTO dto) {
@@ -77,6 +79,15 @@ public class ScheduleService {
         int maxOrderValue = planOrderRepository.findMaxOrderValue(planId);
         // 최대순서 다음 order부터 관광지 추가
         generatePlanOrders(dto.getInsertOrder(), plan, maxOrderValue+1);
+    }
+
+    private ScheduleEntity validateIsCreator(String email, Long coursesId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        if (!schedule.getUser().equals(user)) {
+            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
+        }
+        return schedule;
     }
 
     private void generatePlanOrders(List<String> spotIds, DailyPlanEntity savedPlan, int startOrder) {

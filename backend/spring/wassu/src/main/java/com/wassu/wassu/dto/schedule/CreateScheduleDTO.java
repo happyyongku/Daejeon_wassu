@@ -10,6 +10,7 @@ public class CreateScheduleDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private String title;
     private List<CreateDailyPlanDTO> dailyPlans;
 
 }
