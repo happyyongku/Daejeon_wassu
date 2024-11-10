@@ -59,25 +59,25 @@ public class UserEntity {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticleLikedEntity> articleLikes = new ArrayList<>();
+    private List<ArticleLikedEntity> articleLikes;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClearedMarbleEntity> clearedMarbles = new ArrayList<>();
+    private List<ClearedMarbleEntity> clearedMarbles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VisitedSpotEntity> visitedSpots = new ArrayList<>();
+    private List<VisitedSpotEntity> visitedSpots;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticleReadEntity> articleReads = new ArrayList<>();
+    private List<ArticleReadEntity> articleReads;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewEntity> reviews = new ArrayList<>();
+    private List<ReviewEntity> reviews;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotFavorites> touristSpotFavorites = new ArrayList<>();
+    private List<TouristSpotFavorites> touristSpotFavorites;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ScheduleEntity> schedules = new ArrayList<>();
+    private List<ScheduleEntity> schedules;
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }
