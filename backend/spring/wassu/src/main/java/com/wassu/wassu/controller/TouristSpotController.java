@@ -75,7 +75,7 @@ public class TouristSpotController {
     }
 
     // 관광지 필터링
-    @GetMapping("/{category}")
+    @GetMapping("/filter")
     public ResponseEntity<?> touristSpotCategory(
             @RequestParam(name = "category", required = false) String category,
             Pageable pageable
