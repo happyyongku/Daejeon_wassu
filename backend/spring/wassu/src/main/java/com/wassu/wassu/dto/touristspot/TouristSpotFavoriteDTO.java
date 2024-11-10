@@ -7,5 +7,6 @@ public class TouristSpotFavoriteDTO {
 
     private String message;
     private int totalFavorites;
+    private boolean userLiked;
 
 }

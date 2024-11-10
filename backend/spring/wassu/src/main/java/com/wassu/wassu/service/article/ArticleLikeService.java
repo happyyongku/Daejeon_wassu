@@ -38,7 +38,7 @@ public class ArticleLikeService {
         // 게시글 좋아요 수 +1
         article.setLiked(totalLikes + 1);
         articleRepository.save(article);
-        return new ArticleLikeDTO("Post successfully liked", totalLikes + 1);
+        return new ArticleLikeDTO("Post successfully liked", totalLikes + 1, true);
     }
 
     public ArticleLikeDTO unlikeArticle(String email, String articleId) {
@@ -51,7 +51,7 @@ public class ArticleLikeService {
         // 게시글 좋아요 수 -1
         article.setLiked(totalLikes - 1);
         articleRepository.save(article);
-        return new ArticleLikeDTO("Post successfully unliked", totalLikes - 1);
+        return new ArticleLikeDTO("Post successfully unliked", totalLikes - 1, false);
     }
 
 }

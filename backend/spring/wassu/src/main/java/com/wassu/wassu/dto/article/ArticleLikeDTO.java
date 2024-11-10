@@ -7,5 +7,6 @@ public class ArticleLikeDTO {
 
     private String message;
     private int totalLikes;
+    private boolean userLiked;
 
 }
