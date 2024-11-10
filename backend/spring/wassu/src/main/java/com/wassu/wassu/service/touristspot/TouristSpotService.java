@@ -37,9 +37,7 @@ public class TouristSpotService {
     private final TouristSpotFavoritesRepository favoritesRepository;
     private final UserRepository userRepository;
     private final ReviewService reviewService;
-    private final UserService userService;
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
-    private final ReviewLikesRepository reviewLikesRepository;
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
@@ -48,7 +46,8 @@ public class TouristSpotService {
         List<ReviewEntity> reviews = spot.getReviews();
         boolean isFavorite = false;
         if (email != null) {
-            isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserEmail(spot.getId(), email);
+            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+            isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserId(spot.getId(), user.getId());
         }
         List<ReviewDTO> reviewDto = reviewService.getReviewDTOS(email, reviews);
         return TouristSpotDTO.builder()
@@ -71,7 +70,7 @@ public class TouristSpotService {
         TouristSpotEntity spot = touristSpotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         // 장소 찜하기 중복 불가
-        if (favoritesRepository.existsByTouristSpotIdAndUserEmail(spotId, email)) {
+        if (favoritesRepository.existsByTouristSpotIdAndUserId(spotId, user.getId())) {
             throw new CustomException(CustomErrorCode.ALREADY_LIKED_TOURISTSPOT);
         }
         // 찜 추가

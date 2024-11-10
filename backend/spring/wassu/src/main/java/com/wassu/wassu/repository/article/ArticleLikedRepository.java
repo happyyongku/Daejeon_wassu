@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ArticleLikedRepository extends JpaRepository<ArticleLikedEntity, Long> {
 
-    boolean existsByArticleIdAndUserEmail(String articleId, String userEmail);
+    boolean existsByArticleIdAndUserId(String articleId, Long userId);
 
     Optional<ArticleLikedEntity> findByArticleIdAndUserEmail(String articleId, String userEmail);
 

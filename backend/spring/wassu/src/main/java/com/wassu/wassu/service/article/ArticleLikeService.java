@@ -26,11 +26,11 @@ public class ArticleLikeService {
 
     public ArticleLikeDTO likeArticle(String email, String articleId) {
         ArticleEntity article = articleRepository.findById(articleId).orElseThrow(() -> new CustomException(CustomErrorCode.ARTICLE_NOT_FOUND));
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         // 게시글 중복 좋아요 불가
-        if (articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email)) {
+        if (articleLikedRepository.existsByArticleIdAndUserId(articleId, user.getId())) {
             throw new CustomException(CustomErrorCode.ALREADY_LIKED_ARTICLE);
         }
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         // 좋아요 생성
         ArticleLikedEntity likes = new ArticleLikedEntity(user, articleId);
         articleLikedRepository.save(likes);
