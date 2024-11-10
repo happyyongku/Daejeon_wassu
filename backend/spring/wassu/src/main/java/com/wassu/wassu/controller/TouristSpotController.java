@@ -18,30 +18,24 @@ public class TouristSpotController {
 
     // 관광지 상세조회
     @GetMapping("/details/{spotId}")
-    public ResponseEntity<?> getTouristSpotDetails(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> getTouristSpotDetails(@AuthenticationPrincipal String userEmail,
                                                    @PathVariable String spotId) { // 엘라스틱 id
-        String userEmail = null;
-        if (userDetails != null) {
-            userEmail = userDetails.getUsername();
-        }
         TouristSpotDTO result = touristSpotService.getTouristSpotDetails(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
 
     // 찜하기
     @PostMapping("/{spotId}/favorite")
-    public ResponseEntity<?> touristSpotFavorite(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> touristSpotFavorite(@AuthenticationPrincipal String userEmail,
                                                  @PathVariable Long spotId) {
-        String userEmail = userDetails.getUsername();
         TouristSpotFavoriteDTO result = touristSpotService.touristSpotFavorite(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
 
     // 찜취소
     @DeleteMapping("/{spotId}/favorite")
-    public ResponseEntity<?> touristSpotUnFavorite(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> touristSpotUnFavorite(@AuthenticationPrincipal String userEmail,
                                                    @PathVariable Long spotId) {
-        String userEmail = userDetails.getUsername();
         TouristSpotFavoriteDTO result = touristSpotService.touristSpotUnfavorite(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
