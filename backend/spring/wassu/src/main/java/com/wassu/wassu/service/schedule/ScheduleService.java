@@ -64,7 +64,7 @@ public class ScheduleService {
         for (UpdateDailyPlanDTO dailyPlan : dailyPlans) {
             DailyPlanEntity plan = planRepository.findById(dailyPlan.getPlanId()).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
             // 기존 관광지 연결 제거
-            planOrderRepository.deleteByDailyPlanId(plan.getId());
+            planOrderRepository.deleteByPlanId(plan.getId());
             generatePlanOrders(dailyPlan.getUpdatedOrder(), plan);
         }
     }
