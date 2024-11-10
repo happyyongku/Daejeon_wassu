@@ -164,7 +164,6 @@ export default function SignupForm() {
         console.log("인증 성공", response.data);
         alert("메일 인증에 성공하셨습니다.");
         setIsChecked(response.data.status);
-        // console.log(response.data.status);
         setCheckText("인증완료");
         setCheckError("");
       }

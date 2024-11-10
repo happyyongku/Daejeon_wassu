@@ -1,16 +1,32 @@
 "use client";
 
+import { ArticleData } from "@/types";
 import style from "./communitycard.module.css";
 import { useRouter } from "next/navigation";
+// import { profile } from "console";
 
-export default function CommunityCard() {
+export default function CommunityCard({
+  id,
+  title,
+  content,
+  createdAt,
+  nickName,
+  profileImage,
+  liked,
+  user,
+  viewCount,
+  images,
+}: ArticleData) {
   // 일단 여기는 props로 이미 데이터를 받은 상태이다.
   const router = useRouter();
   const toDetail = () => {
-    router.push(`/community/${1}`);
+    router.push(`/community/${id}`);
   };
 
-  const image = [1, 1, 1];
+  const image = Array.isArray(images) ? images : [];
+  //  const image = images;
+
+  // console.log(image[0].url);
 
   const renderImage = () => {
     switch (image.length) {
@@ -19,7 +35,7 @@ export default function CommunityCard() {
           <div>
             <img
               className={style.defaultimage}
-              src="/images/default.png"
+              src="/images/defualt.png"
               alt="defaultimage"
             />
           </div>
@@ -29,7 +45,7 @@ export default function CommunityCard() {
           <div>
             <img
               className={style.defaultimage}
-              src="/images/promimage.png"
+              src={image[0].url}
               alt="defaultimage"
             />
           </div>
@@ -39,12 +55,12 @@ export default function CommunityCard() {
           <div className={style.imagecontainer2}>
             <img
               className={style.image2}
-              src="/images/promimage.png"
+              src={image[0].url}
               alt="defaultimage"
             />
             <img
               className={style.image2}
-              src="/images/promimage.png"
+              src={image[1].url}
               alt="defaultimage"
             />
           </div>
@@ -54,18 +70,18 @@ export default function CommunityCard() {
           <div className={style.image34container}>
             <img
               className={style.image3}
-              src="/images/promimage.png"
+              src={image[0].url}
               alt="defaultimage"
             />
             <div className={style.image4container}>
               <img
                 className={style.image4}
-                src="/images/promimage.png"
+                src={image[1].url}
                 alt="defaultimage"
               />
               <img
                 className={style.image4}
-                src="/images/promimage.png"
+                src={image[2].url}
                 alt="defaultimage"
               />
             </div>
@@ -77,16 +93,13 @@ export default function CommunityCard() {
   return (
     <div className={style.card_container}>
       <div className={style.piccontainer}>{renderImage()}</div>
-      <div className={style.profilepic}>프사</div>
+      {/* <div >프사</div> */}
+      <img className={style.profilepic} src={profileImage} alt="" />
       <div onClick={toDetail}>
-        <div className={style.username}>노은맨</div>
-        <div className={style.placename}>한밭 수목원</div>
-        <div className={style.placedesc}>
-          한밭 수목원 이번에 주말에 다녀왔는데 정말 재밌네요. 여러분들도 나중에
-          시간 나면 친구들이랑 한번 들려보세요~ 한밭 수목원 이번에 주말에
-          다녀왔는데 정말 재밌네요. 여러분들도 나중에 시간 나면 친구들이랑 한번
-          들려보세요~
-        </div>
+        <div className={style.username}>{nickName}</div>
+        <div className={style.placename}>{title}</div>
+
+        <div className={style.placedesc}>{content}</div>
       </div>
     </div>
   );
