@@ -192,7 +192,7 @@ public class ArticleController {
     @PostMapping("/{articleId}/likes")
     public ResponseEntity<?> likeArticle(@AuthenticationPrincipal UserDetails userDetails,
                                          @PathVariable String articleId,
-                                         @RequestParam String action){
+                                         @RequestParam(name = "action") String action){
         String userEmail = userDetails.getUsername();
         ArticleLikeDTO result;
         if ("like".equals(action)){
