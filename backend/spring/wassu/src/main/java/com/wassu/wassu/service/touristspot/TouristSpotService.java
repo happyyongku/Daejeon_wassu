@@ -81,7 +81,7 @@ public class TouristSpotService {
         int totalFavorites = spot.getFavoritesCount();
         spot.setFavoritesCount(totalFavorites + 1);
 
-        return new TouristSpotFavoriteDTO("Spot successfully liked", totalFavorites + 1);
+        return new TouristSpotFavoriteDTO("Spot successfully liked", totalFavorites + 1, true);
     }
 
     public TouristSpotFavoriteDTO touristSpotUnfavorite(String email, Long spotId) {
@@ -93,7 +93,7 @@ public class TouristSpotService {
         int totalFavorites = spot.getFavoritesCount();
         spot.setFavoritesCount(totalFavorites - 1);
 
-        return new TouristSpotFavoriteDTO("Spot successfully unliked", totalFavorites - 1);
+        return new TouristSpotFavoriteDTO("Spot successfully unliked", totalFavorites - 1, false);
     }
 
 }
