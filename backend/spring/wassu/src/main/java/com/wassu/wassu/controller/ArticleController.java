@@ -190,10 +190,10 @@ public class ArticleController {
 
     // 게시글 좋아요
     @PostMapping("/{articleId}/likes")
-    public ResponseEntity<?> likeArticle(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> likeArticle(@AuthenticationPrincipal String userEmail,
                                          @PathVariable String articleId,
                                          @RequestParam(name = "action") String action){
-        String userEmail = userDetails.getUsername();
+//        String userEmail = userDetails.getUsername();
         ArticleLikeDTO result;
         if ("like".equals(action)){
             result = articleLikeService.likeArticle(userEmail, articleId);
