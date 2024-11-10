@@ -3,6 +3,7 @@ package com.wassu.wassu.controller;
 import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
 import com.wassu.wassu.dto.touristspot.TouristSpotFavoriteDTO;
 import com.wassu.wassu.dto.touristspot.TouristSpotSearchDTO;
+import com.wassu.wassu.service.touristspot.TouristSpotSearchService;
 import com.wassu.wassu.service.touristspot.TouristSpotService;
 import com.wassu.wassu.util.UtilTool;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class TouristSpotController {
 
     private final TouristSpotService touristSpotService;
     private final UtilTool utilTool;
+    private final TouristSpotSearchService touristSpotSearchService;
 
     // 관광지 상세조회
     @GetMapping("/details/{spotId}")
@@ -59,8 +61,13 @@ public class TouristSpotController {
     @GetMapping("/search")
     public ResponseEntity<?> touristSpotSearch(@RequestBody TouristSpotSearchDTO touristSpotSearchDTO, Pageable pageable) {
         try{
-            log.info("Requested searchText: {}", touristSpotSearchDTO);
-            Page<Map<String, Object>> response =
+            Page<Map<String, Object>> response = touristSpotSearchService.searchByText(
+                    touristSpotSearchDTO.getSearchText(), pageable
+            );
+
+            System.out.println("Search Completed --------------------");
+            log.info("Search Complete");
+            return ResponseEntity.ok(response);
 
         } catch(Exception e) {
             log.error("Exception occurred while searching for tourist spot", e);

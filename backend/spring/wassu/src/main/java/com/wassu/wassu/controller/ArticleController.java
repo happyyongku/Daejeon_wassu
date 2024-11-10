@@ -16,6 +16,7 @@ import com.wassu.wassu.service.article.*;
 import com.wassu.wassu.util.UtilTool;
 import com.wassu.wassu.entity.ArticleEntity;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -125,6 +126,7 @@ public class ArticleController {
     // 포스팅 검색
     @PostMapping(value="/search")
     public ResponseEntity<?> searchArticleTest(
+            @RequestHeader(value = "Authorization", required = false) String accessToken,
             @RequestBody ArticleSearchRequestDTO requestDTO,
             Pageable pageable
     ){
@@ -133,7 +135,12 @@ public class ArticleController {
             Page<Map<String, Object>> response = articleSearchServiceImpl.searchByText(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
-            articleProfileService.matchingProfileWithArticleList(response);
+            String userEmail = null;
+            if (accessToken != null) {
+                String token = jwtUtil.extractUserEmail(accessToken);
+                userEmail = jwtUtil.extractUserEmail(token);
+            }
+            articleProfileService.matchingProfileWithArticleList(response, userEmail);
 
             System.out.println("Search Test Completed --------------------------");
             log.info("Search Completed");
@@ -146,10 +153,19 @@ public class ArticleController {
 
     // 포스팅 카테고리 별 필터링
     @GetMapping("/filter")
-    public ResponseEntity<?> filterArticle(@RequestParam(required = false) String category, Pageable pageable){
+    public ResponseEntity<?> filterArticle(
+            @RequestHeader(value="Authorization", required = false) String accessToken,
+            @RequestParam(required = false) String category, Pageable pageable){
         try {
+            System.out.println("Test -------------------------------");
+            log.info("Request URI: {}", category);
             Page<Map<String, Object>> articles = articleCategoryFilterService.searchByTag(category, pageable);
-            articleProfileService.matchingProfileWithArticleList(articles);
+            String userEmail = null;
+            if (accessToken != null) {
+                String token = accessToken.replace("Bearer ", "");
+                userEmail = jwtUtil.extractUserEmail(token);
+            }
+            articleProfileService.matchingProfileWithArticleList(articles, userEmail);
             return ResponseEntity.ok(articles);
 
         } catch (Exception e) {

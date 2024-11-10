@@ -50,7 +50,7 @@ public class ElasticTouristSpotEntity {
     private Double longitude = null;
 
     @Field(type = FieldType.Nested)
-    private List<Categories> category = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
 
     @Field(type = FieldType.Nested)
     private List<Image> images = new ArrayList<>();
@@ -58,7 +58,7 @@ public class ElasticTouristSpotEntity {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Categories {
+    public static class Category {
         @Field(type=FieldType.Keyword)
         private String category;
     }
