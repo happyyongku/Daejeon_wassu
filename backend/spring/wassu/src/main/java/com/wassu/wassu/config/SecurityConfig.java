@@ -61,6 +61,7 @@ public class SecurityConfig {
                                         "/wassu/posts/search",
                                         "/wassu/posts/read/**",
                                         "/wassu/tourist/search",
+                                        "/wassu/tourist/filter/**",
                                         "/error"
                                 ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")

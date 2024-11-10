@@ -1,4 +1,4 @@
-package com.wassu.wassu.repository.tourist;
+package com.wassu.wassu.repository.elasticTourist;
 
 import com.wassu.wassu.entity.ElasticTouristSpotEntity;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
