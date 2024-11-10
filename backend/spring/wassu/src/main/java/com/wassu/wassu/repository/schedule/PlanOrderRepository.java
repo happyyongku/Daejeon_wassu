@@ -13,4 +13,10 @@ public interface PlanOrderRepository extends JpaRepository<PlanOrderEntity, Long
     @Query("delete from PlanOrderEntity po where po.dailyPlan.id=:planId")
     void deleteByPlanId(Long planId);
 
+    @Query("select po.spotOrder from PlanOrderEntity po " +
+            "where po.dailyPlan.id = :planId and po.spotOrder = (select max(po.spotOrder) " +
+                                                                "from PlanOrderEntity po " +
+                                                                "where po.dailyPlan.id = :planId)")
+    int findMaxOrderValue(Long planId);
+
 }

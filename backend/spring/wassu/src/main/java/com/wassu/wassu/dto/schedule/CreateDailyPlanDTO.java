@@ -9,6 +9,6 @@ import java.util.List;
 public class CreateDailyPlanDTO {
 
     private LocalDate date;
-    private List<Long> spotIds;
+    private List<String> spotIds;
 
 }

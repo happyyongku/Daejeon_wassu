@@ -2,6 +2,7 @@ package com.wassu.wassu.controller;
 
 import co.elastic.clients.elasticsearch.watcher.Schedule;
 import com.wassu.wassu.dto.schedule.CreateScheduleDTO;
+import com.wassu.wassu.dto.schedule.InsertDailyPlanDTO;
 import com.wassu.wassu.dto.schedule.ScheduleDTO;
 import com.wassu.wassu.dto.schedule.UpdateScheduleDTO;
 import com.wassu.wassu.service.schedule.ScheduleService;
@@ -32,6 +33,14 @@ public class ScheduleController {
                                             @RequestBody UpdateScheduleDTO dto) {
         scheduleService.updateSchedule(userEmail, coursesId, dto);
         return ResponseEntity.ok("Schedule updated");
+    }
+
+    @PostMapping("/plan/{planId}")
+    public ResponseEntity<?> insertSchedule(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long planId,
+                                            @RequestBody InsertDailyPlanDTO dto) {
+        scheduleService.insertSchedule(userEmail, planId, dto);
+        return ResponseEntity.ok("Schedule inserted");
     }
 
 }

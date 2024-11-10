@@ -15,4 +15,6 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpotEntity, 
             "where ts.elasticId=:id")
     Optional<TouristSpotEntity> findDetailById(String id);
 
+    Optional<TouristSpotEntity> findByElasticId(String elasticId);
+
 }

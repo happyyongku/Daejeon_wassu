@@ -1,9 +1,6 @@
 package com.wassu.wassu.service.schedule;
 
-import com.wassu.wassu.dto.schedule.CreateDailyPlanDTO;
-import com.wassu.wassu.dto.schedule.CreateScheduleDTO;
-import com.wassu.wassu.dto.schedule.UpdateDailyPlanDTO;
-import com.wassu.wassu.dto.schedule.UpdateScheduleDTO;
+import com.wassu.wassu.dto.schedule.*;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import com.wassu.wassu.entity.schedule.PlanOrderEntity;
@@ -48,8 +45,8 @@ public class ScheduleService {
             DailyPlanEntity plan = new DailyPlanEntity(dailyPlan.getDate(), savedSchedule);
             DailyPlanEntity savedPlan = planRepository.save(plan);
             // 해당일 관광지 목록 추출 및 순서 지정
-            List<Long> spotIds = dailyPlan.getSpotIds();
-            generatePlanOrders(spotIds, savedPlan);
+            List<String> spotIds = dailyPlan.getSpotIds();
+            generatePlanOrders(spotIds, savedPlan, 0);
         }
     }
 
@@ -65,18 +62,31 @@ public class ScheduleService {
             DailyPlanEntity plan = planRepository.findById(dailyPlan.getPlanId()).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
             // 기존 관광지 연결 제거
             planOrderRepository.deleteByPlanId(plan.getId());
-            generatePlanOrders(dailyPlan.getUpdatedOrder(), plan);
+            generatePlanOrders(dailyPlan.getUpdatedOrder(), plan, 0);
         }
     }
 
-    private void generatePlanOrders(List<Long> spotIds, DailyPlanEntity savedPlan) {
+    public void insertSchedule(String email, Long planId, InsertDailyPlanDTO dto) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        DailyPlanEntity plan = planRepository.findByIdWithJoin(planId).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
+        // 본인 아니면 장소추가 불가
+        if (plan.getSchedule().getUser().equals(user)) {
+            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
+        }
+        // 기존 관광지목록의 최대 순서 조회
+        int maxOrderValue = planOrderRepository.findMaxOrderValue(planId);
+        // 최대순서 다음 order부터 관광지 추가
+        generatePlanOrders(dto.getInsertOrder(), plan, maxOrderValue+1);
+    }
+
+    private void generatePlanOrders(List<String> spotIds, DailyPlanEntity savedPlan, int startOrder) {
         List<TouristSpotEntity> spotList = new ArrayList<>();
-        for (Long spotId : spotIds) {
-            TouristSpotEntity spot = spotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+        for (String spotId : spotIds) {
+            TouristSpotEntity spot = spotRepository.findByElasticId(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
             spotList.add(spot);
         }
         // 일일 계획에 관광지 추가
-        int order = 0; // 관광지 순서
+        int order = startOrder; // 관광지 순서
         for (TouristSpotEntity touristSpot : spotList) {
             PlanOrderEntity planOrder = new PlanOrderEntity(order, savedPlan, touristSpot);
             planOrderRepository.save(planOrder);
