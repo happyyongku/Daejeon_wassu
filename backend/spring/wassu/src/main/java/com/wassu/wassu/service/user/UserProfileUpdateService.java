@@ -37,6 +37,7 @@ public class UserProfileUpdateService {
             s3Util.deleteFile(oldImages);
             log.info("Deleted profile image from s3");
             String fileURL = s3Util.uploadFile(profileImage, "user");
+            System.out.println("---------------");
             userEntity.setProfileImage(fileURL);
             userRepository.save(userEntity);
             log.info("Completed update profile image");

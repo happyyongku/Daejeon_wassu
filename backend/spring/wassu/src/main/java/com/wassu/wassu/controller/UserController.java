@@ -75,6 +75,7 @@ public class UserController {
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
             UserEntity userEntity = userRepository.findByEmail(userEmail).get();
+            System.out.println("Edit ---------------------------");
             userProfileUpdateService.updateProfileImage(userEntity, profileImage);
             return ResponseEntity.ok(utilTool.createResponse("status", "success"));
         } else {

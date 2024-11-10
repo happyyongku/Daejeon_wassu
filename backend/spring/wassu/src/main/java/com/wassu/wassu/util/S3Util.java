@@ -46,15 +46,18 @@ public class S3Util {
 
     // 파일 고유 이름 생성 및 파일 업로드
     public String uploadFile(MultipartFile file, String folderName) {
-        String fileName = folderName + "/" + UUID.randomUUID().toString() + '_' + file.getOriginalFilename();
+        String fileName;
+        if (file == null || file.isEmpty()) {
+            log.info("File is empty");
+            fileName = folderName +  "/default.png";
+            return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
+        } else {
+            fileName = folderName + "/" + UUID.randomUUID().toString() + '_' + file.getOriginalFilename();
+        }
         try {
             String mimeType = URLConnection.guessContentTypeFromName(file.getOriginalFilename());
             if (mimeType == null) {
                 mimeType = "application/octet-stream";
-            }
-            if (file == null || file.getSize() == 0) {
-                log.info("Image file is empty");
-                return null;
             }
             s3Client.putObject(
                     PutObjectRequest.builder()
