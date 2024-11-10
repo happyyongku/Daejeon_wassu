@@ -160,13 +160,9 @@ public class ArticleController {
 
     // 게시글 조회
     @GetMapping("/read/{articleId}")
-    public ResponseEntity<?> readArticle(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> readArticle(@AuthenticationPrincipal String userEmail,
                                          @RequestHeader(value="Authorization", required = false) String accessToken,
                                          @PathVariable String articleId){
-        String userEmail = null;
-        if (userDetails != null) {
-            userEmail = userDetails.getUsername();
-        }
         Boolean isMatch = false;
         if (accessToken != null) {
             String token = accessToken.replace("Bearer ", "");
@@ -193,7 +189,6 @@ public class ArticleController {
     public ResponseEntity<?> likeArticle(@AuthenticationPrincipal String userEmail,
                                          @PathVariable String articleId,
                                          @RequestParam(name = "action") String action){
-//        String userEmail = userDetails.getUsername();
         ArticleLikeDTO result;
         if ("like".equals(action)){
             result = articleLikeService.likeArticle(userEmail, articleId);
