@@ -59,7 +59,17 @@ export default function Page() {
     }
   };
 
-  // 회원가입 폼 제출 핸들러
+  // 이미지 삭제 핸들러
+  const handleImageRemove = (index: number) => {
+    // 이미지 삭제
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    // 미리보기 삭제
+    setImagePreviews((prevPreviews) =>
+      prevPreviews.filter((_, i) => i !== index)
+    );
+  };
+
+  // 게시글 폼 제출 핸들러
   const submit = async () => {
     const token = localStorage.getItem("authToken");
     const formData = new FormData();
@@ -72,9 +82,10 @@ export default function Page() {
     formData.append("articleDTO", JSON.stringify(articleDTO));
 
     // 이미지 파일들을 FormData에 추가
-    images.forEach((image, index) => {
+    images.forEach((image) => {
       formData.append("file", image);
     });
+
     try {
       const response = await axios.post(
         `https://k11b105.p.ssafy.io/wassu/posts/`,
@@ -112,7 +123,10 @@ export default function Page() {
           {imagePreviews.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap" }}>
               {imagePreviews.map((preview, index) => (
-                <div key={index} style={{ margin: "10px" }}>
+                <div
+                  key={index}
+                  style={{ margin: "10px", position: "relative" }}
+                >
                   <img
                     src={preview}
                     alt="preview"
@@ -122,6 +136,21 @@ export default function Page() {
                       marginRight: "10px",
                     }}
                   />
+                  <button
+                    onClick={() => handleImageRemove(index)}
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      right: "0",
+                      background: "rgba(0, 0, 0, 0.5)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ❌
+                  </button>
                 </div>
               ))}
             </div>
@@ -142,6 +171,7 @@ export default function Page() {
             <option value="과학">과학</option>
           </select>
         </div>
+
         <div>
           <label htmlFor="">제목</label>
           <input type="text" onChange={handleTitle} />
