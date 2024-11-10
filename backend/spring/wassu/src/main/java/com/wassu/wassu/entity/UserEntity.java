@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,7 +43,8 @@ public class UserEntity {
 
 
     @PrePersist
-    public void prePersist() {
+    public void prePersist(
+    ) {
         if (this.level == null) {
             this.level = "초보";
         }
@@ -53,9 +55,6 @@ public class UserEntity {
             this.profileImage = "default";
         }
     }
-
-//    @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<ArticleEntity> articles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticleLikedEntity> articleLikes;

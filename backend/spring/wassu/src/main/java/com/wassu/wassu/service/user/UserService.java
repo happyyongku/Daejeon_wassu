@@ -1,5 +1,6 @@
 package com.wassu.wassu.service.user;
 
+import com.wassu.wassu.config.AmazonS3Config;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.repository.UserRepository;
@@ -26,6 +27,7 @@ public class UserService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PasswordEncoder passwordEncoder;
     private final S3Util s3Util;
+    private final AmazonS3Config amazonS3Config;
 
     // 회원가입
     public UserEntity createUser(UserEntity userEntity) {
@@ -34,6 +36,16 @@ public class UserService {
             throw new IllegalStateException("Email already exists");
         }
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        if (userEntity.getProfileImage().equals("default")) {
+            userEntity.setProfileImage(
+                    String.format(
+                            "https://%s.s3.%s.amazonaws.com/%s",
+                            amazonS3Config.getBucket(),
+                            amazonS3Config.getRegion(),
+                            "default.png"
+                    )
+            );
+        }
         return userRepository.save(userEntity);
     }
     
