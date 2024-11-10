@@ -1,6 +1,6 @@
 package com.wassu.wassu.repository.touristspot;
 
-import com.wassu.wassu.entity.TouristSpotFavorites;
+import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

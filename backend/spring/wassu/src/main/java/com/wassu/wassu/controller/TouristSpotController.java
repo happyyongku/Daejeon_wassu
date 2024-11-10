@@ -28,7 +28,7 @@ public class TouristSpotController {
     // 관광지 상세조회
     @GetMapping("/details/{spotId}")
     public ResponseEntity<?> getTouristSpotDetails(@AuthenticationPrincipal UserDetails userDetails,
-                                                   @PathVariable Long spotId) {
+                                                   @PathVariable String spotId) { // 엘라스틱 id
         String userEmail = null;
         if (userDetails != null) {
             userEmail = userDetails.getUsername();
