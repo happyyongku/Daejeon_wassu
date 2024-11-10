@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 import style from "./community.module.css";
 import CommunityCard from "./communitycard";
 import CommunityHeader from "./communityheader";
@@ -18,7 +18,7 @@ export default function Community() {
         );
         if (response.data) {
           setArticles(response.data.content);
-          console.log(response.data.content);
+          console.log();
         }
       } catch (error) {
         console.error(error);
