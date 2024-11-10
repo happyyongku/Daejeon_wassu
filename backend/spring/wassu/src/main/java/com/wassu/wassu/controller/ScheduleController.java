@@ -48,4 +48,19 @@ public class ScheduleController {
         return ResponseEntity.ok("Schedule inserted");
     }
 
+    @DeleteMapping("/plan/{planId}")
+    public ResponseEntity<?> deleteSpotInPlan(@AuthenticationPrincipal String userEmail,
+                                              @PathVariable Long planId,
+                                              @RequestBody DeleteSpotDTO dto) {
+        scheduleService.deleteSpotInPlan(userEmail, planId, dto);
+        return ResponseEntity.ok("TouristSpot deleted");
+    }
+
+    @DeleteMapping("/{coursesId}")
+    public ResponseEntity<?> deleteSchedule(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long coursesId) {
+        scheduleService.deleteSchedule(userEmail, coursesId);
+        return ResponseEntity.ok("Schedule deleted");
+    }
+
 }

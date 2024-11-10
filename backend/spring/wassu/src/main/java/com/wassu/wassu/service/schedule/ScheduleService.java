@@ -52,7 +52,7 @@ public class ScheduleService {
 
     public void updateSchedule(String email, Long coursesId, UpdateScheduleDTO dto) {
         // 본인 아니면 수정 불가
-        validateIsCreator(email, coursesId);
+        validateIsCreatorByCourseId(email, coursesId);
         List<UpdateDailyPlanDTO> dailyPlans = dto.getDailyPlans();
         for (UpdateDailyPlanDTO dailyPlan : dailyPlans) {
             DailyPlanEntity plan = planRepository.findById(dailyPlan.getPlanId()).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
@@ -64,30 +64,47 @@ public class ScheduleService {
 
     public void updateScheduleTitle(String email, Long coursesId, UpdateScheduleTitleDTO dto) {
         // 본인 아니면 수정 불가
-        ScheduleEntity schedule = validateIsCreator(email, coursesId);
+        ScheduleEntity schedule = validateIsCreatorByCourseId(email, coursesId);
         schedule.setTitle(dto.getTitle());
     }
 
     public void insertSchedule(String email, Long planId, InsertDailyPlanDTO dto) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        DailyPlanEntity plan = planRepository.findByIdWithJoin(planId).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
-        // 본인 아니면 장소추가 불가
-        if (plan.getSchedule().getUser().equals(user)) {
-            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
-        }
+        DailyPlanEntity plan = validateIsCreatorByPlanId(email, planId);
         // 기존 관광지목록의 최대 순서 조회
         int maxOrderValue = planOrderRepository.findMaxOrderValue(planId);
         // 최대순서 다음 order부터 관광지 추가
         generatePlanOrders(dto.getInsertOrder(), plan, maxOrderValue+1);
     }
 
-    private ScheduleEntity validateIsCreator(String email, Long coursesId) {
+    public void deleteSpotInPlan(String email, Long planId, DeleteSpotDTO dto) {
+        // 본인 외엔 삭제 불가
+        validateIsCreatorByPlanId(email, planId);
+        planOrderRepository.deleteByPlanIdAndSpotId(planId, dto.getDeleteOrder());
+    }
+
+    public void deleteSchedule(String email, Long courseId) {
+        // 본인 외엔 삭제 불가
+        validateIsCreatorByCourseId(email, courseId);
+        scheduleRepository.deleteById(courseId);
+    }
+
+    private ScheduleEntity validateIsCreatorByCourseId(String email, Long coursesId) {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         if (!schedule.getUser().equals(user)) {
             throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
         }
         return schedule;
+    }
+
+    private DailyPlanEntity validateIsCreatorByPlanId(String email, Long planId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        DailyPlanEntity plan = planRepository.findByIdWithJoin(planId).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
+        // 본인 아니면 장소추가 불가
+        if (plan.getSchedule().getUser().equals(user)) {
+            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
+        }
+        return plan;
     }
 
     private void generatePlanOrders(List<String> spotIds, DailyPlanEntity savedPlan, int startOrder) {
