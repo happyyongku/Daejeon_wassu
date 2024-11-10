@@ -1,6 +1,7 @@
 package com.wassu.wassu.entity;
 
 import com.wassu.wassu.entity.review.ReviewEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import jakarta.persistence.*;
 import lombok.*;
 

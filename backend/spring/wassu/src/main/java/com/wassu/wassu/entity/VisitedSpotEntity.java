@@ -1,5 +1,6 @@
 package com.wassu.wassu.entity;
 
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +17,12 @@ public class VisitedSpotEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String spotId;
+//    @Column(nullable = false)
+//    private String spotId;
+
+    @ManyToOne
+    @JoinColumn(name="spot_entity_id", nullable = false)
+    private TouristSpotEntity touristSpot;
 
     @ManyToOne
     @JoinColumn(name="user_entity_id", nullable = false)
