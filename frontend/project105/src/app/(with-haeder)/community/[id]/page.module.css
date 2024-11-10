@@ -1,6 +1,6 @@
 .userbox {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   margin-top: 20px;
   margin-bottom: 10px;
 }
@@ -148,4 +148,23 @@
 .prev:hover,
 .next:hover {
   background-color: rgba(0, 0, 0, 0.8);
+}
+
+.buttonbox {
+  width: 40px;
+  height: 40px;
+  background-color: #ffffff;
+  border: 1.5px solid #418663;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  margin-bottom: 3px;
+  cursor: pointer;
+}
+
+.button1 {
+  background: none;
+  border: none;
+  cursor: pointer;
 }

@@ -1,31 +1,70 @@
-// "use client";
+"use client";
 
-import style from "./page.module.css";
-import LikeButton from "../../../../components/community/likebutton";
-import UpdateDelete from "@/components/community/updatedelete";
-import axios from "axios";
+import { useParams } from "next/navigation"; // next/navigation에서 useParams 사용
+import { useEffect, useState } from "react";
 import { ArticleData } from "@/types";
+import axios from "axios";
+import style from "./page.module.css";
 
-export default async function Page({
-  params,
-}: {
-  params: { id: string | string[] };
-}) {
-  let article: ArticleData | null = null;
-  // 게시글 상세 조회 요청 axios
-  try {
-    const response = await axios.get(
-      `https://k11b105.p.ssafy.io/wassu/posts/read/${params.id}`
-    );
-    if (response.data) {
-      console.log("커뮤니티 게시글 상세 조회 성공", response.data);
-      article = response.data.status;
+export default function Page() {
+  const { id } = useParams();
+  const [article, setArticle] = useState<ArticleData | null>(null);
+
+  // 게시글 상세 조회 요청
+  const getArticle = async () => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/wassu/posts/read/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data) {
+        console.log("게시글 상세 요청 성공", response.data);
+        setArticle(response.data.status);
+      }
+    } catch (error) {
+      console.error("게시글 상세 조회 실패", error);
     }
-  } catch (error) {
-    console.error(error);
-  }
+  };
 
-  console.log(article);
+  // 좋아요/좋아요취소 하는 요청
+  const likeUnlike = async (likestatus: string) => {
+    const token = localStorage.getItem("authToken");
+    const statusData = {
+      action: likestatus,
+    };
+    console.log(token);
+    try {
+      const response = await axios.post(
+        `https://k11b105.p.ssafy.io/wassu/posts/${article?.id}/likes`,
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: statusData,
+        }
+      );
+      if (response.data) {
+        console.log("좋아요/좋아요 취소 성공", response.data);
+        getArticle();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 마운트 됐을 때 게시글 상세 조회
+  useEffect(() => {
+    getArticle();
+  }, []);
+
+  // 로딩중일 때
+  if (!id) {
+    return <div>게시글 정보를 로딩하는 중입니다...</div>;
+  }
 
   return (
     <div>
@@ -46,10 +85,7 @@ export default async function Page({
           <p className={style.heartimg}>❤️</p>
           <p className={style.heartnumber}>{article?.liked}</p>
         </div>
-        {/* 여기는 클라이언트 컴포넌트 */}
-        <div>
-          <UpdateDelete />
-        </div>
+        <div>{/* <UpdateDelete /> */}</div>
       </div>
       <div>
         <img className={style.image} src={article?.images[0].url} alt="" />
@@ -57,9 +93,28 @@ export default async function Page({
       <div className={style.descbox}>
         <div className={style.desctext}>설명</div>
         <p className={style.desc}>{article?.content}</p>
-        {/* 클라이언트 컴포넌트로 작성 */}
         <div className={style.button}>
-          <LikeButton articleId={article?.id ?? 0}></LikeButton>
+          <div>
+            {!article?.userLiked ? (
+              <div className={style.buttonbox}>
+                <button
+                  className={style.button1}
+                  onClick={() => likeUnlike("like")}
+                >
+                  🤍
+                </button>
+              </div>
+            ) : (
+              <div className={style.buttonbox}>
+                <button
+                  className={style.button1}
+                  onClick={() => likeUnlike("unlike")}
+                >
+                  ❤️
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

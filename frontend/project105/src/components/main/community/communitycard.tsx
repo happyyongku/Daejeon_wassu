@@ -3,18 +3,13 @@
 import { ArticleData } from "@/types";
 import style from "./communitycard.module.css";
 import { useRouter } from "next/navigation";
-// import { profile } from "console";
 
 export default function CommunityCard({
   id,
   title,
   content,
-  createdAt,
   nickName,
   profileImage,
-  liked,
-  user,
-  viewCount,
   images,
 }: ArticleData) {
   // 일단 여기는 props로 이미 데이터를 받은 상태이다.
@@ -24,10 +19,6 @@ export default function CommunityCard({
   };
 
   const image = Array.isArray(images) ? images : [];
-  //  const image = images;
-
-  // console.log(image[0].url);
-
   const renderImage = () => {
     switch (image.length) {
       case 0:
@@ -35,7 +26,7 @@ export default function CommunityCard({
           <div>
             <img
               className={style.defaultimage}
-              src="/images/defualt.png"
+              src="/images/default.png"
               alt="defaultimage"
             />
           </div>
@@ -94,11 +85,15 @@ export default function CommunityCard({
     <div className={style.card_container}>
       <div className={style.piccontainer}>{renderImage()}</div>
       {/* <div >프사</div> */}
-      <img className={style.profilepic} src={profileImage} alt="" />
+      {profileImage !== "default" ? (
+        <img className={style.profilepic} src={profileImage} alt="" />
+      ) : (
+        <img className={style.profilepic} src="/images/default.png" alt="" />
+      )}
+
       <div onClick={toDetail}>
         <div className={style.username}>{nickName}</div>
         <div className={style.placename}>{title}</div>
-
         <div className={style.placedesc}>{content}</div>
       </div>
     </div>
