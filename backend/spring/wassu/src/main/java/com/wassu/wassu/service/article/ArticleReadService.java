@@ -29,7 +29,8 @@ public class ArticleReadService {
     public ArticleResponseDTO searchById(String email, String articleId, Boolean isMatched) {
         boolean isUserLiked = false;
         if (email != null) {
-            isUserLiked = articleLikedRepository.existsByArticleIdAndUserEmail(articleId, email);
+            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+            isUserLiked = articleLikedRepository.existsByArticleIdAndUserId(articleId, user.getId());
         }
         try {
             Optional<ArticleEntity> optionalArticle = articleRepository.findById(articleId);;

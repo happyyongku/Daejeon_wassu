@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface TouristSpotFavoritesRepository extends JpaRepository<TouristSpotFavorites, Long> {
 
-    boolean existsByTouristSpotIdAndUserEmail(Long spotId, String userEmail);
+    boolean existsByTouristSpotIdAndUserId(Long spotId, Long userId);
 
     Optional<TouristSpotFavorites> findByTouristSpotIdAndUserEmail(Long touristSpotId, String userEmail);
 
