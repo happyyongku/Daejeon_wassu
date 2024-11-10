@@ -15,7 +15,6 @@ import java.util.List;
 @Document(indexName = "elastic_tourist_spot")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Setting(settingPath = "/nori_settings.json")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ElasticTouristSpotEntity {
