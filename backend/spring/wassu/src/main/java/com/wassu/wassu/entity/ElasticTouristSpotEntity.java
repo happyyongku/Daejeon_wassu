@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Document(indexName = "tourist_spot")
+@Document(indexName = "elastic_tourist_spot")
 @AllArgsConstructor
 @NoArgsConstructor
 @Setting(settingPath = "/nori_settings.json")
@@ -27,11 +27,11 @@ public class ElasticTouristSpotEntity {
     @Field(type= FieldType.Text, analyzer = "nori_analyzer")
     private String spotAddress;
 
-    @Field(type = FieldType.Float)
-    private Float rating = 0.0F;
+    @Field(type = FieldType.Integer)
+    private Integer liked = 0;
 
     @Field(type = FieldType.Integer)
-    private Integer userRatingsTotal = 0;
+    private Integer stamp = 0;
 
     @Field(type = FieldType.Text)
     private String spotDescription = null;
@@ -49,7 +49,7 @@ public class ElasticTouristSpotEntity {
     private Double longitude = null;
 
     @Field(type = FieldType.Nested)
-    private List<Tag> tags = new ArrayList<>();
+    private List<Categories> category = new ArrayList<>();
 
     @Field(type = FieldType.Nested)
     private List<Image> images = new ArrayList<>();
@@ -57,9 +57,9 @@ public class ElasticTouristSpotEntity {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Tag {
+    public static class Categories {
         @Field(type=FieldType.Keyword)
-        private String tag;
+        private String category;
     }
 
     @Data
