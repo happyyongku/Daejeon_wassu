@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class UserPasswordUpdateDTO {
     private String currentPassword;
     private String newPassword;
