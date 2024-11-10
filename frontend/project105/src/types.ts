@@ -13,4 +13,5 @@ export interface ArticleData {
   images: ImageData[];
   profileImage: string;
   nickName: string;
+  userLiked: boolean;
 }

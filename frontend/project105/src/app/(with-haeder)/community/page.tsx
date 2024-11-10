@@ -10,6 +10,7 @@ export default function Page() {
   const [articles, setArticles] = useState<ArticleData[]>([]);
 
   const getArticles = async () => {
+    const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
         `https://k11b105.p.ssafy.io/wassu/posts/filter`
@@ -23,17 +24,23 @@ export default function Page() {
     }
   };
 
-  console.log(articles);
-
   useEffect(() => {
     getArticles();
   }, []);
 
   return (
     <div>
-      <div>전체 게시글 조회 페이지</div>
-      <div>반복문으로 community card 호출</div>
-      <div>
+      <div className={style.header}>
+        <div className={style.title}>
+          <div className={style.titletext1}>다양한 관광지에 대한 소감,</div>
+          <div className={style.titletext2}>커뮤니티 ‍🤝‍🧑</div>
+        </div>
+        <p className={style.content}>
+          다양한 관광지에 대한 사용자들의 후기를 접하고,
+        </p>
+        <p className={style.content}>다양한 방법으로 관광지를 즐겨보세요.</p>
+      </div>
+      <div className={style.cardcontainer}>
         {articles.length > 0 ? (
           articles.map((article) => (
             <CommunityCard key={article.id} {...article} />

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ToLoginModal from "../../../components/main/tologinmodal";
 import style from "./page.module.css";
-
 import Reco from "@/components/main/reco/reco";
 import Community from "../../../components/main/community/community";
 import SearchResultCard from "@/components/main/searchresultcard";
@@ -52,7 +51,7 @@ export default function Page() {
   };
 
   // 검색 요청하는 axios
-  const searchReqest = () => {};
+  // const searchReqest = () => {};
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Enter 키가 눌렸을 때
