@@ -2,6 +2,7 @@ package com.wassu.wassu.entity.touristspot;
 
 import com.wassu.wassu.entity.VisitedSpotEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
+import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,5 +53,9 @@ public class TouristSpotEntity {
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews;
+
+    @ManyToOne
+    @JoinColumn(name = "daily_plan_entity_id")
+    private DailyPlanEntity dailyPlan;
 
 }
