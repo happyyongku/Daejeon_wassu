@@ -1,16 +1,17 @@
 package com.wassu.wassu.dto.touristspot;
 
 import com.wassu.wassu.dto.review.ReviewDTO;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
-@Builder
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TouristSpotDTO {
 
-    private Long id;
+    private Long spotId;
     private String spotName;
     private String spotAddress;
     private Float rating;

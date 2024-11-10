@@ -54,8 +54,4 @@ public class TouristSpotEntity {
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews;
 
-    @ManyToOne
-    @JoinColumn(name = "daily_plan_entity_id")
-    private DailyPlanEntity dailyPlan;
-
 }

@@ -1,10 +1,12 @@
 package com.wassu.wassu.entity;
 
 import com.wassu.wassu.entity.review.ReviewEntity;
+import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -57,22 +59,25 @@ public class UserEntity {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticleLikedEntity> articleLikes;
+    private List<ArticleLikedEntity> articleLikes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClearedMarbleEntity> clearedMarbles;
+    private List<ClearedMarbleEntity> clearedMarbles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VisitedSpotEntity> visitedSpots;
+    private List<VisitedSpotEntity> visitedSpots = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticleReadEntity> articleReads;
+    private List<ArticleReadEntity> articleReads = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewEntity> reviews;
+    private List<ReviewEntity> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotFavorites> touristSpotFavorites;
+    private List<TouristSpotFavorites> touristSpotFavorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleEntity> schedules = new ArrayList<>();
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }
