@@ -166,25 +166,25 @@ export async function getPostDetail(articleId: string) {
 }
 
 // 게시글 좋아요/취소
-export async function toggleLike(postId: string, action: 'like' | 'unlike') {
+export async function toggleLike(articleId: string, userLiked: boolean) {
   try {
-    const response = await Authapi.post(`/posts/${postId}/likes`, {
-      action,
-    });
+    const action = userLiked ? 'unlike' : 'like';
+    const url = `https://k11b105.p.ssafy.io/wassu/posts/${articleId}/likes?action=${action}`;
 
-    if (response && response.data) {
-      console.log('Like action successful:', response.data);
+    const response = await Authapi.post(url, null);
+
+    if (response && response.status === 200) {
       return response.data;
     } else {
-      console.error('Failed to perform like action.');
+      console.error('좋아요/좋아요 취소 요청 실패');
       return null;
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Toggle like error (Axios):', err.response);
+      console.error('API 에러:', err.response);
       return null;
     } else {
-      console.error('Unexpected error during like action:', err);
+      console.error('알 수 없는 에러:', err);
       return null;
     }
   }
@@ -215,7 +215,7 @@ export async function searchPosts(searchText: string) {
 // 게시글 태그 필터링
 export async function filterPosts(category?: string): Promise<FilteredPostsResponse | null> {
   try {
-    const response = await api.get('/posts/filter', {
+    const response = await Authapi.get('/posts/filter', {
       params: {
         category: category || '',
       },

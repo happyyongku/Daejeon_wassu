@@ -1,15 +1,36 @@
-import React from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert} from 'react-native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import type {RootStackParamList} from '../../router/Navigator';
+import {updateNickname} from '../../api/mypage';
 
 const {width} = Dimensions.get('window');
 
+type ChangeInfoRouteProp = RouteProp<RootStackParamList, 'ChangeInfo'>;
+
 const ChangeInfo = () => {
+  const route = useRoute<ChangeInfoRouteProp>();
+  const navigation = useNavigation();
+  const {nickname} = route.params;
+
+  const [newNickname, setNewNickname] = useState(nickname);
+
+  const handleUpdateNickname = async () => {
+    const success = await updateNickname(newNickname);
+    if (success) {
+      Alert.alert('성공', '닉네임이 성공적으로 변경되었습니다.');
+      navigation.goBack(); // 닉네임이 변경된 후 이전 화면으로 돌아갑니다.
+    } else {
+      Alert.alert('실패', '닉네임 변경에 실패했습니다. 다시 시도해 주세요.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButtonPlaceholder} />
         <Text style={styles.headerTitle}>닉네임 변경</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleUpdateNickname}>
           <Text style={styles.headerButton}>완료</Text>
         </TouchableOpacity>
       </View>
@@ -18,7 +39,8 @@ const ChangeInfo = () => {
         <Text style={styles.label}>닉네임</Text>
         <TextInput
           style={styles.input}
-          placeholder="대전의 아들 장현수"
+          value={newNickname}
+          onChangeText={setNewNickname}
           placeholderTextColor="#C0C0C0"
         />
       </View>

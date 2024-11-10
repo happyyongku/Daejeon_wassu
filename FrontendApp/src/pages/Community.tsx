@@ -10,16 +10,28 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import HeartIcon from '../assets/imgs/heart.svg'; // 좋아요 누르기 전 아이콘
-import HearthIcon from '../assets/imgs/hearth.svg'; // 좋아요 누른 후 아이콘
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import HeartIcon from '../assets/imgs/heart.svg';
+import HearthIcon from '../assets/imgs/hearth.svg';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
-import {filterPosts} from '../api/community';
+import {filterPosts, toggleLike} from '../api/community'; // toggleLike 함수 추가
+import userPlaceholder from '../assets/imgs/user.png';
 
 const {width} = Dimensions.get('window');
 
 type CommunityNavigationProp = StackNavigationProp<RootStackParamList>;
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  return `${year}.${month}.${day} ${hours}시 ${minutes}분`;
+};
 
 const Community = () => {
   const navigation = useNavigation<CommunityNavigationProp>();
@@ -47,7 +59,7 @@ const Community = () => {
       if (response) {
         setPosts(response.content);
         const initialLikes = response.content.reduce((acc: any, post: any) => {
-          acc[post.id] = post.liked;
+          acc[post.id] = post.userLiked;
           return acc;
         }, {});
         const initialLikesCount = response.content.reduce((acc: any, post: any) => {
@@ -68,18 +80,31 @@ const Community = () => {
     fetchPosts(selectedCategory);
   }, [selectedCategory]);
 
-  const toggleLike = (postId: string) => {
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPosts(selectedCategory);
+    }, [selectedCategory]),
+  );
+
+  const handleToggleLike = async (postId: string) => {
     const isLiked = likedPosts[postId];
-    const updatedLikesCount = {...likesCount};
 
-    if (isLiked) {
-      updatedLikesCount[postId] -= 1;
-    } else {
-      updatedLikesCount[postId] += 1;
+    try {
+      const updatedData = await toggleLike(postId, isLiked);
+      if (updatedData) {
+        setLikedPosts(prevLikedPosts => ({
+          ...prevLikedPosts,
+          [postId]: !isLiked,
+        }));
+
+        setLikesCount(prevLikesCount => ({
+          ...prevLikesCount,
+          [postId]: isLiked ? prevLikesCount[postId] - 1 : prevLikesCount[postId] + 1,
+        }));
+      }
+    } catch (error) {
+      console.error(`좋아요 처리 실패 (게시물 ID: ${postId}):`, error);
     }
-
-    setLikedPosts({...likedPosts, [postId]: !isLiked});
-    setLikesCount(updatedLikesCount);
   };
 
   const handleNextImage = (postId: string, imagesLength: number) => {
@@ -94,6 +119,10 @@ const Community = () => {
       const prevPage = (prevPages[postId] || 0) - 1;
       return {...prevPages, [postId]: prevPage >= 0 ? prevPage : imagesLength - 1};
     });
+  };
+
+  const handlePostPress = (articleId: string) => {
+    navigation.navigate('PostDetail', {articleId});
   };
 
   return (
@@ -139,69 +168,73 @@ const Community = () => {
           keyExtractor={item => item.id}
           renderItem={({item}) => (
             <View style={styles.postContainer}>
-              <View style={styles.postHeader}>
-                <Image source={{uri: item.profileImage}} style={styles.profileImage} />
-                <Text style={styles.nickname}>{item.nickName || '익명'}</Text>
-              </View>
-              <Text style={styles.postTitle}>{item.title}</Text>
-              <Text style={styles.postContent}>{item.content}</Text>
-
-              {/* 이미지 캐러셀 렌더링 */}
-              {item.images && item.images.length > 0 ? (
-                <View style={styles.carouselContainer}>
-                  <TouchableOpacity
-                    onPress={() => handlePreviousImage(item.id, item.images.length)}
-                    style={styles.arrowButton}>
-                    <Image
-                      source={require('../assets/imgs/chevron-left.png')}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
+              <TouchableOpacity onPress={() => handlePostPress(item.id)}>
+                <View style={styles.postHeader}>
                   <Image
-                    source={{uri: item.images[currentPages[item.id] || 0]?.url}}
-                    style={styles.carouselImage}
+                    source={
+                      item.profileImage === 'default' ? userPlaceholder : {uri: item.profileImage}
+                    }
+                    style={styles.profileImage}
                   />
-                  <TouchableOpacity
-                    onPress={() => handleNextImage(item.id, item.images.length)}
-                    style={styles.arrowButton}>
+                  <Text style={styles.nickname}>{item.nickName || '익명'}</Text>
+                </View>
+                <Text style={styles.postTitle}>{item.title}</Text>
+                <Text style={styles.postContent}>{item.content}</Text>
+
+                {item.images && item.images.length > 0 ? (
+                  <View style={styles.carouselContainer}>
+                    <TouchableOpacity
+                      onPress={() => handlePreviousImage(item.id, item.images.length)}
+                      style={styles.arrowButton}>
+                      <Image
+                        source={require('../assets/imgs/chevron-left.png')}
+                        style={styles.arrowIcon}
+                      />
+                    </TouchableOpacity>
                     <Image
-                      source={require('../assets/imgs/chevron-right.png')}
-                      style={styles.arrowIcon}
+                      source={{uri: item.images[currentPages[item.id] || 0]?.url}}
+                      style={styles.carouselImage}
                     />
+                    <TouchableOpacity
+                      onPress={() => handleNextImage(item.id, item.images.length)}
+                      style={styles.arrowButton}>
+                      <Image
+                        source={require('../assets/imgs/chevron-right.png')}
+                        style={styles.arrowIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+
+                <View style={styles.postDetails}>
+                  <Text style={styles.location}>{item.location}</Text>
+                  <Text style={styles.time}>{formatDate(item.createdAt)}</Text>
+                </View>
+
+                <View style={styles.paginationContainer}>
+                  {item.images &&
+                    item.images.map((_: any, index: React.Key | null | undefined) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles.paginationDot,
+                          (currentPages[item.id] || 0) === index && styles.paginationDotActive,
+                        ]}
+                      />
+                    ))}
+                </View>
+
+                <View style={styles.likeContainer}>
+                  <Text style={styles.likes}>좋아요 {likesCount[item.id]}</Text>
+                  <TouchableOpacity onPress={() => handleToggleLike(item.id)}>
+                    {likedPosts[item.id] ? (
+                      <HearthIcon width={20} height={20} />
+                    ) : (
+                      <HeartIcon width={20} height={20} />
+                    )}
                   </TouchableOpacity>
                 </View>
-              ) : (
-                <Text> </Text>
-              )}
-
-              <View style={styles.postDetails}>
-                <Text style={styles.location}>{item.location}</Text>
-                <Text style={styles.time}>{item.createdAt}</Text>
-              </View>
-
-              <View style={styles.paginationContainer}>
-                {item.images &&
-                  item.images.map((_: any, index: React.Key | null | undefined) => (
-                    <View
-                      key={index}
-                      style={[
-                        styles.paginationDot,
-                        (currentPages[item.id] || 0) === index && styles.paginationDotActive,
-                      ]}
-                    />
-                  ))}
-              </View>
-
-              <View style={styles.likeContainer}>
-                <Text style={styles.likes}>좋아요 {likesCount[item.id]}</Text>
-                <TouchableOpacity onPress={() => toggleLike(item.id)}>
-                  {likedPosts[item.id] ? (
-                    <HearthIcon width={20} height={20} /> // 좋아요 누른 후 아이콘
-                  ) : (
-                    <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
-                  )}
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
           )}
         />
