@@ -23,7 +23,7 @@ public class ArticleResponseDTO {
     private List<ArticleEntity.Image> images;
     private Integer viewCount;
     private Integer liked;
-    private boolean isLiked;
+    private boolean isUserLiked;
     private boolean isMatched;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
