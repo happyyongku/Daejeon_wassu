@@ -11,4 +11,6 @@ export interface ArticleData {
   user: number;
   viewCount: number;
   images: ImageData[];
+  profileImage: string;
+  nickName: string;
 }

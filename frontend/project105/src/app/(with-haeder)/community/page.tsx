@@ -3,10 +3,7 @@
 import style from "./page.module.css";
 import CommunityCard from "../../../components/main/community/communitycard";
 import axios from "axios";
-// import { useState } from "react";
 import { ArticleData } from "@/types";
-
-// 타입도 가져와야 한다. import 해야한다.
 
 export default async function Page() {
   // 게시글 변수

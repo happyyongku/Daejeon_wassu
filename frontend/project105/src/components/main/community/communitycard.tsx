@@ -3,12 +3,15 @@
 import { ArticleData } from "@/types";
 import style from "./communitycard.module.css";
 import { useRouter } from "next/navigation";
+// import { profile } from "console";
 
 export default function CommunityCard({
   id,
   title,
   content,
   createdAt,
+  nickName,
+  profileImage,
   liked,
   user,
   viewCount,
@@ -20,9 +23,10 @@ export default function CommunityCard({
     router.push(`/community/${id}`);
   };
 
-  const image = images;
+  const image = Array.isArray(images) ? images : [];
+  //  const image = images;
 
-  console.log(image[0].url);
+  // console.log(image[0].url);
 
   const renderImage = () => {
     switch (image.length) {
@@ -89,10 +93,12 @@ export default function CommunityCard({
   return (
     <div className={style.card_container}>
       <div className={style.piccontainer}>{renderImage()}</div>
-      <div className={style.profilepic}>프사</div>
+      {/* <div >프사</div> */}
+      <img className={style.profilepic} src={profileImage} alt="" />
       <div onClick={toDetail}>
-        <div className={style.username}>노은맨</div>
+        <div className={style.username}>{nickName}</div>
         <div className={style.placename}>{title}</div>
+
         <div className={style.placedesc}>{content}</div>
       </div>
     </div>

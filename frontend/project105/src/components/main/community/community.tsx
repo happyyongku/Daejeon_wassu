@@ -18,6 +18,7 @@ export default function Community() {
         );
         if (response.data) {
           setArticles(response.data.content);
+          console.log(response.data.content);
         }
       } catch (error) {
         console.error(error);

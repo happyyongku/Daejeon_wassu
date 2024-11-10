@@ -1,10 +1,8 @@
 // "use client";
 
 import style from "./page.module.css";
-
 import LikeButton from "../../../../components/community/likebutton";
 import UpdateDelete from "@/components/community/updatedelete";
-
 import axios from "axios";
 import { ArticleData } from "@/types";
 
@@ -34,10 +32,10 @@ export default async function Page({
       <div className={style.userbox}>
         <img
           className={style.profileimagae}
-          src="/images/logo.png"
+          src={article?.profileImage}
           alt="profileimage"
         />
-        <p className={style.username}>노은맨</p>
+        <p className={style.username}>{article?.nickName}</p>
       </div>
       <div className={style.contentbox}>
         <div className={style.title}>{article?.title}</div>
@@ -54,14 +52,14 @@ export default async function Page({
         </div>
       </div>
       <div>
-        <img className={style.image} src="/images/building.png" alt="" />
+        <img className={style.image} src={article?.images[0].url} alt="" />
       </div>
       <div className={style.descbox}>
         <div className={style.desctext}>설명</div>
         <p className={style.desc}>{article?.content}</p>
         {/* 클라이언트 컴포넌트로 작성 */}
         <div className={style.button}>
-          <LikeButton></LikeButton>
+          <LikeButton articleId={article?.id ?? 0}></LikeButton>
         </div>
       </div>
     </div>
