@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -80,6 +81,21 @@ public class TouristSpotController {
     }
 
     // 관광지 필터링
-    
+    @GetMapping("/{category}")
+    public ResponseEntity<?> touristSpotCategory(
+            @RequestParam(name = "category", required = false) String category,
+            Pageable pageable
+    ) throws IOException {
+        try {
+            log.info("Filtering by Category ---------------");
+            Page<Map<String, Object>> response = touristSpotSearchService.filteringByCategory(category, pageable);
+            System.out.println("Filtering by Category");
+            log.info("Filtering by Category");
+            return ResponseEntity.ok(response);
+        } catch(Exception e) {
+            log.error("Exception occurred while searching for tourist spot", e);
+            return ResponseEntity.status(500).body(utilTool.createResponse("status","failed"));
+        }
+    }
 
 }
