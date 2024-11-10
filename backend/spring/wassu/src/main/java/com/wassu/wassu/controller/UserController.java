@@ -12,11 +12,13 @@ import com.wassu.wassu.util.UtilTool;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -33,14 +35,15 @@ public class UserController {
 
     // 사용자 정보 조회
     @GetMapping("/profile")
-    public Optional<UserProfileDTO> getProfile(@RequestHeader(value="Authorization") String accessToken) {
+    public ResponseEntity<?> getProfile(@RequestHeader(value="Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
-            return userService.findUserByEmail(userEmail);
+            Optional<UserProfileDTO> result = userService.findUserByEmail(userEmail);
+            return ResponseEntity.ok(result);
         }
         log.info("User not found: {}", userEmail);
-        return Optional.empty();
+        return new ResponseEntity<>(Map.of("message", "User not Found"), HttpStatus.NOT_FOUND);
     }
 
     // 사용자 프로필 정보 수정
