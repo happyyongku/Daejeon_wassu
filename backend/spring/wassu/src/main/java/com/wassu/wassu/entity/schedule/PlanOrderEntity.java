@@ -14,7 +14,7 @@ public class PlanOrderEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int order; // 해당 관광지가 해당 일정의 몇번째 순서인지
+    private int spotOrder; // 해당 관광지가 해당 일정의 몇번째 순서인지
 
     @ManyToOne
     @JoinColumn(name = "daily_plan_entity_id")
@@ -25,7 +25,7 @@ public class PlanOrderEntity {
     private TouristSpotEntity touristSpot;
 
     public PlanOrderEntity(int order, DailyPlanEntity dailyPlan, TouristSpotEntity touristSpot) {
-        this.order = order;
+        this.spotOrder = order;
         this.dailyPlan = dailyPlan;
         dailyPlan.getPlanOrders().add(this);
         this.touristSpot = touristSpot;
