@@ -52,6 +52,10 @@ public class S3Util {
             if (mimeType == null) {
                 mimeType = "application/octet-stream";
             }
+            if (file == null || file.getSize() == 0) {
+                log.info("Image file is empty");
+                return null;
+            }
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
