@@ -53,6 +53,8 @@ public class ArticleReadService {
                         .liked(article.getLiked())
                         .isUserLiked(isUserLiked)
                         .isMatched(isMatched)
+                        .createdAt(article.getCreatedAt())
+                        .updatedAt(article.getUpdatedAt())
                         .build();
             } else {
                 log.error("Article not found");

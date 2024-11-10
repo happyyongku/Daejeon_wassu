@@ -92,4 +92,62 @@ public class TouristSpotSearchService {
             throw new CustomException(CustomErrorCode.ERROR_WHILE_SEARCH_TOURIST_SPOT);
         }
     }
+
+    public Page<Map<String, Object>> filteringByCategory(String category, Pageable pageable) throws IOException {
+        try{
+            log.info("Start Searching Tourist Spot by Category");
+            Query query;
+
+            if (category == null || category.trim().isEmpty()) {
+                query = Query.of(q -> q.matchAll(m -> m));
+            } else {
+                query = Query.of(
+                        q -> q.nested(
+                                n -> n.path("categories")
+                                        .query(
+                                                nq -> nq.term(
+                                                        t -> t.field("categories.category")
+                                                                .value(category)
+                                                )
+                                        )
+                        )
+                );
+            }
+
+            log.info("Query to filtering: {}", query);
+
+            SearchRequest request = new SearchRequest.Builder()
+                    .index("elastic_tourist_spot")
+                    .query(query)
+                    .from((int) pageable.getOffset())
+                    .size(pageable.getPageSize())
+                    .build();
+
+            log.info("Request to filtering category: {}", request);
+
+            SearchResponse<JsonData> response = elasticsearchClient.search(request, JsonData.class);
+
+            log.info("Filtering response: {}", response);
+
+            List<Map<String, Object>> result = response.hits().hits().stream()
+                    .map(hit -> {
+                        try{
+                            return (Map<String, Object>) hit.source().to(Map.class);
+                        } catch (Exception e) {
+                            log.error("Error converting to Mat<String, Object> while searching tourist spot: {}", e.getMessage());
+                            return null;
+                        }
+                    })
+                    .filter(map -> map != null)
+                    .toList();
+
+            long totalHits = response.hits().total() != null ? response.hits().total().value() : 0L;
+
+            return new PageImpl<>(result, pageable, totalHits);
+
+        } catch (Exception e) {
+            log.error("Exception while filteringByCategory: {}", e.getMessage());
+            throw new CustomException(CustomErrorCode.FAILED_TO_FILTERING_BY_CATEGORY);
+        }
+    }
 }
