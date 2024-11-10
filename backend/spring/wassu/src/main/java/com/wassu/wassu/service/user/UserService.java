@@ -74,6 +74,7 @@ public class UserService {
                 .gender(userEntity.getGender())
                 .exp(userEntity.getExp())
                 .level(userEntity.getLevel())
+                .profileImage(userEntity.getProfileImage())
                 .build();
     }
 }
