@@ -53,10 +53,14 @@ public class TouristSpotController {
 
     // 관광지 검색
     @GetMapping("/search")
-    public ResponseEntity<?> touristSpotSearch(@RequestBody TouristSpotSearchDTO touristSpotSearchDTO, Pageable pageable) {
+    public ResponseEntity<?> touristSpotSearch(
+            @RequestParam String searchText,
+            Pageable pageable
+    ) {
         try{
+            log.info("Tourist Spot Search Requested -----------");
             Page<Map<String, Object>> response = touristSpotSearchService.searchByText(
-                    touristSpotSearchDTO.getSearchText(), pageable
+                    searchText, pageable
             );
 
             System.out.println("Search Completed --------------------");
