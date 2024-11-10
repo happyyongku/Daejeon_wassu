@@ -1,9 +1,7 @@
 package com.wassu.wassu.controller;
 
 import co.elastic.clients.elasticsearch.watcher.Schedule;
-import com.wassu.wassu.dto.schedule.CreateScheduleDTO;
-import com.wassu.wassu.dto.schedule.ScheduleDTO;
-import com.wassu.wassu.dto.schedule.UpdateScheduleDTO;
+import com.wassu.wassu.dto.schedule.*;
 import com.wassu.wassu.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +30,37 @@ public class ScheduleController {
                                             @RequestBody UpdateScheduleDTO dto) {
         scheduleService.updateSchedule(userEmail, coursesId, dto);
         return ResponseEntity.ok("Schedule updated");
+    }
+
+    @PutMapping("/{coursesId}/title")
+    public ResponseEntity<?> updateScheduleTitle(@AuthenticationPrincipal String userEmail,
+                                                 @PathVariable Long coursesId,
+                                                 @RequestBody UpdateScheduleTitleDTO dto) {
+        scheduleService.updateScheduleTitle(userEmail, coursesId, dto);
+        return ResponseEntity.ok("Schedule Title updated");
+    }
+
+    @PostMapping("/plan/{planId}")
+    public ResponseEntity<?> insertSchedule(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long planId,
+                                            @RequestBody InsertDailyPlanDTO dto) {
+        scheduleService.insertSchedule(userEmail, planId, dto);
+        return ResponseEntity.ok("Schedule inserted");
+    }
+
+    @DeleteMapping("/plan/{planId}")
+    public ResponseEntity<?> deleteSpotInPlan(@AuthenticationPrincipal String userEmail,
+                                              @PathVariable Long planId,
+                                              @RequestBody DeleteSpotDTO dto) {
+        scheduleService.deleteSpotInPlan(userEmail, planId, dto);
+        return ResponseEntity.ok("TouristSpot deleted");
+    }
+
+    @DeleteMapping("/{coursesId}")
+    public ResponseEntity<?> deleteSchedule(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long coursesId) {
+        scheduleService.deleteSchedule(userEmail, coursesId);
+        return ResponseEntity.ok("Schedule deleted");
     }
 
 }

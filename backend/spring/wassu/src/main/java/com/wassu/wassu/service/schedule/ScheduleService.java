@@ -1,9 +1,6 @@
 package com.wassu.wassu.service.schedule;
 
-import com.wassu.wassu.dto.schedule.CreateDailyPlanDTO;
-import com.wassu.wassu.dto.schedule.CreateScheduleDTO;
-import com.wassu.wassu.dto.schedule.UpdateDailyPlanDTO;
-import com.wassu.wassu.dto.schedule.UpdateScheduleDTO;
+import com.wassu.wassu.dto.schedule.*;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import com.wassu.wassu.entity.schedule.PlanOrderEntity;
@@ -39,7 +36,7 @@ public class ScheduleService {
     public void createSchedule(String email, CreateScheduleDTO dto) {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         // 새 일정 생성
-        ScheduleEntity schedule = new ScheduleEntity(dto.getStartDate(), dto.getEndDate(), user);
+        ScheduleEntity schedule = new ScheduleEntity(dto.getStartDate(), dto.getEndDate(), dto.getTitle(), user);
         ScheduleEntity savedSchedule = scheduleRepository.save(schedule);
         // 일일 계획 생성 후 일정에 추가
         List<CreateDailyPlanDTO> dailyPlans = dto.getDailyPlans();
@@ -48,35 +45,76 @@ public class ScheduleService {
             DailyPlanEntity plan = new DailyPlanEntity(dailyPlan.getDate(), savedSchedule);
             DailyPlanEntity savedPlan = planRepository.save(plan);
             // 해당일 관광지 목록 추출 및 순서 지정
-            List<Long> spotIds = dailyPlan.getSpotIds();
-            generatePlanOrders(spotIds, savedPlan);
+            List<String> spotIds = dailyPlan.getSpotIds();
+            generatePlanOrders(spotIds, savedPlan, 0);
         }
     }
 
     public void updateSchedule(String email, Long coursesId, UpdateScheduleDTO dto) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
         // 본인 아니면 수정 불가
-        if (!schedule.getUser().equals(user)) {
-            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
-        }
+        validateIsCreatorByCourseId(email, coursesId);
         List<UpdateDailyPlanDTO> dailyPlans = dto.getDailyPlans();
         for (UpdateDailyPlanDTO dailyPlan : dailyPlans) {
             DailyPlanEntity plan = planRepository.findById(dailyPlan.getPlanId()).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
             // 기존 관광지 연결 제거
             planOrderRepository.deleteByPlanId(plan.getId());
-            generatePlanOrders(dailyPlan.getUpdatedOrder(), plan);
+            generatePlanOrders(dailyPlan.getUpdatedOrder(), plan, 0);
         }
     }
 
-    private void generatePlanOrders(List<Long> spotIds, DailyPlanEntity savedPlan) {
+    public void updateScheduleTitle(String email, Long coursesId, UpdateScheduleTitleDTO dto) {
+        // 본인 아니면 수정 불가
+        ScheduleEntity schedule = validateIsCreatorByCourseId(email, coursesId);
+        schedule.setTitle(dto.getTitle());
+    }
+
+    public void insertSchedule(String email, Long planId, InsertDailyPlanDTO dto) {
+        DailyPlanEntity plan = validateIsCreatorByPlanId(email, planId);
+        // 기존 관광지목록의 최대 순서 조회
+        int maxOrderValue = planOrderRepository.findMaxOrderValue(planId);
+        // 최대순서 다음 order부터 관광지 추가
+        generatePlanOrders(dto.getInsertOrder(), plan, maxOrderValue+1);
+    }
+
+    public void deleteSpotInPlan(String email, Long planId, DeleteSpotDTO dto) {
+        // 본인 외엔 삭제 불가
+        validateIsCreatorByPlanId(email, planId);
+        planOrderRepository.deleteByPlanIdAndSpotId(planId, dto.getDeleteOrder());
+    }
+
+    public void deleteSchedule(String email, Long courseId) {
+        // 본인 외엔 삭제 불가
+        validateIsCreatorByCourseId(email, courseId);
+        scheduleRepository.deleteById(courseId);
+    }
+
+    private ScheduleEntity validateIsCreatorByCourseId(String email, Long coursesId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        if (!schedule.getUser().equals(user)) {
+            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
+        }
+        return schedule;
+    }
+
+    private DailyPlanEntity validateIsCreatorByPlanId(String email, Long planId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        DailyPlanEntity plan = planRepository.findByIdWithJoin(planId).orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
+        // 본인 아니면 장소추가 불가
+        if (plan.getSchedule().getUser().equals(user)) {
+            throw new CustomException(CustomErrorCode.PERMISSION_DENIED);
+        }
+        return plan;
+    }
+
+    private void generatePlanOrders(List<String> spotIds, DailyPlanEntity savedPlan, int startOrder) {
         List<TouristSpotEntity> spotList = new ArrayList<>();
-        for (Long spotId : spotIds) {
-            TouristSpotEntity spot = spotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+        for (String spotId : spotIds) {
+            TouristSpotEntity spot = spotRepository.findByElasticId(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
             spotList.add(spot);
         }
         // 일일 계획에 관광지 추가
-        int order = 0; // 관광지 순서
+        int order = startOrder; // 관광지 순서
         for (TouristSpotEntity touristSpot : spotList) {
             PlanOrderEntity planOrder = new PlanOrderEntity(order, savedPlan, touristSpot);
             planOrderRepository.save(planOrder);

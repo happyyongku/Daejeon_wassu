@@ -8,6 +8,6 @@ import java.util.List;
 public class UpdateDailyPlanDTO {
 
     private Long planId;
-    private List<Long> updatedOrder; // 변경된 관광지 id 순서
+    private List<String> updatedOrder; // 변경된 관광지 id 순서
 
 }
