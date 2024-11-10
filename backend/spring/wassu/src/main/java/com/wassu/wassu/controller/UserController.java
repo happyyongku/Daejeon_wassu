@@ -69,7 +69,7 @@ public class UserController {
     @PutMapping("/profile/edit/image")
     public ResponseEntity<?> editProfileImage(
             @RequestHeader(value = "Authorization") String accessToken,
-            @RequestPart("file") MultipartFile profileImage
+            @RequestPart(value = "file", required = false) MultipartFile profileImage
             ) {
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
