@@ -20,12 +20,13 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/review")
+    @PostMapping("/tourist/{spotId}/review")
     public ResponseEntity<?> createReview(@AuthenticationPrincipal UserDetails userDetails,
+                                          @PathVariable Long spotId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
                                           @RequestPart(name = "review") ReviewCreateDTO createDTO) {
         String username = userDetails.getUsername();
-        reviewService.createReview(username, images, createDTO);
+        reviewService.createReview(username, spotId, images, createDTO);
         return ResponseEntity.ok("review created");
     }
 
