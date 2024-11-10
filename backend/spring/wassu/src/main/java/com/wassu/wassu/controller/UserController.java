@@ -39,7 +39,7 @@ public class UserController {
         String token = accessToken.replace("Bearer ", "");
         String userEmail = jwtUtil.extractUserEmail(token);
         if (userRepository.findByEmail(userEmail).isPresent()) {
-            Optional<UserProfileDTO> result = userService.findUserByEmail(userEmail);
+            UserProfileDTO result = userService.findUserByEmail(userEmail);
             return ResponseEntity.ok(result);
         }
         log.info("User not found: {}", userEmail);

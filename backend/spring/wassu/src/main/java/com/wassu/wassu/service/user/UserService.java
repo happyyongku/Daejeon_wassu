@@ -2,6 +2,8 @@ package com.wassu.wassu.service.user;
 
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.exception.CustomErrorCode;
+import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
@@ -38,9 +40,9 @@ public class UserService {
     }
     
     // email 기반 유저 조회
-    public Optional<UserProfileDTO> findUserByEmail(String email) {
-        Optional<UserEntity> userEntity = userRepository.findByEmail(email);
-        return userEntity.map(this::convertToDTO);
+    public UserProfileDTO findUserByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        return convertToDTO(user);
     }
 
     //비밀번호 변경
