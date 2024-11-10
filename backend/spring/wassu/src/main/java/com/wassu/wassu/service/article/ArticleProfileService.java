@@ -5,6 +5,7 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.article.ArticleLikedRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,8 +21,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ArticleProfileService {
     private final UserRepository userRepository;
+    private final ArticleLikedRepository articleLikedRepository;
 
-    public void matchingProfileWithArticleList(Page<Map<String, Object>> searchResponse) {
+    public void matchingProfileWithArticleList(Page<Map<String, Object>> searchResponse, String userEmail) {
         try {
             if (searchResponse.hasContent()) {
                 List<Map<String, Object>> articleList = searchResponse.getContent();
@@ -29,15 +31,18 @@ public class ArticleProfileService {
                     log.info("Article User Id: {}", article.get("user").getClass());
                     Object userObject = article.get("user");
                     Long userId = null;
+                    boolean userLiked = false;
                     if (userObject instanceof Number) {
                         userId = ((Number) userObject).longValue();
                     }
                     Optional<UserEntity> optionalUser = userRepository.findById(Objects.requireNonNull(userId));
                     if (optionalUser.isPresent() ) {
                         UserEntity userEntity = optionalUser.get();
+
                         article.putAll(Map.of(
                                 "nickName", userEntity.getNickname(),
-                                "profileImage", userEntity.getProfileImage()
+                                "profileImage", userEntity.getProfileImage(),
+                                "userLiked", ""
                         ));
                     } else {
                         article.putAll(Map.of(
@@ -45,6 +50,10 @@ public class ArticleProfileService {
                                 "profileImage", "default"
                         ));
                     }
+                    if (userEmail != null) {
+                        userLiked = articleLikedRepository.existsByArticleIdAndUserEmail(article.get("id").toString(), userEmail);
+                    }
+                    article.put("userLiked", userLiked);
                 }
             }
         } catch (Exception e) {

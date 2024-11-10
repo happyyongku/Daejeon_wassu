@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TouristSpotRepository  extends ElasticsearchRepository<ElasticTouristSpotEntity, String> {
+public interface ElasticTouristSpotRepository extends ElasticsearchRepository<ElasticTouristSpotEntity, String> {
     Optional<ElasticTouristSpotEntity> findByTouristId(Long touristId);
 }

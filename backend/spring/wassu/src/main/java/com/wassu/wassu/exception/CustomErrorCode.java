@@ -42,7 +42,8 @@ public enum CustomErrorCode {
     FAILED_TO_UPDATE_PROFILE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Profile"),
     FAILED_TO_UPDATE_PROFILE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Profile Image"),
     FAILED_TO_SAVE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Save Article"),
-    FAILED_TO_MATCHING_PROFILE_AND_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Falied To Matching Profile and Article"),;
+    FAILED_TO_MATCHING_PROFILE_AND_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Falied To Matching Profile and Article"),
+    ERROR_WHILE_SEARCH_TOURIST_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Search TouristSpot"),;
 
     private final HttpStatus status;
     private final String message;

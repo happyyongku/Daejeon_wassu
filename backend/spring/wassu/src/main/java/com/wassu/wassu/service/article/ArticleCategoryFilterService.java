@@ -23,6 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ArticleCategoryFilterService {
     private final ElasticsearchClient elasticsearchClient;
+    private final ArticleProfileService articleProfileService;
 
     public Page<Map<String, Object>> searchByTag(String tag, Pageable pageable) {
         try {
