@@ -26,6 +26,11 @@ public class ArticleProfileService {
     public void matchingProfileWithArticleList(Page<Map<String, Object>> searchResponse, String userEmail) {
         try {
             if (searchResponse.hasContent()) {
+                Optional<UserEntity> readingUser = userRepository.findByEmail(userEmail);
+                Long readingUserId = null;
+                if (readingUser.isPresent()) {
+                    readingUserId = readingUser.get().getId();
+                }
                 List<Map<String, Object>> articleList = searchResponse.getContent();
                 for (Map<String, Object> article : articleList) {
                     log.info("Article User Id: {}", article.get("user").getClass());
@@ -51,7 +56,7 @@ public class ArticleProfileService {
                         ));
                     }
                     if (userEmail != null) {
-                        userLiked = articleLikedRepository.existsByArticleIdAndUserEmail(article.get("id").toString(), userEmail);
+                        userLiked = articleLikedRepository.existsByArticleIdAndUserId(article.get("id").toString(), readingUserId);
                     }
                     article.put("userLiked", userLiked);
                 }
