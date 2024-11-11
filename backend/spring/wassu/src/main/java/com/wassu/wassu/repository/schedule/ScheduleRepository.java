@@ -12,8 +12,7 @@ import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Long> {
 
-    @EntityGraph(attributePaths = {"dailyPlans", "dailyPlans.planOrders", "dailyPlans.planOrders.touristSpot"})
-    @Query("select se from ScheduleEntity se where se.id = :id")
+    @Query("select se from ScheduleEntity se join fetch se.dailyPlans dp where se.id = :id")
     Optional<ScheduleEntity> findByIdWithJoin(Long id);
 
     @Query("select se from ScheduleEntity se where se.user.email = :email")
