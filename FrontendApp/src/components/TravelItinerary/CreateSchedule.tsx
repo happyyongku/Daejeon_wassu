@@ -82,8 +82,34 @@ const CreateSchedule = () => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
 
+  const generateItinerary = () => {
+    if (!startDate || !endDate) return [];
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const itinerary = [];
+    let currentDate = start;
+    let dayCount = 1;
+
+    while (currentDate <= end) {
+      const month = currentDate.getMonth() + 1;
+      const day = currentDate.getDate();
+      itinerary.push({
+        id: dayCount.toString(),
+        day: `Day ${dayCount}`,
+        date: `${month}/${day}`,
+        places: [], // 빈 장소 배열
+      });
+      dayCount++;
+      currentDate.setDate(currentDate.getDate() + 1); // 다음 날짜로 이동
+    }
+
+    return itinerary;
+  };
+
   const goToDetails = () => {
-    navigation.navigate('Details');
+    const itinerary = generateItinerary();
+    navigation.navigate('Details', {itinerary});
   };
 
   const onDayPress = (day: CustomDateObject) => {

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,15 @@ import {
   StyleSheet,
   Image,
   Alert,
+  FlatList,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import DraggableFlatList, {RenderItemParams} from 'react-native-draggable-flatlist';
-import {WithSpringConfig, runOnJS} from 'react-native-reanimated';
+import {useRoute, RouteProp} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import type {RootStackParamList} from '../../router/Navigator'; // 네비게이션 타입 가져오기
+import type {RootStackParamList} from '../../router/Navigator';
+import RenderDayItem from './RenderDayItem';
+import {createSchedule} from '../../api/itinerary';
 
 const {width} = Dimensions.get('window');
 type DetailsNavigationProp = StackNavigationProp<RootStackParamList, 'TravelItinerary'>;
@@ -32,92 +34,55 @@ type Day = {
   places: Place[];
 };
 
-const RenderPlaceItem = ({item, drag, isActive}: RenderItemParams<Place>) => {
-  return (
-    <View style={[styles.placeContainer, isActive && {backgroundColor: '#f0f0f0'}]}>
-      <View>
-        {/* 기본값 추가 */}
-        <Text style={styles.placeText}>{item.name ? item.name : ''}</Text>
-        <Text style={styles.addressText}>{item.address ? item.address : ''}</Text>
-      </View>
-      <TouchableOpacity onPressIn={drag} style={styles.dragHandle}>
-        <Image source={require('../../assets/imgs/menu.png')} style={styles.menuIcon} />
-      </TouchableOpacity>
-    </View>
-  );
-};
-const RenderDayItem = ({
-  item,
-  handleDragEnd,
-}: {
-  item: Day;
-  handleDragEnd: (data: Place[], dayId: string) => void;
-}) => {
-  const springConfig: Partial<WithSpringConfig> = {
-    damping: 20,
-    stiffness: 100,
-    mass: 1,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.1,
-    restSpeedThreshold: 0.1,
-  };
-
-  return (
-    <View style={styles.dayContainer}>
-      <View style={styles.dayHeader}>
-        <Image source={require('../../assets/imgs/calendar.png')} style={styles.calendarIcon} />
-        <Text style={styles.dayText}>{item.day}</Text>
-        <Text style={styles.dateText}>{item.date}</Text>
-      </View>
-      <DraggableFlatList
-        data={item.places || []}
-        renderItem={(params: RenderItemParams<Place>) => <RenderPlaceItem {...params} />}
-        keyExtractor={(place: Place) => place.id}
-        onDragEnd={({data}) => {
-          runOnJS(handleDragEnd)(data, item.id);
-        }}
-        ListEmptyComponent={<View />}
-        activationDistance={10}
-        animationConfig={springConfig}
-      />
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>장소 추가</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
 const Details = () => {
+  const route = useRoute<RouteProp<RootStackParamList, 'Details'>>();
+  const {itinerary: initialItinerary} = route.params;
   const [tripName, setTripName] = useState('여행 이름을 입력하세요');
   const [isEditing, setIsEditing] = useState(false);
   const [hasCustomName, setHasCustomName] = useState(false);
-  const [itinerary, setItinerary] = useState<Day[]>([
-    {
-      id: '1',
-      day: 'Day 1',
-      date: '10/15',
-      places: [
-        {id: 'place1', name: '대전 애니메이트', address: '대전광역시 덕명동 xxx-xx'},
-        {id: 'place2', name: '대전 근현대사 전시관', address: '대전광역시 덕명동 xxx-xx'},
-      ],
-    },
-    {
-      id: '2',
-      day: 'Day 2',
-      date: '10/16',
-      places: [
-        {id: 'place3', name: '대전 성심당', address: '대전광역시 덕명동 xxx-xx'},
-        {id: 'place4', name: '한밭 수목원', address: '대전광역시 덕명동 xxx-xx'},
-      ],
-    },
-  ]);
-  const navigation = useNavigation<DetailsNavigationProp>(); // 네비게이션 훅 사용
+  const [itinerary, setItinerary] = useState<Day[]>(initialItinerary || []);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const dayIdToUpdate = route.params?.dayId;
+  const selectedPlace = route.params?.selectedPlace;
+
+  useEffect(() => {
+    if (itinerary.length > 0) {
+      setStartDate(itinerary[0].date);
+      setEndDate(itinerary[itinerary.length - 1].date);
+    }
+  }, [itinerary]);
+
+  useEffect(() => {
+    if (dayIdToUpdate && selectedPlace) {
+      const newPlace: Place = {
+        id: selectedPlace.id,
+        name: selectedPlace.spotName,
+        address: selectedPlace.spotAddress,
+      };
+
+      setItinerary(prevItinerary =>
+        prevItinerary.map(day =>
+          day.id === dayIdToUpdate ? {...day, places: [...day.places, newPlace]} : day,
+        ),
+      );
+    }
+  }, [dayIdToUpdate, selectedPlace]);
+
+  useEffect(() => {
+    console.log('Updated Itinerary:', JSON.stringify(itinerary, null, 2));
+    console.log(startDate);
+  }, [itinerary, startDate]);
+
+  const navigation = useNavigation<DetailsNavigationProp>();
 
   const goToTravelItinerary = () => {
-    navigation.navigate('TravelChallenge'); // 네비게이션 처리
+    navigation.navigate('TravelChallenge');
   };
+
   const handleEdit = () => {
-    setTripName(''); // 수정 버튼을 누를 때 tripName을 빈 문자열로 설정
+    setTripName('');
     setIsEditing(true);
   };
 
@@ -131,11 +96,7 @@ const Details = () => {
   };
 
   const handleTextChange = (text: string) => {
-    if (!hasCustomName) {
-      setTripName(text);
-    } else {
-      setTripName(text);
-    }
+    setTripName(text);
   };
 
   const handleDragEnd = (data: Place[], dayId: string) => {
@@ -144,10 +105,56 @@ const Details = () => {
     );
   };
 
+  const renderDaySection = ({item}: {item: Day}) => (
+    <View style={styles.daySection}>
+      <View style={styles.Divider} />
+      <RenderDayItem item={item} handleDragEnd={handleDragEnd} />
+    </View>
+  );
+
+  const handleAddSchedule = async () => {
+    // YYYY-MM-DD 형식으로 날짜 변환
+    const formattedStartDate = `2024-${startDate.replace('/', '-')}`;
+    const formattedEndDate = `2024-${endDate.replace('/', '-')}`;
+
+    const dailyPlans = itinerary.map(day => ({
+      date: `2024-${day.date.replace('/', '-')}`, // 날짜 형식을 YYYY-MM-DD로 변환
+      spotIds: day.places.map(place => place.id),
+    }));
+
+    // 요청 데이터 구성
+    const requestData = {
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      title: tripName,
+      dailyPlans: dailyPlans,
+    };
+
+    // 요청 데이터 콘솔에 출력
+    console.log('Request Data:', JSON.stringify(requestData, null, 2));
+
+    try {
+      const response = await createSchedule(requestData);
+      if (response) {
+        Alert.alert('일정 생성', '일정이 성공적으로 생성되었습니다.');
+      }
+    } catch (error) {
+      Alert.alert('오류', '일정 생성 중 오류가 발생했습니다.');
+      console.error(error);
+    }
+  };
+
+  const renderFooter = () => (
+    <TouchableOpacity style={styles.addScheduleButton} onPress={handleAddSchedule}>
+      <Text style={styles.addScheduleButtonText}>일정추가하기</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.container}>
         <View style={styles.topDivider} />
+
         <View style={styles.content}>
           <View style={styles.header}>
             {isEditing ? (
@@ -175,29 +182,39 @@ const Details = () => {
               </>
             )}
           </View>
-          <Text style={styles.dateRange}>2024.10.15 - 2024.10.17</Text>
+
+          {/* Start Date와 End Date 표시 */}
+          <Text style={styles.dateRange}>
+            {startDate} - {endDate}
+          </Text>
+
           <TouchableOpacity style={styles.recommendButton} onPress={goToTravelItinerary}>
             <Text style={styles.recommendButtonText}>+ 추천 코스 보기</Text>
           </TouchableOpacity>
 
-          {itinerary.map(day => (
-            <View key={day.id} style={styles.daySection}>
-              <View style={styles.Divider} />
-              <RenderDayItem item={day} handleDragEnd={handleDragEnd} />
-            </View>
-          ))}
+          {/* FlatList로 일정 목록을 스크롤 가능하게 표시 */}
+          <FlatList
+            data={itinerary}
+            keyExtractor={item => item.id}
+            renderItem={renderDaySection}
+            ListFooterComponent={renderFooter}
+            contentContainerStyle={styles.listContent}
+          />
         </View>
       </View>
     </GestureHandlerRootView>
   );
 };
+
 const styles = StyleSheet.create({
-  // 스타일 설정 그대로 유지
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
-  content: {},
+  content: {
+    flex: 1, // 콘텐츠 뷰에 flex 설정 추가
+    paddingHorizontal: width * 0.06,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,32 +232,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333333',
     flex: 1,
-    paddingHorizontal: width * 0.06,
   },
   tripName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
     flex: 1,
-    paddingHorizontal: width * 0.06,
   },
   confirmText: {
     fontSize: 16,
     color: '#418663',
     marginLeft: 8,
-    marginRight: width * 0.08,
     fontFamily: 'Pretendard-SemiBold',
   },
   pencilIcon: {
     width: 20,
     height: 20,
-    marginRight: width * 0.08,
   },
   dateRange: {
     fontSize: 16,
     color: '#999999',
     marginBottom: 16,
-    paddingHorizontal: width * 0.07,
   },
   recommendButton: {
     backgroundColor: '#418663',
@@ -248,7 +260,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     width: (width * 7) / 18,
-    marginLeft: width * 0.08,
     marginBottom: 15,
   },
   recommendButtonText: {
@@ -256,77 +267,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   Divider: {
-    width: width,
+    width: width * 0.9,
     height: 1,
     backgroundColor: 'rgba(51, 51, 51, 0.2)',
+    alignSelf: 'center',
     marginBottom: 20,
     marginTop: 10,
   },
   daySection: {
     marginBottom: 16,
   },
-
-  dayContainer: {
-    padding: 12,
-    borderRadius: 8,
+  listContent: {
+    paddingBottom: 20, // 하단 여백 추가
   },
-  dayHeader: {
-    flexDirection: 'row',
+  addScheduleButton: {
+    backgroundColor: '#418663',
+    padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 8,
+    marginVertical: 20,
+    marginHorizontal: width * 0.1,
   },
-  calendarIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 8,
-  },
-  dayText: {
+  addScheduleButtonText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#999999',
-    marginLeft: 8,
-  },
-  placeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-  },
-  placeText: {
-    fontSize: 16,
-    color: '#333333',
-    fontFamily: 'Pretendard-Bold',
-  },
-  addressText: {
-    fontSize: 14,
-    color: '#999999',
-    fontFamily: 'Pretendard-Regular', // 주소에 적절한 폰트 설정
-  },
-  menuIcon: {
-    width: 20,
-    height: 20,
-  },
-  dragHandle: {
-    padding: 5,
-  },
-  addButton: {
-    backgroundColor: '#fff',
-    borderColor: '#418663',
-    borderWidth: 1,
-    width: (width * 6) / 18,
-    padding: 5,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 15,
-    alignSelf: 'flex-end', // 오른쪽 정렬
-  },
-  addButtonText: {
-    color: '#418663',
     fontWeight: 'bold',
   },
 });
