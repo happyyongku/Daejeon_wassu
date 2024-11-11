@@ -15,7 +15,7 @@ export default function Page() {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
-        `https://k11b105.p.ssafy.io/wassu/tourist/details/${id}`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/details/d60696b9-aa39-4449-ade7-dfa520d70cec`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

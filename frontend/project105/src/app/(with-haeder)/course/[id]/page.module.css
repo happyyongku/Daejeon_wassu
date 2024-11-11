@@ -1,0 +1,162 @@
+.header {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 750px;
+}
+
+.tagbox {
+  display: flex;
+  align-items: center;
+}
+
+.imgbox {
+  width: 750px;
+}
+
+.img {
+  width: 750px;
+}
+
+.contentbox {
+  width: 750;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  width: 680px;
+  color: #333333;
+  opacity: 70%;
+}
+
+.hr {
+  width: 750px;
+  height: 1px;
+  background-color: #333333;
+  opacity: 30%;
+}
+
+.introcourse {
+  font-weight: bold;
+}
+
+.coursebackground {
+  position: relative;
+}
+
+.backbox {
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 65px; /* 상단에서 고정될 위치 */
+}
+
+.coursebackground {
+  width: 1100px;
+  height: 1100px;
+  position: absolute;
+}
+
+.cardcontainer {
+  width: 750px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.greenline {
+  width: 8px;
+  height: 100%;
+  background-color: #418663;
+  position: absolute;
+}
+
+.leftcardbox {
+  width: 750px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.rightcardbox {
+  width: 750px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.card {
+  width: 330px;
+  height: 250px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 10px 10px 20px 1px rgba(0, 0, 0, 0.2); /* 확산 5px */
+  padding: 15px;
+}
+
+.cardheader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cardnumber {
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  background-color: #418663;
+  color: #ffffff;
+  text-align: center;
+  line-height: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.cardtitle {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.cardimg {
+  width: 100%;
+  height: 100px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.bottombox {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cardtagbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 13px;
+}
+
+.monsterbox {
+  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wassudesc {
+  font-size: 12px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.gtext {
+  color: #418663;
+}
+
+.wassu {
+  width: 50px;
+  height: 50px;
+}
