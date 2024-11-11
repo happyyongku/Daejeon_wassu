@@ -1,4 +1,5 @@
-import React from 'react';
+// PlaceList.tsx
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,48 +16,58 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
 import MarkerIcon from '../../assets/imgs/marker.svg';
+import {getTouristSpotsByCategory} from '../../api/tourist'; // Import API function
 
 const {width} = Dimensions.get('window');
 
+// Define the TouristSpot type
+interface TouristSpot {
+  id: string;
+  image: {uri: string} | number;
+  area: string;
+  address: string;
+  name: string;
+}
+
 type PlaceListNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceDetail'>;
 
-const places = [
-  {
-    id: '1',
-    image: require('../../assets/imgs/hanbat.png'),
-    area: '서구',
-    tags: '#자연 #포토존',
-    address: '대전 서구 둔산대로 169',
-    name: '한밭 수목원',
-  },
-  {
-    id: '2',
-    image: require('../../assets/imgs/museum.png'),
-    area: '서구',
-    tags: '#예술 #포토존',
-    address: '대전 서구 둔산대로 155 둔산대공원',
-    name: '대전시립미술관',
-  },
-  {
-    id: '3',
-    image: require('../../assets/imgs/breadFull.png'),
-    area: '중구',
-    tags: '#맛집 #빵',
-    address: '대전 중구 대종로 4801번길 15',
-    name: '성심당',
-  },
-  {
-    id: '4',
-    image: require('../../assets/imgs/park.png'),
-    area: '서구',
-    tags: '#자연 #포토존',
-    address: '대전 서구 둔산대로 169',
-    name: '한밭 수목원',
-  },
-];
-
-const PlaceList = () => {
+const PlaceList: React.FC = () => {
   const navigation = useNavigation<PlaceListNavigationProp>();
+  const [places, setPlaces] = useState<TouristSpot[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+
+  // 데이터 요청 함수
+  const fetchPlacesByCategory = async (category: string) => {
+    try {
+      console.log('Fetching places for category:', category);
+      const response = await getTouristSpotsByCategory(category === '전체' ? '' : category);
+      console.log('API Response:', response);
+
+      if (response) {
+        const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
+          id: item.spotName,
+          image:
+            item.images && item.images.length > 0
+              ? {uri: item.images[0].image} // 첫 번째 이미지 URL을 사용
+              : require('../../assets/imgs/hanbat.png'),
+          area: item.spotAddress.split(' ')[1],
+          address: item.spotAddress,
+          name: item.spotName,
+        }));
+        setPlaces(formattedPlaces);
+        console.log('Formatted Places:', formattedPlaces);
+      } else {
+        console.error('Failed to fetch places - Response is null or undefined');
+      }
+    } catch (error) {
+      console.error('Error fetching places:', error);
+    }
+  };
+
+  // Fetch data on category change
+  useEffect(() => {
+    fetchPlacesByCategory(selectedCategory);
+  }, [selectedCategory]);
 
   const goToPlaceDetail = (name: string) => {
     navigation.navigate('PlaceDetail', {name});
@@ -71,7 +82,7 @@ const PlaceList = () => {
         </View>
 
         <View style={styles.categoryIcon}>
-          <CategoryList />
+          <CategoryList onSelectCategory={setSelectedCategory} />
         </View>
 
         <View style={styles.cardSection}>
@@ -81,8 +92,10 @@ const PlaceList = () => {
             </View>
 
             <ScrollView nestedScrollEnabled={true}>
-              {places.map(item => (
-                <TouchableOpacity key={item.id} onPress={() => goToPlaceDetail(item.name)}>
+              {places.map((item, index) => (
+                <TouchableOpacity
+                  key={`${item.id}-${index}`}
+                  onPress={() => goToPlaceDetail(item.name)}>
                   <View style={styles.card}>
                     <View style={styles.imageWrapper}>
                       <ImageBackground source={item.image} style={styles.image}>
@@ -91,7 +104,6 @@ const PlaceList = () => {
                             <MarkerIcon width={20} height={20} />
                             <Text style={styles.areaText}>{item.area}</Text>
                           </View>
-                          <Text style={styles.tagsText}>{item.tags}</Text>
                         </View>
                       </ImageBackground>
                     </View>
@@ -134,12 +146,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     color: '#333',
     paddingLeft: 10,
-  },
-  cardHeaderButton: {
-    fontSize: 10,
-    color: 'rgba(153, 153, 153, 0.5)',
-    fontFamily: 'Pretendard-Regular',
-    paddingRight: 10,
   },
   cardContainer: {
     overflow: 'hidden',
@@ -189,11 +195,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Pretendard-Medium',
     marginLeft: 5,
-  },
-  tagsText: {
-    fontSize: 12,
-    color: '#fff',
-    fontFamily: 'Pretendard-Medium',
   },
   addressText: {
     fontSize: 12,
