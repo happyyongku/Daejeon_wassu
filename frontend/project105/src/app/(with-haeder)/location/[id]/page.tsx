@@ -1,11 +1,41 @@
-// 클라이언트 컴포넌트
+"use client";
 
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import axios from "axios";
 import style from "./page.module.css";
-
 import Buttons from "../../../../components/location/buttons";
 import Review from "../../../../components/location/review";
 
 export default function Page() {
+  const { id } = useParams();
+
+  // 장소 디테일 호출 axios 함수
+  const getDetail = async () => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/wassu/tourist/details/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data) {
+        console.log("장소 상세 조회 성공", response.data);
+      } else {
+        console.log("dddd");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getDetail();
+  }, []);
+
   return (
     <div>
       <div className={style.header}>
