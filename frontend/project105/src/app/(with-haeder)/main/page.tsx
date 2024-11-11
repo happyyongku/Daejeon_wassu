@@ -7,6 +7,8 @@ import style from "./page.module.css";
 import Reco from "@/components/main/reco/reco";
 import Community from "../../../components/main/community/community";
 import SearchResultCard from "@/components/main/searchresultcard";
+import { LocationData } from "@/types";
+import axios from "axios";
 
 export default function Page() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -41,7 +43,7 @@ export default function Page() {
 
   // 쿼리 스트링 넣을 state
   const [qString, setQSting] = useState("");
-  const [searchResult, setSearchResult] = useState([1, 2, 3]);
+  const [searchResult, setSearchResult] = useState<LocationData[]>([]);
   const [word, setWord] = useState("");
   const [forResultPage, setForResultPage] = useState(false);
 
@@ -51,15 +53,29 @@ export default function Page() {
   };
 
   // 검색 요청하는 axios
-  // const searchReqest = () => {};
+  const searchReqest = async () => {
+    // 파라미터 값 만들어야 한다.
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/wassu/tourist/search`,
+        { params: { searchText: word } }
+      );
+      if (response.data) {
+        console.log("검색 결과 조회 성공", response.data.content);
+        setQSting(word);
+        setForResultPage(true);
+        setSearchResult(response.data.content);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Enter 키가 눌렸을 때
     if (e.key === "Enter") {
       console.log("Enter 키가 눌렸습니다!", word);
       router.push(`/main?q=${word}`);
-      setQSting(word);
-      setForResultPage(true);
+      searchReqest();
     }
   };
 
@@ -68,7 +84,6 @@ export default function Page() {
     return (
       <div className={style.container}>
         <div className={style.main_container}>
-          {/* <div>메인 페이지 입니다.</div> */}
           <div className={style.mainbox}>
             <img
               className={style.mainimage}
@@ -112,8 +127,9 @@ export default function Page() {
                     </div>
                     <div>
                       {/* 반복문 작성하고 props로 넘겨주면 된다. */}
-                      <SearchResultCard />
-                      <SearchResultCard />
+                      {searchResult.slice(0, 5).map((result) => (
+                        <SearchResultCard key={result.id} result={result} />
+                      ))}
                     </div>
                   </div>
                 ) : (
