@@ -70,4 +70,10 @@ public class ScheduleController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/{coursesId}")
+    public ResponseEntity<?> getMyScheduleDetails(@PathVariable Long coursesId) {
+        ScheduleDTO result = scheduleInfoService.findMyScheduleDetails(coursesId);
+        return ResponseEntity.ok(result);
+    }
+
 }

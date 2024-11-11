@@ -11,8 +11,9 @@ import java.util.List;
 public class ScheduleDTO {
 
     private Long scheduleId;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private List<DailyPlanDTO> plans;
+    private String title;
+    private String startDate;
+    private String endDate;
+    private List<DailyPlanDTO> dailyPlans;
 
 }

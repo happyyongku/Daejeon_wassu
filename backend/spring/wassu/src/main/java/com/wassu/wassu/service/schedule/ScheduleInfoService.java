@@ -1,13 +1,19 @@
 package com.wassu.wassu.service.schedule;
 
+import com.wassu.wassu.dto.schedule.DailyPlanDTO;
 import com.wassu.wassu.dto.schedule.MyScheduleDTO;
+import com.wassu.wassu.dto.schedule.ScheduleDTO;
 import com.wassu.wassu.dto.schedule.ScheduleProfileDTO;
+import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
+import com.wassu.wassu.entity.schedule.DailyPlanEntity;
+import com.wassu.wassu.entity.schedule.PlanOrderEntity;
 import com.wassu.wassu.entity.schedule.ScheduleEntity;
-import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
+import com.wassu.wassu.exception.CustomErrorCode;
+import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.schedule.DailyPlanRepository;
 import com.wassu.wassu.repository.schedule.PlanOrderRepository;
 import com.wassu.wassu.repository.schedule.ScheduleRepository;
-import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,7 @@ public class ScheduleInfoService {
 
     private final ScheduleRepository scheduleRepository;
     private final PlanOrderRepository planOrderRepository;
+    private final DailyPlanRepository dailyPlanRepository;
 
     public MyScheduleDTO findMyScheduleInfo(String email) {
         List<ScheduleEntity> schedules = scheduleRepository.findByUserEmail(email);
@@ -53,6 +60,30 @@ public class ScheduleInfoService {
             mySchedules.setPastSchedules(pastSchedules);
         }
         return mySchedules;
+    }
+
+    public ScheduleDTO findMyScheduleDetails(Long coursesId) {
+        ScheduleEntity schedule = scheduleRepository.findById(coursesId).orElseThrow(() -> new CustomException(CustomErrorCode.SCHEDULE_NOT_FOUND));
+        List<DailyPlanEntity> dailyPlans = dailyPlanRepository.findByScheduleId(coursesId);
+
+        List<DailyPlanDTO> dailyPlanDTOS = new ArrayList<>();
+        for (DailyPlanEntity dailyPlan : dailyPlans) {
+            // 스케줄의 각 일정 dto 변환
+            List<PlanOrderEntity> planOrders = dailyPlan.getPlanOrders();
+            List<TouristSpotDTO> touristSpotDTOS = new ArrayList<>();
+            for (PlanOrderEntity planOrder : planOrders) {
+                // 일정의 각 관광지 dto 변환
+                TouristSpotEntity spot = planOrder.getTouristSpot();
+                TouristSpotDTO spotDTO = TouristSpotDTO.builder()
+                        .spotId(spot.getId())
+                        .spotName(spot.getSpotName())
+                        .spotAddress(spot.getSpotAddress()).build();
+                touristSpotDTOS.add(spotDTO);
+            }
+            DailyPlanDTO dailyPlanDTO = new DailyPlanDTO(dailyPlan.getId(), dailyPlan.getDate().toString(), touristSpotDTOS);
+            dailyPlanDTOS.add(dailyPlanDTO);
+        }
+        return new ScheduleDTO(schedule.getId(), schedule.getTitle(), schedule.getStartDate().toString(), schedule.getEndDate().toString(), dailyPlanDTOS);
     }
 
     private ScheduleProfileDTO getScheduleProfileDTO(ScheduleEntity schedule, LocalDate startDate, LocalDate endDate) {
