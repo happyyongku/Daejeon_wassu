@@ -75,7 +75,7 @@ public class ScheduleInfoService {
                 // 일정의 각 관광지 dto 변환
                 TouristSpotEntity spot = planOrder.getTouristSpot();
                 TouristSpotDTO spotDTO = TouristSpotDTO.builder()
-                        .spotId(spot.getId())
+                        .spotId(spot.getElasticId())
                         .spotName(spot.getSpotName())
                         .spotAddress(spot.getSpotAddress()).build();
                 touristSpotDTOS.add(spotDTO);
