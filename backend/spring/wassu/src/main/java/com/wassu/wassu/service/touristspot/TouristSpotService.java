@@ -16,7 +16,9 @@ import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.review.ReviewLikesRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotFavoritesRepository;
+import com.wassu.wassu.repository.touristspot.TouristSpotImageRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
+import com.wassu.wassu.repository.touristspot.TouristSpotTagRepository;
 import com.wassu.wassu.service.ReviewService;
 import com.wassu.wassu.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,14 +37,16 @@ public class TouristSpotService {
 
     private final TouristSpotRepository touristSpotRepository;
     private final TouristSpotFavoritesRepository favoritesRepository;
+    private final TouristSpotImageRepository imageRepository;
+    private final TouristSpotTagRepository tagRepository;
     private final UserRepository userRepository;
     private final ReviewService reviewService;
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
-        List<TouristSpotTagDto> tagDto = spot.getTouristSpotTags().stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
-        List<TouristSpotImageDto> imageDto = spot.getTouristSpotImages().stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
+        List<TouristSpotImageDto> imageDto = imageRepository.findByTouristId(spotId).stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
+        List<TouristSpotTagDto> tagDto = tagRepository.findByTouristId(spotId).stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<ReviewEntity> reviews = spot.getReviews();
         boolean isFavorite = false;
         if (email != null) {
