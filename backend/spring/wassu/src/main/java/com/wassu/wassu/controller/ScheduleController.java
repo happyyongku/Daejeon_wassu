@@ -1,7 +1,7 @@
 package com.wassu.wassu.controller;
 
-import co.elastic.clients.elasticsearch.watcher.Schedule;
 import com.wassu.wassu.dto.schedule.*;
+import com.wassu.wassu.service.schedule.ScheduleInfoService;
 import com.wassu.wassu.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final ScheduleInfoService scheduleInfoService;
 
     @PostMapping
     public ResponseEntity<?> createSchedule(@AuthenticationPrincipal String userEmail,
@@ -61,6 +62,12 @@ public class ScheduleController {
                                             @PathVariable Long coursesId) {
         scheduleService.deleteSchedule(userEmail, coursesId);
         return ResponseEntity.ok("Schedule deleted");
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<?> getMySchedule(@AuthenticationPrincipal String userEmail) {
+        MyScheduleDTO result = scheduleInfoService.findMyScheduleInfo(userEmail);
+        return ResponseEntity.ok(result);
     }
 
 }

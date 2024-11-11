@@ -23,4 +23,8 @@ public interface PlanOrderRepository extends JpaRepository<PlanOrderEntity, Long
     @Query("delete from PlanOrderEntity po where po.dailyPlan.id=:planId and po.touristSpot.id=:spotId")
     void deleteByPlanIdAndSpotId(Long planId, Long spotId);
 
+    @Query("select COUNT(po) from PlanOrderEntity po " +
+            "where po.dailyPlan.schedule.id=:scheduleId")
+    int countPlanOrders(Long scheduleId);
+
 }
