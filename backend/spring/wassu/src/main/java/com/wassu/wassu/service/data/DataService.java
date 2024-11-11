@@ -67,7 +67,7 @@ public class DataService {
                 List<ElasticTouristSpotEntity.Image> images = new ArrayList<>();
                 String imageCountStr = record.get("image_count").trim();
                 int imageCount = imageCountStr.isEmpty() ? 0 : Integer.parseInt(record.get("image_count"));
-                String spotName = record.get("name").trim().replaceAll("[^a-zA-Z0-9가-힣()]", "_");
+                String spotName = record.get("name").trim().replaceAll("[^a-zA-Z0-9가-힣()\\s]", "_");
 
                 for (int i = 1; i <= imageCount; i++) {
                     String fileName = String.format("tourist_spot_image/%s_(%d).jpg", spotName, i);
