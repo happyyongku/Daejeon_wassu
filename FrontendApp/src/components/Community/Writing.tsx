@@ -26,39 +26,19 @@ const Writing = () => {
   const navigation = useNavigation<CommunityScreenProp>();
 
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
-  const [isLocationModalVisible, setLocationModalVisible] = useState(false);
-  const [isImageModalVisible, setImageModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('카테고리 선택');
-  const [selectedLocation, setSelectedLocation] = useState<string>('여행지 선택');
+  const [selectedLocation, setSelectedLocation] = useState<string>(''); // 위치를 직접 입력할 수 있도록 빈 문자열 초기화
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [images, setImages] = useState<any[]>([]);
 
-  const categories: string[] = [
-    '전체',
-    '맛집',
-    '숙소',
-    '우천',
-    '스포츠',
-    '예술',
-    '빵',
-    '역사',
-    '과학',
-  ];
-  const locations: string[] = ['임시1', '임시2', '임시3'];
+  const categories: string[] = ['맛집', '숙소', '우천', '스포츠', '예술', '빵', '역사', '과학'];
 
   const toggleCategoryModal = () => setCategoryModalVisible(!isCategoryModalVisible);
-  const toggleLocationModal = () => setLocationModalVisible(!isLocationModalVisible);
-  const toggleImageModal = () => setImageModalVisible(!isImageModalVisible);
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setCategoryModalVisible(false);
-  };
-
-  const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
-    setLocationModalVisible(false);
   };
 
   const handleImagePick = async () => {
@@ -82,6 +62,10 @@ const Writing = () => {
         })),
       ]);
     }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
   // 등록 버튼 핸들러
@@ -126,18 +110,22 @@ const Writing = () => {
       </TouchableOpacity>
       <View style={styles.divider} />
 
-      {/* Location Selection */}
-      <TouchableOpacity style={styles.selectionContainer} onPress={toggleLocationModal}>
-        <Text style={styles.selectionText}>{selectedLocation}</Text>
-        <Image source={require('../../assets/imgs/chevron-right.png')} style={styles.chevronIcon} />
-      </TouchableOpacity>
+      {/* Location Input */}
+      <TextInput
+        style={styles.locationInput}
+        placeholder="여행지를 입력해주세요"
+        value={selectedLocation}
+        onChangeText={setSelectedLocation}
+      />
       <View style={styles.divider} />
 
       {/* Image Upload */}
       <View style={styles.imageUploadContainer}>
         <ScrollView horizontal>
           {images.map((image, index) => (
-            <Image key={index} source={{uri: image.uri}} style={styles.uploadedImage} />
+            <TouchableOpacity key={index} onPress={() => handleRemoveImage(index)}>
+              <Image source={{uri: image.uri}} style={styles.uploadedImage} />
+            </TouchableOpacity>
           ))}
           {images.length < 3 && (
             <TouchableOpacity onPress={handleImagePick} style={styles.addImageContainer}>
@@ -183,41 +171,6 @@ const Writing = () => {
               )}
             />
             <TouchableOpacity onPress={toggleCategoryModal}>
-              <Text style={styles.closeButton}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Location Modal */}
-      <Modal visible={isLocationModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <FlatList
-              data={locations}
-              keyExtractor={item => item}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={styles.modalItem}
-                  onPress={() => handleLocationSelect(item)}>
-                  <Text style={styles.modalItemText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity onPress={toggleLocationModal}>
-              <Text style={styles.closeButton}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Image Modal */}
-      <Modal visible={isImageModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalOption}>앨범에서 선택</Text>
-            <View style={styles.divider} />
-            <TouchableOpacity onPress={toggleImageModal}>
               <Text style={styles.closeButton}>닫기</Text>
             </TouchableOpacity>
           </View>
@@ -288,6 +241,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     color: '#999999',
     paddingVertical: 20,
+    paddingHorizontal: width * 0.06,
+  },
+  locationInput: {
+    fontSize: 16,
+    fontFamily: 'Pretendard-Regular',
+    color: '#333333',
+    paddingVertical: 15,
     paddingHorizontal: width * 0.06,
   },
   contentInput: {

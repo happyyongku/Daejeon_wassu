@@ -40,7 +40,6 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     const response = await Authapi.get('/user/profile');
 
     if (response && response.status === 200) {
-      console.log(response.data);
       return response.data as UserProfile;
     } else {
       console.error(response.data);
@@ -144,3 +143,60 @@ export async function getTravelStamps(): Promise<TravelStamp[] | null> {
     return null;
   }
 }
+
+// 닉네임 수정
+export async function updateNickname(newNickname: string): Promise<boolean> {
+  try {
+    const response = await Authapi.put('/user/profile/edit/inform', {
+      nickName: newNickname,
+    });
+
+    if (response && response.status === 200) {
+      console.log('닉네임 수정 성공:', response.data);
+      return true;
+    } else {
+      console.error('닉네임 수정 실패:', response.data);
+      return false;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('닉네임 수정 에러:', err.response);
+    } else {
+      console.error('닉네임 수정 에러:', err);
+    }
+    return false;
+  }
+}
+
+// 이미지 변경
+export const updateProfileImage = async (file?: any): Promise<boolean> => {
+  try {
+    const formData = new FormData();
+
+    // 파일이 있는 경우에만 FormData에 추가
+    if (file) {
+      formData.append('file', {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.name || 'profile_image.jpg',
+      });
+    }
+
+    const response = await Authapi.put('/user/profile/edit/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.status === 200 && response.data.status === 'success') {
+      console.log('프로필 이미지 변경 성공:', response.data);
+      return true;
+    } else {
+      console.error('프로필 이미지 변경 실패:', response.data);
+      return false;
+    }
+  } catch (error) {
+    console.error('프로필 이미지 변경 에러:', error);
+    return false;
+  }
+};

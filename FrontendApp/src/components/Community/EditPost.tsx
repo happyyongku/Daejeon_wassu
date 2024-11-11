@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {updatePost} from '../../api/community';
+import {getPostDetail, updatePost} from '../../api/community';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import type {RootStackParamList} from '../../router/Navigator';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -25,42 +25,41 @@ type EditPostScreenProp = StackNavigationProp<RootStackParamList, 'EditPost'>;
 const EditPost = () => {
   const navigation = useNavigation<EditPostScreenProp>();
   const route = useRoute();
-  const {articleId} = route.params as {articleId: string};
+  const {articleId, initialTitle, initialContent, initialtags} = route.params as {
+    articleId: string;
+    initialTitle: string;
+    initialContent: string;
+    initialtags: any[]; // initialtags는 배열로 가정
+  };
 
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
-  const [isLocationModalVisible, setLocationModalVisible] = useState(false);
-  const [isImageModalVisible, setImageModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('카테고리 선택');
-  const [selectedLocation, setSelectedLocation] = useState<string>('여행지 선택');
-  const [title, setTitle] = useState<string>('');
-  const [content, setContent] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    initialtags && initialtags.length > 0 ? initialtags[0].tag : '카테고리 선택',
+  ); // 초기값 설정
+  const [selectedLocation, setSelectedLocation] = useState<string>(''); // 위치 기본값 설정
+  const [title, setTitle] = useState<string>(initialTitle || ''); // 제목 기본값 설정
+  const [content, setContent] = useState<string>(initialContent || ''); // 내용 기본값 설정
   const [images, setImages] = useState<any[]>([]);
 
-  const categories: string[] = [
-    '전체',
-    '맛집',
-    '숙소',
-    '우천',
-    '스포츠',
-    '예술',
-    '빵',
-    '역사',
-    '과학',
-  ];
-  const locations: string[] = ['임시1', '임시2', '임시3'];
+  const categories: string[] = ['맛집', '숙소', '우천', '스포츠', '예술', '빵', '역사', '과학'];
+
+  useEffect(() => {
+    const fetchPostDetail = async () => {
+      const postDetail = await getPostDetail(articleId);
+
+      if (postDetail && postDetail.status) {
+        setImages(postDetail.status.images || []);
+      }
+    };
+
+    fetchPostDetail();
+  }, [articleId]);
 
   const toggleCategoryModal = () => setCategoryModalVisible(!isCategoryModalVisible);
-  const toggleLocationModal = () => setLocationModalVisible(!isLocationModalVisible);
-  const toggleImageModal = () => setImageModalVisible(!isImageModalVisible);
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setCategoryModalVisible(false);
-  };
-
-  const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
-    setLocationModalVisible(false);
   };
 
   const handleImagePick = async () => {
@@ -78,12 +77,16 @@ const EditPost = () => {
       setImages(prevImages => [
         ...prevImages,
         ...result.assets!.slice(0, 3 - prevImages.length).map(asset => ({
-          uri: asset.uri!,
+          url: asset.uri!,
           type: asset.type ?? 'image/jpeg',
           fileName: asset.fileName ?? `image_${prevImages.length}.jpg`,
         })),
       ]);
     }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
   // 수정 버튼 핸들러
@@ -93,16 +96,32 @@ const EditPost = () => {
       return;
     }
 
+    // 게시글 데이터 DTO
     const articleDTO = {
       title,
       content,
-      tags: [selectedCategory],
+      tags: [selectedCategory], // 태그는 배열로 전송
     };
 
+    // 새로 추가된 이미지와 기존 이미지를 처리
+    const files = images.map((image, index) => {
+      if (image.url) {
+        // 기존 이미지 (URL 형식은 그대로 반환)
+        return {uri: image.url, type: 'image/jpeg', fileName: `image_${index}.jpg`};
+      } else {
+        // 새로 추가된 이미지
+        return {
+          uri: image.uri,
+          type: image.type || 'image/jpeg',
+          fileName: image.fileName || `image_${index}.jpg`,
+        };
+      }
+    });
+
     try {
-      await updatePost(articleId, articleDTO, images);
+      await updatePost(articleId, articleDTO, files); // DTO와 파일 배열을 넘겨줍니다.
       Alert.alert('게시글이 수정되었습니다.');
-      navigation.navigate('Community');
+      navigation.navigate('PostDetail', {articleId});
     } catch (error) {
       console.error('게시글 수정 실패:', error);
       Alert.alert('수정 실패', '게시글 수정 중 오류가 발생했습니다.');
@@ -122,23 +141,29 @@ const EditPost = () => {
 
       {/* Category Selection */}
       <TouchableOpacity style={styles.selectionContainer} onPress={toggleCategoryModal}>
-        <Text style={styles.selectionText}>{selectedCategory}</Text>
+        <Text style={styles.selectionText}>
+          {selectedCategory !== '카테고리 선택' ? selectedCategory : '카테고리 선택'}
+        </Text>
         <Image source={require('../../assets/imgs/chevron-right.png')} style={styles.chevronIcon} />
       </TouchableOpacity>
       <View style={styles.divider} />
 
-      {/* Location Selection */}
-      <TouchableOpacity style={styles.selectionContainer} onPress={toggleLocationModal}>
-        <Text style={styles.selectionText}>{selectedLocation}</Text>
-        <Image source={require('../../assets/imgs/chevron-right.png')} style={styles.chevronIcon} />
-      </TouchableOpacity>
+      {/* Location Input */}
+      <TextInput
+        style={styles.locationInput}
+        placeholder="여행지를 입력해주세요"
+        value={selectedLocation}
+        onChangeText={setSelectedLocation}
+      />
       <View style={styles.divider} />
 
       {/* Image Upload */}
       <View style={styles.imageUploadContainer}>
         <ScrollView horizontal>
           {images.map((image, index) => (
-            <Image key={index} source={{uri: image.uri}} style={styles.uploadedImage} />
+            <TouchableOpacity key={index} onPress={() => handleRemoveImage(index)}>
+              <Image source={{uri: image.url}} style={styles.uploadedImage} />
+            </TouchableOpacity>
           ))}
           {images.length < 3 && (
             <TouchableOpacity onPress={handleImagePick} style={styles.addImageContainer}>
@@ -184,41 +209,6 @@ const EditPost = () => {
               )}
             />
             <TouchableOpacity onPress={toggleCategoryModal}>
-              <Text style={styles.closeButton}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Location Modal */}
-      <Modal visible={isLocationModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <FlatList
-              data={locations}
-              keyExtractor={item => item}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={styles.modalItem}
-                  onPress={() => handleLocationSelect(item)}>
-                  <Text style={styles.modalItemText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity onPress={toggleLocationModal}>
-              <Text style={styles.closeButton}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Image Modal */}
-      <Modal visible={isImageModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalOption}>앨범에서 선택</Text>
-            <View style={styles.divider} />
-            <TouchableOpacity onPress={toggleImageModal}>
               <Text style={styles.closeButton}>닫기</Text>
             </TouchableOpacity>
           </View>
@@ -290,6 +280,13 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: width * 0.06,
   },
+  locationInput: {
+    fontSize: 16,
+    fontFamily: 'Pretendard-Regular',
+    color: '#333333',
+    paddingVertical: 15,
+    paddingHorizontal: width * 0.06,
+  },
   contentInput: {
     fontSize: 16,
     color: '999999',
@@ -322,12 +319,6 @@ const styles = StyleSheet.create({
     color: '#418663',
     marginTop: 10,
     fontSize: 16,
-  },
-  modalOption: {
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 10,
   },
   addImageContainer: {
     justifyContent: 'center',

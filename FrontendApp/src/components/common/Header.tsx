@@ -1,9 +1,8 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
-import {logout} from '../../api/user';
 
 type HeaderNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -21,16 +20,6 @@ const Header = () => {
     navigation.navigate('Ar');
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigation.navigate('Main');
-    } catch (error) {
-      console.error('Logout error:', error);
-      Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text>로고</Text>
@@ -39,9 +28,6 @@ const Header = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.myButton} onPress={goToMyPage}>
         <Text style={styles.myButtonText}>마이페이지</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.myButton} onPress={handleLogout}>
-        <Text style={styles.myButtonText}>로그아웃</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.myButton} onPress={goToArPage}>
         <Text style={styles.myButtonText}>Ar</Text>
