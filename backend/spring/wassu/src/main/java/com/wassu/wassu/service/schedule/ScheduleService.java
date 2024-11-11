@@ -50,7 +50,7 @@ public class ScheduleService {
             generatePlanOrders(spotIds, savedPlan, 0);
         }
         // 썸네일 생성
-        createThumbnail(savedSchedule, dailyPlans.get(0).getSpotIds());
+//        createThumbnail(savedSchedule, dailyPlans.get(0).getSpotIds());
     }
 
     public void updateSchedule(String email, Long coursesId, UpdateScheduleDTO dto) {
