@@ -36,6 +36,8 @@ public class TouristSpotEntity {
 
     private int favoritesCount;
 
+    private int reviewCount;
+
     @Column(nullable = false)
     private Double latitude;
 
