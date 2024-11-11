@@ -27,15 +27,15 @@ const RenderDayItem = ({item, handleDragEnd}: RenderDayItemProps) => {
     restSpeedThreshold: 0.1,
   };
 
-  const navigation = useNavigation<DetailsNavigationProp>(); // 네비게이션 훅 사용
+  const navigation = useNavigation<DetailsNavigationProp>();
 
   const gotoItinerary = () => {
-    navigation.navigate('Itinerary', {dayId: item.id}); // dayId 전달
+    navigation.navigate('Itinerary', {dayId: item.id});
   };
 
   const handleDeletePlace = (placeId: string) => {
-    const updatedPlaces = item.places.filter(place => place.id !== placeId); // 특정 장소 삭제
-    handleDragEnd(updatedPlaces, item.id); // 업데이트된 places 리스트 전달
+    const updatedPlaces = item.places.filter(place => place.id !== placeId);
+    handleDragEnd(updatedPlaces, item.id);
   };
 
   return (
@@ -48,7 +48,7 @@ const RenderDayItem = ({item, handleDragEnd}: RenderDayItemProps) => {
       <DraggableFlatList
         data={item.places || []}
         renderItem={(params: RenderItemParams<Place>) => (
-          <RenderPlaceItem {...params} onDelete={handleDeletePlace} /> // 삭제 함수 전달
+          <RenderPlaceItem {...params} onDelete={handleDeletePlace} />
         )}
         keyExtractor={(place: Place) => place.id}
         onDragEnd={({data}) => handleDragEnd(data, item.id)}

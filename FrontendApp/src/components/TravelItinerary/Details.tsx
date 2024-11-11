@@ -113,26 +113,20 @@ const Details = () => {
   );
 
   const handleAddSchedule = async () => {
-    // YYYY-MM-DD 형식으로 날짜 변환
     const formattedStartDate = `2024-${startDate.replace('/', '-')}`;
     const formattedEndDate = `2024-${endDate.replace('/', '-')}`;
 
     const dailyPlans = itinerary.map(day => ({
-      date: `2024-${day.date.replace('/', '-')}`, // 날짜 형식을 YYYY-MM-DD로 변환
+      date: `2024-${day.date.replace('/', '-')}`,
       spotIds: day.places.map(place => place.id),
     }));
 
-    // 요청 데이터 구성
     const requestData = {
       startDate: formattedStartDate,
       endDate: formattedEndDate,
       title: tripName,
       dailyPlans: dailyPlans,
     };
-
-    // 요청 데이터 콘솔에 출력
-    console.log('Request Data:', JSON.stringify(requestData, null, 2));
-
     try {
       const response = await createSchedule(requestData);
       if (response) {
@@ -193,7 +187,6 @@ const Details = () => {
             <Text style={styles.recommendButtonText}>+ 추천 코스 보기</Text>
           </TouchableOpacity>
 
-          {/* FlatList로 일정 목록을 스크롤 가능하게 표시 */}
           <FlatList
             data={itinerary}
             keyExtractor={item => item.id}
@@ -213,7 +206,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    flex: 1, // 콘텐츠 뷰에 flex 설정 추가
+    flex: 1,
     paddingHorizontal: width * 0.06,
   },
   header: {
@@ -279,7 +272,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   listContent: {
-    paddingBottom: 20, // 하단 여백 추가
+    paddingBottom: 20,
   },
   addScheduleButton: {
     backgroundColor: '#418663',

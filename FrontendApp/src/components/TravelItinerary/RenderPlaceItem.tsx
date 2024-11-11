@@ -4,7 +4,7 @@ import {RenderItemParams} from 'react-native-draggable-flatlist';
 import {Place} from '../../types';
 
 interface RenderPlaceItemProps extends RenderItemParams<Place> {
-  onDelete: (placeId: string) => void; // 삭제 함수 prop 추가
+  onDelete: (placeId: string) => void;
 }
 
 const RenderPlaceItem = ({item, drag, isActive, onDelete}: RenderPlaceItemProps) => {
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   deleteText: {
-    // 삭제 버튼 텍스트 스타일 추가
     color: '#ff4d4f',
     fontWeight: 'medium',
     fontSize: 10,
