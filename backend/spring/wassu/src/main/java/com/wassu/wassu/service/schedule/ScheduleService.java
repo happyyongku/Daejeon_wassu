@@ -6,6 +6,7 @@ import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import com.wassu.wassu.entity.schedule.PlanOrderEntity;
 import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotImageEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
@@ -48,6 +49,8 @@ public class ScheduleService {
             List<String> spotIds = dailyPlan.getSpotIds();
             generatePlanOrders(spotIds, savedPlan, 0);
         }
+        // 썸네일 생성
+        createThumbnail(savedSchedule, dailyPlans.get(0).getSpotIds());
     }
 
     public void updateSchedule(String email, Long coursesId, UpdateScheduleDTO dto) {
@@ -109,17 +112,27 @@ public class ScheduleService {
 
     private void generatePlanOrders(List<String> spotIds, DailyPlanEntity savedPlan, int startOrder) {
         List<TouristSpotEntity> spotList = new ArrayList<>();
-        for (String spotId : spotIds) {
-            TouristSpotEntity spot = spotRepository.findByElasticId(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
-            spotList.add(spot);
+        if (spotIds != null && !spotIds.isEmpty()) {
+            for (String spotId : spotIds) {
+                TouristSpotEntity spot = spotRepository.findByElasticId(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+                spotList.add(spot);
+            }
+            // 일일 계획에 관광지 추가
+            int order = startOrder; // 관광지 순서
+            for (TouristSpotEntity touristSpot : spotList) {
+                PlanOrderEntity planOrder = new PlanOrderEntity(order, savedPlan, touristSpot);
+                planOrderRepository.save(planOrder);
+                order++;
+            }
         }
-        // 일일 계획에 관광지 추가
-        int order = startOrder; // 관광지 순서
-        for (TouristSpotEntity touristSpot : spotList) {
-            PlanOrderEntity planOrder = new PlanOrderEntity(order, savedPlan, touristSpot);
-            planOrderRepository.save(planOrder);
-            order++;
-        }
+    }
+
+    private void createThumbnail(ScheduleEntity schedule, List<String> spotIds) {
+        String firstId = spotIds.get(0);
+        TouristSpotEntity firstSpot = spotRepository.findByElasticId(firstId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+        List<TouristSpotImageEntity> images = firstSpot.getTouristSpotImages();
+        TouristSpotImageEntity firstImage = images.get(0);
+        schedule.setThumbnail(firstImage.getTouristSpotImageUrl());
     }
 
 }

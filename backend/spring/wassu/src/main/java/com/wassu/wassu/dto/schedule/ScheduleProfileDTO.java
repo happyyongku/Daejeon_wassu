@@ -15,8 +15,8 @@ public class ScheduleProfileDTO {
 
     private Long scheduleId;
     private String title;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String startDate;
+    private String endDate;
     private String thumbnail;
     private int spotCount;
 

@@ -24,9 +24,6 @@ import java.util.List;
 public class ScheduleInfoService {
 
     private final ScheduleRepository scheduleRepository;
-    private final DailyPlanRepository planRepository;
-    private final UserRepository userRepository;
-    private final TouristSpotRepository spotRepository;
     private final PlanOrderRepository planOrderRepository;
 
     public MyScheduleDTO findMyScheduleInfo(String email) {
@@ -43,37 +40,29 @@ public class ScheduleInfoService {
             LocalDate today = LocalDate.now();
 
             if (endDate.isBefore(today)) { // 지난 여행
-                ScheduleProfileDTO scheduleProfile = ScheduleProfileDTO.builder()
-                        .scheduleId(schedule.getId())
-                        .title(schedule.getTitle())
-                        .startDate(startDate)
-                        .endDate(endDate)
-                        .thumbnail(schedule.getThumbnail())
-                        .spotCount(planOrderRepository.countPlanOrders(schedule.getId())).build();
+                ScheduleProfileDTO scheduleProfile = getScheduleProfileDTO(schedule, startDate, endDate);
                 pastSchedules.add(scheduleProfile);
             } else if (startDate.isAfter(today)) { // 다가오는 여행
-                ScheduleProfileDTO scheduleProfile = ScheduleProfileDTO.builder()
-                        .scheduleId(schedule.getId())
-                        .title(schedule.getTitle())
-                        .startDate(startDate)
-                        .endDate(endDate)
-                        .thumbnail(schedule.getThumbnail())
-                        .spotCount(planOrderRepository.countPlanOrders(schedule.getId())).build();
+                ScheduleProfileDTO scheduleProfile = getScheduleProfileDTO(schedule, startDate, endDate);
                 upcomingSchedules.add(scheduleProfile);
             } else { // 진행중인 여행
-                ScheduleProfileDTO scheduleProfile = ScheduleProfileDTO.builder()
-                        .scheduleId(schedule.getId())
-                        .title(schedule.getTitle())
-                        .startDate(startDate)
-                        .endDate(endDate)
-                        .thumbnail(schedule.getThumbnail())
-                        .spotCount(planOrderRepository.countPlanOrders(schedule.getId())).build();
+                ScheduleProfileDTO scheduleProfile = getScheduleProfileDTO(schedule, startDate, endDate);
                 mySchedules.setOnGoingSchedules(scheduleProfile);
             }
             mySchedules.setUpcomingSchedules(upcomingSchedules);
             mySchedules.setPastSchedules(pastSchedules);
         }
         return mySchedules;
+    }
+
+    private ScheduleProfileDTO getScheduleProfileDTO(ScheduleEntity schedule, LocalDate startDate, LocalDate endDate) {
+        return ScheduleProfileDTO.builder()
+                .scheduleId(schedule.getId())
+                .title(schedule.getTitle())
+                .startDate(startDate.toString())
+                .endDate(endDate.toString())
+                .thumbnail(schedule.getThumbnail())
+                .spotCount(planOrderRepository.countPlanOrders(schedule.getId())).build();
     }
 
 }
