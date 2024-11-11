@@ -32,6 +32,7 @@ public class TouristSpotEntity {
 
     private Integer userRatingsTotal;
 
+    @Column(columnDefinition = "TEXT")
     private String spotDescription;
 
     private int favoritesCount;
