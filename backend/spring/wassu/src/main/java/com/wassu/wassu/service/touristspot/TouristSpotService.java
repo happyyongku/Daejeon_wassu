@@ -44,13 +44,7 @@ public class TouristSpotService {
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
-        log.info("spot id {} ", spotId);
-        TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId);
-        if (spot == null) {
-            log.info("spot is nulllllllllllllllllllllllllllllll");
-            throw new CustomException(CustomErrorCode.TOURIST_NOT_FOUND);
-        }
-        log.info("Tourist Spot details: {}", spot.getSpotName());
+        TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         List<TouristSpotImageDto> imageDto = imageRepository.findByTouristId(spotId).stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
         List<TouristSpotTagDto> tagDto = tagRepository.findByTouristId(spotId).stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<ReviewEntity> reviews = spot.getReviews();

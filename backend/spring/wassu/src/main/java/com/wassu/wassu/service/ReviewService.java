@@ -155,24 +155,26 @@ public class ReviewService {
 
     public List<ReviewDTO> getReviewDTOS(String email, List<ReviewEntity> reviews) {
         List<ReviewDTO> reviewDto = new ArrayList<>();
-        for (ReviewEntity review : reviews) {
-            boolean isLiked = false;
-            if (email != null) {
-                isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+        if (reviews != null && !reviews.isEmpty()) {
+            for (ReviewEntity review : reviews) {
+                boolean isLiked = false;
+                if (email != null) {
+                    isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+                }
+                UserEntity user = review.getUser();
+                List<ReviewImageDTO> reviewImages = review.getImages().stream()
+                        .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
+                UserProfileDTO profile = userService.convertToDTO(user);
+                ReviewDTO dto = ReviewDTO.builder()
+                        .reviewId(review.getId())
+                        .content(review.getContent())
+                        .likeCount(review.getLikeCount())
+                        .isLiked(isLiked)
+                        .profile(profile)
+                        .reviewImages(reviewImages)
+                        .createdAt(review.getCreatedAt()).build();
+                reviewDto.add(dto);
             }
-            UserEntity user = review.getUser();
-            List<ReviewImageDTO> reviewImages = review.getImages().stream()
-                    .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
-            UserProfileDTO profile = userService.convertToDTO(user);
-            ReviewDTO dto = ReviewDTO.builder()
-                    .reviewId(review.getId())
-                    .content(review.getContent())
-                    .likeCount(review.getLikeCount())
-                    .isLiked(isLiked)
-                    .profile(profile)
-                    .reviewImages(reviewImages)
-                    .createdAt(review.getCreatedAt()).build();
-            reviewDto.add(dto);
         }
         return reviewDto;
     }
