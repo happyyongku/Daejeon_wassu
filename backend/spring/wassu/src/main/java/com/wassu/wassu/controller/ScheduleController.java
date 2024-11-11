@@ -28,7 +28,7 @@ public class ScheduleController {
     @PutMapping("/{coursesId}")
     public ResponseEntity<?> updateSchedule(@AuthenticationPrincipal String userEmail,
                                             @PathVariable Long coursesId,
-                                            @RequestBody UpdateScheduleDTO dto) {
+                                            @RequestBody CreateScheduleDTO dto) {
         scheduleService.updateSchedule(userEmail, coursesId, dto);
         return ResponseEntity.ok("Schedule updated");
     }
@@ -39,22 +39,6 @@ public class ScheduleController {
                                                  @RequestBody UpdateScheduleTitleDTO dto) {
         scheduleService.updateScheduleTitle(userEmail, coursesId, dto);
         return ResponseEntity.ok("Schedule Title updated");
-    }
-
-    @PostMapping("/plan/{planId}")
-    public ResponseEntity<?> insertSchedule(@AuthenticationPrincipal String userEmail,
-                                            @PathVariable Long planId,
-                                            @RequestBody InsertDailyPlanDTO dto) {
-        scheduleService.insertSchedule(userEmail, planId, dto);
-        return ResponseEntity.ok("Schedule inserted");
-    }
-
-    @DeleteMapping("/plan/{planId}")
-    public ResponseEntity<?> deleteSpotInPlan(@AuthenticationPrincipal String userEmail,
-                                              @PathVariable Long planId,
-                                              @RequestBody DeleteSpotDTO dto) {
-        scheduleService.deleteSpotInPlan(userEmail, planId, dto);
-        return ResponseEntity.ok("TouristSpot deleted");
     }
 
     @DeleteMapping("/{coursesId}")
