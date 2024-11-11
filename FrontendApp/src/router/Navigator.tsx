@@ -31,6 +31,8 @@ import WriteReview from '../components/RecommendedPlace/WriteReview';
 import Map from '../pages/Map';
 import PostDetail from '../components/Community/PostDetail';
 import EditPost from '../components/Community/EditPost';
+import Itinerary from '../components/TravelItinerary/Itinerary';
+import {Day} from '../types';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -52,7 +54,15 @@ export type RootStackParamList = {
   ChangePassword: undefined;
   ChangeInfo: {nickname: string};
   CreateSchedule: undefined;
-  Details: undefined;
+  Details: {
+    itinerary?: Day[];
+    dayId?: string;
+    selectedPlace?: {
+      id: string;
+      spotName: string;
+      spotAddress: string;
+    };
+  };
   Course: undefined;
   CourseDescription: undefined;
   ChallengeDetail: undefined;
@@ -63,6 +73,7 @@ export type RootStackParamList = {
   WriteReview: undefined;
   Map: undefined;
   PostDetail: {articleId: string};
+  Itinerary: {dayId: string};
   EditPost: {
     articleId: string;
     initialTitle: string;
@@ -143,6 +154,7 @@ function Navigator() {
       <Stack.Screen name="Map" component={Map} options={{headerShown: false}} />
       <Stack.Screen name="PostDetail" component={PostDetail} options={{headerShown: false}} />
       <Stack.Screen name="EditPost" component={EditPost} options={{headerShown: false}} />
+      <Stack.Screen name="Itinerary" component={Itinerary} options={{headerShown: false}} />
       <Stack.Screen
         name="CommunitySearch"
         component={CommunitySearch}
