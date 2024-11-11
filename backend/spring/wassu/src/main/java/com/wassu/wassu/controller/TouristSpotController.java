@@ -32,6 +32,7 @@ public class TouristSpotController {
     @GetMapping("/details/{spotId}")
     public ResponseEntity<?> getTouristSpotDetails(@AuthenticationPrincipal String userEmail,
                                                    @PathVariable String spotId) { // 엘라스틱 id
+        log.info("controller spot id -> {}", spotId);
         TouristSpotDTO result = touristSpotService.getTouristSpotDetails(userEmail, spotId);
         return ResponseEntity.ok(result);
     }

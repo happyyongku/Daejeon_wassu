@@ -44,6 +44,7 @@ public class TouristSpotService {
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
+        log.info("spot id {} ", spotId);
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId);
         if (spot == null) {
             log.info("spot is nulllllllllllllllllllllllllllllll");
