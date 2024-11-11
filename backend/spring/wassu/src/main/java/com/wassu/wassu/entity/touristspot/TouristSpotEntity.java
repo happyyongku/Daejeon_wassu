@@ -32,9 +32,16 @@ public class TouristSpotEntity {
 
     private Integer userRatingsTotal;
 
+    @Column(columnDefinition = "TEXT")
     private String spotDescription;
 
     private int favoritesCount;
+
+    private int reviewCount;
+    
+    private String businessHours;
+
+    private String phone;
 
     @Column(nullable = false)
     private Double latitude;
