@@ -37,6 +37,10 @@ public class TouristSpotEntity {
     private int favoritesCount;
 
     private int reviewCount;
+    
+    private String businessHours;
+
+    private String phone;
 
     @Column(nullable = false)
     private Double latitude;
