@@ -6,11 +6,19 @@
         "decompound_mode": "mixed"
       }
     },
+    "filter" : {
+      "nori_readingform": {
+        "type": "nori_readingform"
+      },
+      "lowercase_filter": {
+        "type": "lowercase"
+      }
+    },
     "analyzer": {
       "nori_analyzer": {
         "type": "custom",
         "tokenizer": "nori_tokenizer",
-        "filter": ["lowercase"]
+        "filter": ["lowercase_filter", "nori_readingform"]
       }
     }
   }
