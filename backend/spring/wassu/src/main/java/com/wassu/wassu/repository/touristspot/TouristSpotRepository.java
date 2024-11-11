@@ -11,7 +11,7 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpotEntity, 
     @Query("select ts from TouristSpotEntity ts " +
             "join fetch ts.reviews tr " +
             "where ts.elasticId=:id")
-    Optional<TouristSpotEntity> findDetailById(String id);
+    TouristSpotEntity findDetailById(String id);
 
     Optional<TouristSpotEntity> findByElasticId(String elasticId);
 
