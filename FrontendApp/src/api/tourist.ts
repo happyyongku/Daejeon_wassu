@@ -80,11 +80,13 @@ export async function getTouristSpots(
 // 카테고리별 조회
 export async function getTouristSpotsByCategory(category: string): Promise<TouristSpot[] | null> {
   try {
-    const response = await api.get(`/tourist/${category}`);
-
+    const response = await api.get('/tourist/filter', {
+      params: {categories: category},
+    });
     if (response && response.status === 200) {
-      console.log(response.data.data);
-      return response.data.data as TouristSpot[];
+      // API 응답 구조가 content일 경우에 맞게 변경
+      console.log(response.data.content);
+      return response.data.content as TouristSpot[];
     } else {
       console.error(response.data);
       return null;

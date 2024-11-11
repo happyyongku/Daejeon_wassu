@@ -1,4 +1,5 @@
-import React from 'react';
+// RecommendedPlace.tsx
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,71 +16,56 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import Header from '../components/common/Header';
 import MarkerIcon from '../assets/imgs/marker.svg';
+import {getTouristSpotsByCategory} from '../api/tourist'; // API 함수 불러오기
 
 const {width} = Dimensions.get('window');
 
 type RecommendedPlaceNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceList'>;
 
-const places = [
-  {
-    id: '1',
-    image: require('../assets/imgs/hanbat.png'),
-    area: '서구',
-    tags: '#자연 #포토존',
-    address: '대전 서구 둔산대로 169',
-    name: '한밭 수목원',
-  },
-  {
-    id: '2',
-    image: require('../assets/imgs/museum.png'),
-    area: '서구',
-    tags: '#예술 #포토존',
-    address: '대전 서구 둔산대로 155 둔산대공원',
-    name: '대전시립미술관',
-  },
-  {
-    id: '3',
-    image: require('../assets/imgs/breadFull.png'),
-    area: '중구',
-    tags: '#맛집 #빵',
-    address: '대전 중구 대종로 4801번길 15',
-    name: '성심당',
-  },
-  {
-    id: '4',
-    image: require('../assets/imgs/park.png'),
-    area: '서구',
-    tags: '#자연 #포토존',
-    address: '대전 서구 둔산대로 169',
-    name: '한밭 수목원',
-  },
-];
-
-const cardplaces = [
-  {
-    id: '1',
-    image: require('../assets/imgs/department.png'),
-    name: '대전 신세계',
-  },
-  {
-    id: '2',
-    image: require('../assets/imgs/Gapcheon.png'),
-    name: '갑천',
-  },
-  {
-    id: '3',
-    image: require('../assets/imgs/Galma.png'),
-    name: '갈마 살롱',
-  },
-  {
-    id: '4',
-    image: require('../assets/imgs/breadFull.png'),
-    name: '성심당',
-  },
-];
+interface TouristSpot {
+  id: string;
+  image: {uri: string} | number;
+  area: string;
+  address: string;
+  name: string;
+}
 
 const RecommendedPlace = () => {
   const navigation = useNavigation<RecommendedPlaceNavigationProp>();
+  const [places, setPlaces] = useState<TouristSpot[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+
+  // 데이터 요청 함수
+  const fetchPlacesByCategory = async (category: string) => {
+    try {
+      console.log('Fetching places for category:', category);
+      const response = await getTouristSpotsByCategory(category === '전체' ? '' : category);
+      console.log('API Response:', response);
+
+      if (response) {
+        const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
+          id: item.spotName,
+          image:
+            item.images && item.images.length > 0
+              ? {uri: item.images[0].image} // 첫 번째 이미지 URL을 사용
+              : require('../assets/imgs/hanbat.png'),
+          area: item.spotAddress.split(' ')[1],
+          address: item.spotAddress,
+          name: item.spotName,
+        }));
+        setPlaces(formattedPlaces);
+        console.log('Formatted Places:', formattedPlaces);
+      } else {
+        console.error('Failed to fetch places - Response is null or undefined');
+      }
+    } catch (error) {
+      console.error('Error fetching places:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlacesByCategory(selectedCategory);
+  }, [selectedCategory]);
 
   const goToPlaceList = () => {
     navigation.navigate('PlaceList');
@@ -94,7 +80,7 @@ const RecommendedPlace = () => {
         </View>
 
         <View style={styles.categoryIcon}>
-          <CategoryList />
+          <CategoryList onSelectCategory={setSelectedCategory} />
         </View>
 
         <View style={styles.cardSection}>
@@ -116,7 +102,7 @@ const RecommendedPlace = () => {
                           <MarkerIcon width={20} height={20} />
                           <Text style={styles.areaText}>{item.area}</Text>
                         </View>
-                        <Text style={styles.tagsText}>{item.tags}</Text>
+                        <Text style={styles.tagsText}>#태그 없음</Text>
                       </View>
                     </ImageBackground>
                   </View>
@@ -126,32 +112,6 @@ const RecommendedPlace = () => {
               ))}
             </ScrollView>
           </View>
-        </View>
-
-        <View style={styles.cardNSection}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardHeaderText}>전체 관광지 추천</Text>
-            <TouchableOpacity onPress={goToPlaceList}>
-              <Text style={styles.cardHeaderButtonT}>&gt;</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.horizontalScroll}>
-              {cardplaces.map(item => (
-                <View key={item.id} style={styles.horizontalCard}>
-                  <ImageBackground
-                    source={item.image}
-                    style={styles.cardImage}
-                    imageStyle={styles.cardImageStyle}>
-                    <View style={styles.cardOverlay}>
-                      <Text style={styles.cardName}>{item.name}</Text>
-                    </View>
-                  </ImageBackground>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
         </View>
       </ScrollView>
     </>
@@ -255,50 +215,6 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 14,
     fontFamily: 'Pretendard-Bold',
-  },
-  cardHeaderButtonT: {
-    fontSize: 20,
-    marginRight: 10,
-    color: 'rgba(153, 153, 153, 0.5)',
-  },
-  horizontalScroll: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  horizontalCard: {
-    width: 120,
-    height: 120,
-    borderRadius: 20,
-    marginRight: 15,
-    overflow: 'hidden',
-  },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
-  },
-  cardOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    padding: 10,
-  },
-  cardName: {
-    color: '#fff',
-    fontSize: 10,
-    fontFamily: 'Pretendard-Medium',
-  },
-  cardImageStyle: {
-    borderRadius: 20,
-  },
-  cardNSection: {
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    padding: 10,
-    elevation: 4,
-    shadowColor: '#333',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    marginBottom: 20,
   },
 });
 
