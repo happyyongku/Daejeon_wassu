@@ -17,6 +17,9 @@ const Header = () => {
   const goToMyPage = () => {
     navigation.navigate('MyPage');
   };
+  const goToArPage = () => {
+    navigation.navigate('Ar');
+  };
 
   const handleLogout = async () => {
     try {
@@ -39,6 +42,9 @@ const Header = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.myButton} onPress={handleLogout}>
         <Text style={styles.myButtonText}>로그아웃</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.myButton} onPress={goToArPage}>
+        <Text style={styles.myButtonText}>Ar</Text>
       </TouchableOpacity>
     </View>
   );
