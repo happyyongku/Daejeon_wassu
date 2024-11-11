@@ -33,6 +33,11 @@ const RenderDayItem = ({item, handleDragEnd}: RenderDayItemProps) => {
     navigation.navigate('Itinerary', {dayId: item.id}); // dayId 전달
   };
 
+  const handleDeletePlace = (placeId: string) => {
+    const updatedPlaces = item.places.filter(place => place.id !== placeId); // 특정 장소 삭제
+    handleDragEnd(updatedPlaces, item.id); // 업데이트된 places 리스트 전달
+  };
+
   return (
     <View style={styles.dayContainer}>
       <View style={styles.dayHeader}>
@@ -42,7 +47,9 @@ const RenderDayItem = ({item, handleDragEnd}: RenderDayItemProps) => {
       </View>
       <DraggableFlatList
         data={item.places || []}
-        renderItem={(params: RenderItemParams<Place>) => <RenderPlaceItem {...params} />}
+        renderItem={(params: RenderItemParams<Place>) => (
+          <RenderPlaceItem {...params} onDelete={handleDeletePlace} /> // 삭제 함수 전달
+        )}
         keyExtractor={(place: Place) => place.id}
         onDragEnd={({data}) => handleDragEnd(data, item.id)}
         ListEmptyComponent={<View />}

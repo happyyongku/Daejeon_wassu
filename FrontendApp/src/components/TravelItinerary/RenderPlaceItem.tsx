@@ -3,19 +3,27 @@ import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {RenderItemParams} from 'react-native-draggable-flatlist';
 import {Place} from '../../types';
 
-interface RenderPlaceItemProps extends RenderItemParams<Place> {}
+interface RenderPlaceItemProps extends RenderItemParams<Place> {
+  onDelete: (placeId: string) => void; // 삭제 함수 prop 추가
+}
 
-const RenderPlaceItem = ({item, drag, isActive}: RenderPlaceItemProps) => {
+const RenderPlaceItem = ({item, drag, isActive, onDelete}: RenderPlaceItemProps) => {
   return (
     <View style={[styles.placeContainer, isActive && {backgroundColor: '#f0f0f0'}]}>
       <View>
         <Text style={styles.placeText}>{item.name || ''}</Text>
         <Text style={styles.addressText}>{item.address || ''}</Text>
       </View>
-      <TouchableOpacity onPressIn={drag} style={styles.dragHandle}>
-        <Image source={require('../../assets/imgs/menu.png')} style={styles.menuIcon} />
-      </TouchableOpacity>
-      <Text>삭제</Text>
+
+      <View>
+        <TouchableOpacity onPressIn={drag} style={styles.dragHandle}>
+          <Image source={require('../../assets/imgs/menu.png')} style={styles.menuIcon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => onDelete(item.id)}>
+          <Text style={styles.deleteText}>삭제</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -44,6 +52,12 @@ const styles = StyleSheet.create({
   },
   dragHandle: {
     padding: 5,
+  },
+  deleteText: {
+    // 삭제 버튼 텍스트 스타일 추가
+    color: '#ff4d4f',
+    fontWeight: 'medium',
+    fontSize: 10,
   },
 });
 
