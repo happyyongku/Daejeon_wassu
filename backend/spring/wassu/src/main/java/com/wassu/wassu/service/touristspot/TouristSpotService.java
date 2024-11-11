@@ -57,6 +57,7 @@ public class TouristSpotService {
                 .userRatingsTotal(spot.getUserRatingsTotal())
                 .favoritesCount(spot.getFavoritesCount())
                 .reviewCount(spot.getReviewCount())
+                .imageCount(spot.getTouristSpotImages().size())
                 .phone(spot.getPhone())
                 .businessHours(spot.getBusinessHours())
                 .isFavorite(isFavorite)

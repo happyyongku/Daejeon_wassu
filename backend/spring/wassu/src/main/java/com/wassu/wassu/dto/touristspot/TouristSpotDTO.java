@@ -18,6 +18,7 @@ public class TouristSpotDTO {
     private Integer userRatingsTotal;
     private int favoritesCount;
     private int reviewCount;
+    private int imageCount;
     private boolean isFavorite;
     private String phone;
     private String businessHours;
