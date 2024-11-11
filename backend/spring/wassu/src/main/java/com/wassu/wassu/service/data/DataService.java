@@ -70,7 +70,7 @@ public class DataService {
                 String spotName = record.get("name").trim().replaceAll("[^a-zA-Z0-9가-힣()]", "_");
 
                 for (int i = 1; i <= imageCount; i++) {
-                    String fileName = String.format("%s_(%d).jpg", spotName, i);
+                    String fileName = String.format("tourist_spot_image/%s_(%d).jpg", spotName, i);
                     images.add(new ElasticTouristSpotEntity.Image(String.format(
                             "https://%s.s3.%s.amazonaws.com/%s",
                             amazonS3Config.getBucket(),
