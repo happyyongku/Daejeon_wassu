@@ -1,11 +1,14 @@
 .header {
   width: 100%;
   height: 65px;
-  /* background-color: bisque; */
+  background-color: #ffffff;
   border: none;
   border-bottom: 1px solid #ccc;
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 0; /* 상단에서 고정될 위치 */
+  z-index: 20;
 }
 
 .logotext {
