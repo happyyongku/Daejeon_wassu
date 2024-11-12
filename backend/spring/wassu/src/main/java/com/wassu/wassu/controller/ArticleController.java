@@ -13,9 +13,11 @@ import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.service.article.*;
+import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
 import com.wassu.wassu.entity.ArticleEntity;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +56,7 @@ public class ArticleController {
     private final ArticleReadService articleReadService;
     private final ArticleLikeService articleLikeService;
     private final ArticleProfileService articleProfileService;
+    private final UserUtil userUtil;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -124,6 +127,7 @@ public class ArticleController {
     }
 
     // 포스팅 검색
+    @SecurityRequirement(name = "")
     @PostMapping(value="/search")
     public ResponseEntity<?> searchArticleTest(
             @RequestHeader(value = "Authorization", required = false) String accessToken,
@@ -135,11 +139,7 @@ public class ArticleController {
             Page<Map<String, Object>> response = articleSearchServiceImpl.searchByText(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
-            String userEmail = null;
-            if (accessToken != null) {
-                String token = jwtUtil.extractUserEmail(accessToken);
-                userEmail = jwtUtil.extractUserEmail(token);
-            }
+            String userEmail = userUtil.extractUserEmail(accessToken);
             articleProfileService.matchingProfileWithArticleList(response, userEmail);
 
             System.out.println("Search Test Completed --------------------------");
@@ -152,6 +152,7 @@ public class ArticleController {
     }
 
     // 포스팅 카테고리 별 필터링
+    @SecurityRequirement(name = "")
     @GetMapping("/filter")
     public ResponseEntity<?> filterArticle(
             @RequestHeader(value="Authorization", required = false) String accessToken,
@@ -175,6 +176,7 @@ public class ArticleController {
     }
 
     // 게시글 조회
+    @SecurityRequirement(name = "")
     @GetMapping("/read/{articleId}")
     public ResponseEntity<?> readArticle(@AuthenticationPrincipal String userEmail,
                                          @RequestHeader(value="Authorization", required = false) String accessToken,

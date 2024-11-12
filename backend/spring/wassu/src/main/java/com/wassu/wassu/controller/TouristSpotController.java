@@ -10,6 +10,7 @@ import com.wassu.wassu.service.touristspot.TouristSpotService;
 import com.wassu.wassu.service.touristspot.TouristSpotUtilService;
 import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,7 @@ public class TouristSpotController {
     private final UserUtil userUtil;
 
     // 관광지 상세조회
+    @SecurityRequirement(name = "") // 스웨거 헤더 제외
     @GetMapping("/details/{spotId}")
     public ResponseEntity<?> getTouristSpotDetails(
             @RequestHeader(value = "Authorization", required = false) String accessToken,
@@ -66,6 +68,7 @@ public class TouristSpotController {
     }
 
     // 관광지 검색
+    @SecurityRequirement(name = "")
     @GetMapping("/search")
     public ResponseEntity<?> touristSpotSearch(
             @RequestHeader(value = "Authorization", required = false) String accessToken,
@@ -93,6 +96,7 @@ public class TouristSpotController {
     }
 
     // 관광지 필터링
+    @SecurityRequirement(name = "")
     @GetMapping("/filter")
     public ResponseEntity<?> touristSpotCategory(
             @RequestHeader(value = "Authorization", required = false) String accessToken,

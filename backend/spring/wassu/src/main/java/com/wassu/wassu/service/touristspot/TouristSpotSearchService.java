@@ -2,10 +2,7 @@ package com.wassu.wassu.service.touristspot;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
@@ -45,9 +42,11 @@ public class TouristSpotSearchService {
                 log.info("Search text: {}", searchText);
                 Query multiMatchQuery = Query.of(
                         q -> q.multiMatch(MultiMatchQuery.of(
-                                m -> m.fields(List.of("spotName", "spotAddress"))
+                                m -> m.fields(List.of("spotName^2", "spotAddress"))
                                         .query(searchText)
-                                        .type(TextQueryType.BestFields)
+                                        .type(TextQueryType.MostFields)
+                                        .operator(Operator.Or)
+                                        .fuzziness("AUTO")
                         ))
                 );
                 mustQueries.add(multiMatchQuery);

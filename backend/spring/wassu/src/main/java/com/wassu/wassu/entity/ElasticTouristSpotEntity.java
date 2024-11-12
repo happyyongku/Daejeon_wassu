@@ -15,16 +15,16 @@ import java.util.List;
 @Document(indexName = "elastic_tourist_spot")
 @AllArgsConstructor
 @NoArgsConstructor
-@Setting(settingPath = "/nori_settings.json")
+@Setting(settingPath = "/spot_search_settings.json")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ElasticTouristSpotEntity {
     @Id
     private String id;
 
-    @Field(type= FieldType.Text, analyzer = "nori_analyzer")
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer_index", searchAnalyzer = "nori_analyzer_search")
     private String spotName;
 
-    @Field(type= FieldType.Text, analyzer = "nori_analyzer")
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer_index", searchAnalyzer = "nori_analyzer_search")
     private String spotAddress;
 
     @Field(type = FieldType.Integer)
