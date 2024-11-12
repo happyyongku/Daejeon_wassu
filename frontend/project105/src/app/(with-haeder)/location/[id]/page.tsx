@@ -7,6 +7,7 @@ import axios from "axios";
 import style from "./page.module.css";
 import Comment from "@/components/location/comment";
 import UseApp from "@/components/useapp";
+import Carousel from "@/components/location/carousel";
 
 export default function Page() {
   const { id } = useParams();
@@ -108,11 +109,13 @@ export default function Page() {
             src="/images/location.png"
             alt=""
           />
+
           <div className={style.location}>{location?.spotAddress}</div>
         </div>
       </div>
       <div>
-        <img className={style.locaimg} src="/images/building.png" alt="" />
+        {/* <img className={style.locaimg} src="/images/building.png" alt="" /> */}
+        <Carousel touristSpotImages={location?.touristSpotImages} />
       </div>
       {/* 여기에 상호작용 들어가자 클라이언트 컴포넌트 */}
       <div>

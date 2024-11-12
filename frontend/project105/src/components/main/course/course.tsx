@@ -1,10 +1,36 @@
+import { useEffect, useState } from "react";
+import { CourseData } from "@/types";
 import style from "./course.module.css";
-import Carousel from "./carousel";
+import axios from "axios";
+// import CourseCarousel from "./coursecarousel"
+// import Carousel from "./coursecarousel";
+// import Carousel from "./carousel";
+import CourseCarousel from "./coursecarousel";
 
 export default function Course() {
-  // 추천하는 코스들 요청하는 axios
+  // 코스 데이터 상태
+  const [course, setCourse] = useState<CourseData[]>([]);
 
-  const images = ["1", "2", "3", "4"];
+  // 추천코스들 요청하는 axios
+  const coursesRequest = async () => {
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/fast_api/courses`
+      );
+      if (response.data) {
+        console.log("추천코스들 요청 성공", response.data);
+        setCourse(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    coursesRequest();
+  }, []);
+
+  // const images = ["1", "2", "3", "4"];
 
   return (
     <div className={style.container}>
@@ -20,8 +46,8 @@ export default function Course() {
         </div>
       </div>
       <div className={style.carousel}>
-        <div>캐러셀 들어가자</div>
-        {/* <Carousel images={images} /> */}
+        {/* <div>캐러셀 들어가자</div> */}
+        <CourseCarousel course={course} />
       </div>
     </div>
   );
