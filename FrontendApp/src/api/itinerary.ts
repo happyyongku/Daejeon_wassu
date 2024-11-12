@@ -32,6 +32,7 @@ export interface Schedule {
   startDate: string;
   endDate: string;
   spotCount: number;
+  thumbnail?: string;
 }
 
 export interface ScheduleResponse {
