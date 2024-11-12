@@ -4,11 +4,13 @@ import com.wassu.wassu.dto.review.ReviewCreateDTO;
 import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
 import com.wassu.wassu.service.ReviewService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,8 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @RequestBody(content = @Content(
+            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/tourist/{spotId}/review", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable String spotId,
@@ -30,6 +34,8 @@ public class ReviewController {
         return ResponseEntity.ok("review created");
     }
 
+    @RequestBody(content = @Content(
+            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/review/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable Long reviewId,
