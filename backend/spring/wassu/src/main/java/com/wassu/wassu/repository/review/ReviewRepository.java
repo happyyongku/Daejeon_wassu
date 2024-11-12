@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
 
     @Query("select re from ReviewEntity re " +
-            "join fetch re.user u " +
-            "join fetch re.images i " +
+            "left join fetch re.user u " +
+            "left join fetch re.images i " +
             "where re.id = :id")
     Optional<ReviewEntity> findByIdWithJoin(Long id);
 

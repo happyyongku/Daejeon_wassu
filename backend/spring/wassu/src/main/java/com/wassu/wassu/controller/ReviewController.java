@@ -5,6 +5,7 @@ import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
 import com.wassu.wassu.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,16 +21,16 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/tourist/{spotId}/review")
+    @PostMapping(value = "/tourist/{spotId}/review", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(@AuthenticationPrincipal String userEmail,
-                                          @PathVariable Long spotId,
+                                          @PathVariable String spotId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
                                           @RequestPart(name = "review") ReviewCreateDTO createDTO) {
         reviewService.createReview(userEmail, spotId, images, createDTO);
         return ResponseEntity.ok("review created");
     }
 
-    @PutMapping("/review/{reviewId}")
+    @PutMapping(value = "/review/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable Long reviewId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
