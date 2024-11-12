@@ -50,7 +50,7 @@ public class ScheduleService {
             generatePlanOrders(spotIds, savedPlan, 0);
         }
         // 썸네일 생성
-//        createThumbnail(savedSchedule, dailyPlans.get(0).getSpotIds());
+        createThumbnail(savedSchedule, dailyPlans);
     }
 
     public void updateSchedule(String email, Long coursesId, CreateScheduleDTO dto) {
@@ -98,12 +98,23 @@ public class ScheduleService {
         }
     }
 
-    private void createThumbnail(ScheduleEntity schedule, List<String> spotIds) {
-        String firstId = spotIds.get(0);
-        TouristSpotEntity firstSpot = spotRepository.findByElasticId(firstId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
-        List<TouristSpotImageEntity> images = firstSpot.getTouristSpotImages();
-        TouristSpotImageEntity firstImage = images.get(0);
-        schedule.setThumbnail(firstImage.getTouristSpotImageUrl());
+    private void createThumbnail(ScheduleEntity schedule, List<CreateDailyPlanDTO> plans) {
+        String firstId = null;
+        String thumbnail = null;
+        if (plans != null && !plans.isEmpty()) {
+            List<String> spotIds = plans.get(0).getSpotIds();
+            if (spotIds != null && !spotIds.isEmpty()) {
+                firstId = spotIds.get(0);
+            }
+        }
+        if (firstId != null) {
+            TouristSpotEntity firstSpot = spotRepository.findByElasticId(firstId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+            List<TouristSpotImageEntity> images = firstSpot.getTouristSpotImages();
+            if (images != null && !images.isEmpty()) {
+                thumbnail = images.get(0).getTouristSpotImageUrl();
+            }
+        }
+        schedule.setThumbnail(thumbnail);
     }
 
 }
