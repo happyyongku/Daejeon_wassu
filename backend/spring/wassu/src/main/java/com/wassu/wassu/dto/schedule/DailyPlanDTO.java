@@ -12,6 +12,7 @@ import java.util.List;
 public class DailyPlanDTO {
 
     private Long planId;
+    private int day;
     private String date;
     List<TouristSpotDTO> touristSpots;
 
