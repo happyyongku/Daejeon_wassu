@@ -26,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,9 +45,9 @@ public class ReviewService {
     private final UserService userService;
     private final S3Util s3Util;
 
-    public void createReview(String email, Long spotId, List<MultipartFile> images, ReviewCreateDTO dto) {
+    public void createReview(String email, String spotId, List<MultipartFile> images, ReviewCreateDTO dto) {
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        TouristSpotEntity spot = spotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+        TouristSpotEntity spot = spotRepository.findByElasticId(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
         ReviewEntity review = new ReviewEntity(dto.getContent());
         review.addUserAndSpot(user, spot);
         ReviewEntity savedReview = reviewRepository.save(review);
@@ -75,12 +77,6 @@ public class ReviewService {
         }
         // 새 이미지 업로드
         uploadReviewImages(images, review);
-    }
-
-    public List<ReviewDTO> findReviewsBySpotId(Long spotId) {
-        // 관광지의 리뷰 목록 조회
-        // 관광지 완성되면 채울 예정
-        return null;
     }
 
     public ReviewDTO findReviewById(String email, Long reviewId) {

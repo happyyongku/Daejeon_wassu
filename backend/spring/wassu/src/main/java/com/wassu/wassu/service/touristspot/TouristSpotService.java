@@ -27,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -46,37 +48,26 @@ public class TouristSpotService {
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
-        List<TouristSpotImageDto> imageDto = imageRepository.findByTouristId(spotId).stream().map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl())).toList();
+
+        List<TouristSpotImageDto> imageDto = Optional.ofNullable(imageRepository.findByTouristId(spotId))
+                .orElse(Collections.emptyList()) // findByTouristId가 null이면 빈 리스트 반환
+                .stream()
+                .map(images -> new TouristSpotImageDto(images.getId(), images.getTouristSpotImageUrl()))
+                .toList();
+
         List<TouristSpotTagDto> tagDto = tagRepository.findByTouristId(spotId).stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<ReviewEntity> reviews = spot.getReviews();
+
         boolean isFavorite = false;
         boolean isStamped = false;
-        Integer reviewCount = touristSpotUtilService.totalReviewCount(spot.getId());
+
         if (email != null) {
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserId(spot.getId(), user.getId());
             isStamped = touristSpotUtilService.isStamped(spot.getId(), email);
         }
         List<ReviewDTO> reviewDto = reviewService.getReviewDTOS(email, reviews);
-        return TouristSpotDTO.builder()
-                .spotId(spot.getElasticId())
-                .spotName(spot.getSpotName())
-                .spotAddress(spot.getSpotAddress())
-                .rating(spot.getRating())
-                .favoritesCount(spot.getFavoritesCount())
-                .reviewCount(reviews.size())
-                .imageCount(imageDto.size())
-                .phone(spot.getPhone())
-                .businessHours(spot.getBusinessHours())
-                .isFavorite(isFavorite)
-                .isStamped(isStamped)
-                .spotDescription(spot.getSpotDescription())
-                .latitude(spot.getLatitude())
-                .longitude(spot.getLongitude())
-                .touristSpotTags(tagDto)
-                .touristSpotImages(imageDto)
-                .reviews(reviewDto)
-                .build();
+        return createTouristSpotDTO(spot, reviews, imageDto, isFavorite, isStamped, tagDto, reviewDto);
     }
 
     public TouristSpotFavoriteDTO touristSpotFavorite(String email, String spotId) {
@@ -108,4 +99,25 @@ public class TouristSpotService {
         return new TouristSpotFavoriteDTO("Spot successfully unliked", totalFavorites - 1, false);
     }
 
+    private static TouristSpotDTO createTouristSpotDTO(TouristSpotEntity spot, List<ReviewEntity> reviews, List<TouristSpotImageDto> imageDto, boolean isFavorite, boolean isStamped, List<TouristSpotTagDto> tagDto, List<ReviewDTO> reviewDto) {
+        return TouristSpotDTO.builder()
+                .spotId(spot.getElasticId())
+                .spotName(spot.getSpotName())
+                .spotAddress(spot.getSpotAddress())
+                .rating(spot.getRating())
+                .favoritesCount(spot.getFavoritesCount())
+                .reviewCount(reviews.size())
+                .imageCount(imageDto.size())
+                .phone(spot.getPhone())
+                .businessHours(spot.getBusinessHours())
+                .isFavorite(isFavorite)
+                .isStamped(isStamped)
+                .spotDescription(spot.getSpotDescription())
+                .latitude(spot.getLatitude())
+                .longitude(spot.getLongitude())
+                .touristSpotTags(tagDto)
+                .touristSpotImages(imageDto)
+                .reviews(reviewDto)
+                .build();
+    }
 }
