@@ -67,6 +67,7 @@ public class ScheduleInfoService {
         List<DailyPlanEntity> dailyPlans = dailyPlanRepository.findByScheduleId(coursesId);
 
         List<DailyPlanDTO> dailyPlanDTOS = new ArrayList<>();
+        int day = 1;
         for (DailyPlanEntity dailyPlan : dailyPlans) {
             // 스케줄의 각 일정 dto 변환
             List<PlanOrderEntity> planOrders = dailyPlan.getPlanOrders();
@@ -80,8 +81,9 @@ public class ScheduleInfoService {
                         .spotAddress(spot.getSpotAddress()).build();
                 touristSpotDTOS.add(spotDTO);
             }
-            DailyPlanDTO dailyPlanDTO = new DailyPlanDTO(dailyPlan.getId(), dailyPlan.getDate().toString(), touristSpotDTOS);
+            DailyPlanDTO dailyPlanDTO = new DailyPlanDTO(dailyPlan.getId(), day, dailyPlan.getDate().toString(), touristSpotDTOS);
             dailyPlanDTOS.add(dailyPlanDTO);
+            day++;
         }
         return new ScheduleDTO(schedule.getId(), schedule.getTitle(), schedule.getStartDate().toString(), schedule.getEndDate().toString(), dailyPlanDTOS);
     }
