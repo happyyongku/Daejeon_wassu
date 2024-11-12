@@ -54,24 +54,11 @@ const DetailedInquiry = () => {
     }
   }, [itinerary]);
 
-  // 날짜 차이를 계산하여 "Day X"로 업데이트하는 함수
-  const updateDaysBasedOnStartDate = (plans: Day[]) => {
-    const start = new Date(startDate);
-    return plans.map((plan, _index) => {
-      const current = new Date(plan.date);
-      const diffInDays = Math.floor((current.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-      return {
-        ...plan,
-        day: `Day ${diffInDays + 1}`, // startDate 기준으로 1일부터 시작
-      };
-    });
-  };
-
   useEffect(() => {
     if (itinerary) {
       const plans = itinerary.dailyPlans.map(plan => ({
         id: plan.planId.toString(),
-        day: `Day ${plan.planId}`, // 초기 "Day X" 값 설정
+        day: `Day ${plan.day}`,
         date: plan.date,
         places: plan.touristSpots.map(spot => ({
           id: spot.spotId.toString(),
@@ -79,35 +66,24 @@ const DetailedInquiry = () => {
           address: spot.spotAddress,
         })),
       }));
-
-      const updatedPlans = updateDaysBasedOnStartDate(plans);
-
-      if (selectedPlace && dayId) {
-        const updatedWithSelectedPlace = updatedPlans.map(day => {
-          if (day.id === dayId) {
-            return {
-              ...day,
-              places: [...day.places, selectedPlace],
-            };
-          }
-          return day;
-        });
-
-        setDailyPlans(updatedWithSelectedPlace);
-        console.log(
-          'Updated dailyPlans with selectedPlace:',
-          JSON.stringify(updatedWithSelectedPlace, null, 2),
-        );
-      } else {
-        setDailyPlans(updatedPlans);
-      }
+      setDailyPlans(plans);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itinerary, selectedPlace, dayId]);
+  }, [itinerary]);
 
   useEffect(() => {
-    console.log('Current scheduleId:', scheduleId);
-  }, [scheduleId, dailyPlans, selectedPlace, dayId, tripName, isEditing]);
+    if (dayId && selectedPlace) {
+      setDailyPlans(prevPlans =>
+        prevPlans.map(day =>
+          day.id === dayId ? {...day, places: [...day.places, selectedPlace]} : day,
+        ),
+      );
+    }
+  }, [dayId, selectedPlace]);
+
+  useEffect(() => {
+    const routeParams = JSON.stringify(route.params, null, 2);
+    console.log('Route Params:', routeParams);
+  }, [route.params]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -125,7 +101,7 @@ const DetailedInquiry = () => {
 
   const handleUpdateSchedule = async () => {
     if (!scheduleId) {
-      Alert.alert('오류!', '유효한 일정 ID가 없습니다.');
+      Alert.alert('오류', '유효한 일정 ID가 없습니다.');
       return;
     }
 
@@ -209,7 +185,7 @@ const DetailedInquiry = () => {
             renderItem={renderDaySection}
             ListFooterComponent={renderFooter}
             contentContainerStyle={styles.listContent}
-            extraData={dailyPlans}
+            extraData={dailyPlans} // 업데이트된 dailyPlans로 리렌더링 강제
           />
         </View>
       </View>
