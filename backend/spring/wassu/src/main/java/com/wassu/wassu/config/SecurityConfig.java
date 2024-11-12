@@ -62,16 +62,12 @@ public class SecurityConfig {
                                         "/wassu/posts/read/**",
                                         "/wassu/tourist/search",
                                         "/wassu/tourist/filter/**",
-<<<<<<< HEAD
                                         "/wassu/tourist/details/**",
-                                        "/error"
-=======
                                         "/error",
                                         // swagger
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/swagger-ui.html"
->>>>>>> dev-be
                                 ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
