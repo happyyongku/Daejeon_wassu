@@ -6,10 +6,10 @@ import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Builder
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -46,15 +46,15 @@ public class TouristSpotEntity {
     private Double longitude;
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VisitedSpotEntity> visitedSpots;
+    private List<VisitedSpotEntity> visitedSpots = new ArrayList<>();
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotTagEntity> touristSpotTags;
+    private List<TouristSpotTagEntity> touristSpotTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotImageEntity> touristSpotImages;
+    private List<TouristSpotImageEntity> touristSpotImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewEntity> reviews;
+    private List<ReviewEntity> reviews = new ArrayList<>();
 
 }
