@@ -4,8 +4,10 @@ import com.wassu.wassu.dto.review.ReviewCreateDTO;
 import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
 import com.wassu.wassu.service.ReviewService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,23 +25,28 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @RequestBody(content = @Content(encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/tourist/{spotId}/review", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable String spotId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewCreateDTO review) {
+                                          @RequestPart(name = "review")
+                                          @Parameter(content = @Content(
+                                              mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                              schema = @Schema(implementation = ReviewCreateDTO.class))
+                                          ) ReviewCreateDTO review) {
         reviewService.createReview(userEmail, spotId, images, review);
         return ResponseEntity.ok("review created");
     }
-
-    @RequestBody(content = @Content(
-            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
+    
     @PutMapping(value = "/review/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable Long reviewId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewUpdateDTO review) {
+                                          @RequestPart(name = "review")
+                                          @Parameter(content = @Content(
+                                              mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                              schema = @Schema(implementation = ReviewUpdateDTO.class))
+                                          ) ReviewUpdateDTO review) {
         reviewService.updateReview(userEmail, images, review, reviewId);
         return ResponseEntity.ok("review updated");
     }
