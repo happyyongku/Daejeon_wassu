@@ -51,8 +51,6 @@ public class ReviewService {
         ReviewEntity savedReview = reviewRepository.save(review);
         // 이미지 업로드
         uploadReviewImages(images, savedReview);
-        // 관광지 리뷰 수 +1
-        spot.setReviewCount(spot.getReviewCount()+1);
     }
 
     public void updateReview(String email, List<MultipartFile> images, ReviewUpdateDTO dto, Long reviewId) {
@@ -113,9 +111,6 @@ public class ReviewService {
         // s3에서도 이미지 삭제
         review.getImages().forEach(image -> s3Util.deleteFile(image.getImageUrl()));
         reviewRepository.delete(review);
-        // 관광지 리뷰 수 -1
-        TouristSpotEntity touristSpot = review.getTouristSpot();
-        touristSpot.setReviewCount(touristSpot.getReviewCount()-1);
     }
 
     public void likesReview(String email, Long reviewId) {
