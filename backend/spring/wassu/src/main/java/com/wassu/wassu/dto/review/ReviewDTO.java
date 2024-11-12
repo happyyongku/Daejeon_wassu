@@ -18,6 +18,6 @@ public class ReviewDTO {
     private UserProfileDTO profile;
     private List<ReviewImageDTO> reviewImages;
     private boolean isLiked;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
 }
