@@ -65,6 +65,7 @@ public class SecurityConfig {
                                         "/error",
                                         // swagger
                                         "/wassu/swagger-ui/**",
+                                        "/wassu/swagger-ui",
                                         "/wassu/v3/api-docs/**",
                                         "/wassu/swagger-ui.html"
                                 ).permitAll()
