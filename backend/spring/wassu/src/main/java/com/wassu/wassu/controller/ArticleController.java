@@ -202,6 +202,19 @@ public class ArticleController {
         }
     }
 
+    // 인기 게시글 조회
+    @SecurityRequirement(name = "")
+    @GetMapping("/read/recommend")
+    public ResponseEntity<?> readArticleRecommend(@RequestHeader(value="Authorization", required = false) String accessToken) {
+        String userEmail = null;
+        if (accessToken != null) {
+            String token = accessToken.replace("Bearer ", "");
+            userEmail = jwtUtil.extractUserEmail(token);
+        }
+        List<ArticleResponseDTO> result = articleReadService.getRecommendArticle(userEmail);
+        return ResponseEntity.ok(Map.of("data", result));
+    }
+
     // 게시글 좋아요
     @PostMapping("/{articleId}/likes")
     public ResponseEntity<?> likeArticle(@AuthenticationPrincipal String userEmail,
