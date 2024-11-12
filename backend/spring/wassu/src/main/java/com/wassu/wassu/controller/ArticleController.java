@@ -17,6 +17,7 @@ import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
 import com.wassu.wassu.entity.ArticleEntity;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +127,7 @@ public class ArticleController {
     }
 
     // 포스팅 검색
+    @SecurityRequirement(name = "")
     @PostMapping(value="/search")
     public ResponseEntity<?> searchArticleTest(
             @RequestHeader(value = "Authorization", required = false) String accessToken,
@@ -150,6 +152,7 @@ public class ArticleController {
     }
 
     // 포스팅 카테고리 별 필터링
+    @SecurityRequirement(name = "")
     @GetMapping("/filter")
     public ResponseEntity<?> filterArticle(
             @RequestHeader(value="Authorization", required = false) String accessToken,
@@ -173,6 +176,7 @@ public class ArticleController {
     }
 
     // 게시글 조회
+    @SecurityRequirement(name = "")
     @GetMapping("/read/{articleId}")
     public ResponseEntity<?> readArticle(@AuthenticationPrincipal String userEmail,
                                          @RequestHeader(value="Authorization", required = false) String accessToken,

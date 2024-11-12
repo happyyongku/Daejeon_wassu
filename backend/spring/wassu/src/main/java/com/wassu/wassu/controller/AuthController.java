@@ -8,6 +8,7 @@ import com.wassu.wassu.dto.user.UserAuthDTO;
 import com.wassu.wassu.dto.user.UserSignupDTO;
 import com.wassu.wassu.util.UtilTool;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class AuthController {
     private final Map<String, Boolean> verificationEmails = new HashMap<>();
     
     // 회원가입
+    @SecurityRequirement(name = "")
     @PostMapping("/signup")
     public ResponseEntity<?> joinUser(@RequestBody UserSignupDTO userSignupDTO) {
         try {
@@ -63,6 +65,7 @@ public class AuthController {
     }
     
     //로그인
+    @SecurityRequirement(name = "")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserAuthDTO userAuthDTO) {
         // 로그인 처리
