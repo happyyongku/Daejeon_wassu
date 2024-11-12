@@ -136,10 +136,15 @@ public class ArticleReadService {
     private List<ArticleResponseDTO> createRecommendResponse(String email, List<ArticleEntity> top20PercentArticles) {
         List<ArticleResponseDTO> recommendArticles = new ArrayList<>();
         for (ArticleEntity article : top20PercentArticles) {
+            Boolean isMatch = false;
+            boolean isLiked = false;
+            if (email != null) {
+                UserEntity my = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+                isMatch = isMatchWithArticleOwner(email, article.getId());
+                isLiked = articleLikedRepository.existsByArticleIdAndUserId(article.getId(), my.getId());
+            }
             Long userId = article.getUser();
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-            Boolean isMatch = isMatchWithArticleOwner(email, article.getId());
-            boolean isLiked = articleLikedRepository.existsByArticleIdAndUserId(article.getId(), userId);
             ArticleResponseDTO dto = createArticelResposneDTO(isMatch, article, userId, user, isLiked);
             recommendArticles.add(dto);
         }
