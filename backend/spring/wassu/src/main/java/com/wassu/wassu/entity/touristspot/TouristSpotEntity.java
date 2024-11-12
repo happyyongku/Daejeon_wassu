@@ -30,14 +30,10 @@ public class TouristSpotEntity {
 
     private Float rating;
 
-    private Integer userRatingsTotal;
-
     @Column(columnDefinition = "TEXT")
     private String spotDescription;
 
     private int favoritesCount;
-
-    private int reviewCount;
     
     private String businessHours;
 
