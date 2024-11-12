@@ -95,7 +95,7 @@ public class ReviewService {
                 .profile(profile)
                 .reviewImages(reviewImages)
                 .isLiked(reviewLikesRepository.existsByReviewIdAndUserEmail(reviewId, email))
-                .createdAt(review.getCreatedAt()).build();
+                .createdAt(review.getCreatedAt().toString()).build();
     }
 
     public void deleteReview(String email, Long reviewId) {
@@ -163,7 +163,7 @@ public class ReviewService {
                         .isLiked(isLiked)
                         .profile(profile)
                         .reviewImages(reviewImages)
-                        .createdAt(review.getCreatedAt()).build();
+                        .createdAt(review.getCreatedAt().toString()).build();
                 reviewDto.add(dto);
             }
         }
