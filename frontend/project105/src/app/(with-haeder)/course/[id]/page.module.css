@@ -4,13 +4,27 @@
   width: 750px;
 }
 
+.pagetitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .tagbox {
   display: flex;
   align-items: center;
 }
 
+.pagetag {
+  border: 1px solid #f1f1f1;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-right: 5px;
+}
+
 .imgbox {
   width: 750px;
+  margin-bottom: 20px;
 }
 
 .img {
@@ -22,12 +36,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .content {
   width: 680px;
   color: #333333;
   opacity: 70%;
+  font-size: 16px;
+  line-height: 25px;
 }
 
 .hr {
@@ -35,9 +52,15 @@
   height: 1px;
   background-color: #333333;
   opacity: 30%;
+  margin-bottom: 20px;
 }
 
 .introcourse {
+  margin-bottom: 20px;
+}
+
+.courseintro {
+  font-size: 22px;
   font-weight: bold;
 }
 
@@ -65,6 +88,7 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  margin-bottom: 100px;
 }
 
 .greenline {
@@ -78,12 +102,22 @@
   width: 750px;
   display: flex;
   justify-content: flex-start;
+  position: relative;
 }
 
 .rightcardbox {
   width: 750px;
   display: flex;
   justify-content: flex-end;
+  position: relative;
+}
+
+.rowline {
+  width: 375px;
+  height: 8px;
+  background-color: #418663;
+  position: absolute;
+  top: 125px;
 }
 
 .card {
@@ -93,6 +127,7 @@
   border-radius: 12px;
   box-shadow: 10px 10px 20px 1px rgba(0, 0, 0, 0.2); /* 확산 5px */
   padding: 15px;
+  z-index: 10;
 }
 
 .cardheader {
@@ -136,7 +171,25 @@
 .cardtagbox {
   display: flex;
   align-items: center;
-  margin-bottom: 13px;
+  margin-bottom: 20px;
+}
+
+.cardtag {
+  font-size: 12px;
+  font-weight: bold;
+  width: 50px;
+  height: 20px;
+  background-color: #c8decb;
+  color: #418663;
+  text-align: center;
+  border-radius: 20px;
+  margin-right: 5px;
+}
+
+.cardcontent {
+  font-size: 14px;
+  color: #333333;
+  opacity: 70%;
 }
 
 .monsterbox {
