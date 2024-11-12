@@ -16,6 +16,9 @@ const Header = () => {
   const goToMyPage = () => {
     navigation.navigate('MyPage');
   };
+  const goToArPage = () => {
+    navigation.navigate('Ar');
+  };
 
   return (
     <View style={styles.container}>
@@ -25,6 +28,9 @@ const Header = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.myButton} onPress={goToMyPage}>
         <Text style={styles.myButtonText}>마이페이지</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.myButton} onPress={goToArPage}>
+        <Text style={styles.myButtonText}>Ar</Text>
       </TouchableOpacity>
     </View>
   );
