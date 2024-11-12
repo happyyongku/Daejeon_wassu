@@ -1,5 +1,6 @@
 export interface ImageData {
   url: string;
+  alt: string;
 }
 
 export interface LocaImgData {

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArticleData } from "@/types";
+import Carousel from "@/components/main/course/carousel";
 import axios from "axios";
 import style from "./page.module.css";
 
@@ -150,7 +151,8 @@ export default function Page() {
       </div>
       <div>
         {/* 이미지 없으면 디폴트 이미지 출력하고, 아니면 캐러셀로 출력 */}
-        <img className={style.image} src={article?.images[0].url} alt="" />
+        {/* <img className={style.image} src={article?.images[0].url} alt="" /> */}
+        <Carousel images={article?.images} />
       </div>
       <div className={style.descbox}>
         <div className={style.desctext}>설명</div>

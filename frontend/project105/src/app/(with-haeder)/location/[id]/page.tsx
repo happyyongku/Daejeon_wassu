@@ -18,7 +18,7 @@ export default function Page() {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
-        `https://k11b105.p.ssafy.io/wassu/tourist/details/d60696b9-aa39-4449-ade7-dfa520d70cec`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/details/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -37,11 +37,10 @@ export default function Page() {
   // 장소 찜하기 axios 요청
   const jjimLoca = async () => {
     const token = localStorage.getItem("authToken");
-    const idid = 1138;
     console.log(token);
     try {
       const response = await axios.post(
-        `https://k11b105.p.ssafy.io/wassu/tourist/${idid}/favorite`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
         {},
         {
           headers: {
@@ -61,11 +60,9 @@ export default function Page() {
   // 장소 찜하기 취소 axios 요청
   const unJjimLoca = async () => {
     const token = localStorage.getItem("authToken");
-    const idid = 1138;
     try {
       const response = await axios.delete(
-        // `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
-        `https://k11b105.p.ssafy.io/wassu/tourist/${idid}/favorite`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -7,6 +7,7 @@ import style from "./page.module.css";
 import Reco from "@/components/main/reco/reco";
 import Community from "../../../components/main/community/community";
 import SearchResultCard from "@/components/main/searchresultcard";
+import Course from "@/components/main/course/course";
 import { LocationData } from "@/types";
 import axios from "axios";
 
@@ -145,6 +146,7 @@ export default function Page() {
 
             <Reco />
             <div className={style.bar}></div>
+            <Course />
             <Community />
           </div>
         </div>

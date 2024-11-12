@@ -16,7 +16,7 @@ export default function Page() {
     try {
       const response = await axios.get(
         `https://k11b105.p.ssafy.io/wassu/posts/filter`,
-        { params: { size: 30 } }
+        { params: { size: 100 } }
       );
       if (response.data) {
         console.log("게시글 전체 조회 성공", response.data.content);
