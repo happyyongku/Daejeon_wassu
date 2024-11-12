@@ -23,14 +23,13 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @RequestBody(content = @Content(
-            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
+    @RequestBody(content = @Content(encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/tourist/{spotId}/review", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable String spotId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewCreateDTO createDTO) {
-        reviewService.createReview(userEmail, spotId, images, createDTO);
+                                          @RequestPart(name = "review") ReviewCreateDTO review) {
+        reviewService.createReview(userEmail, spotId, images, review);
         return ResponseEntity.ok("review created");
     }
 
@@ -40,8 +39,8 @@ public class ReviewController {
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable Long reviewId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewUpdateDTO updateDTO) {
-        reviewService.updateReview(userEmail, images, updateDTO, reviewId);
+                                          @RequestPart(name = "review") ReviewUpdateDTO review) {
+        reviewService.updateReview(userEmail, images, review, reviewId);
         return ResponseEntity.ok("review updated");
     }
 
