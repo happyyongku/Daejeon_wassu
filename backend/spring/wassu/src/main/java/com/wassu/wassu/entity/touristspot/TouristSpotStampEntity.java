@@ -1,26 +1,25 @@
 package com.wassu.wassu.entity.touristspot;
 
-
+import com.wassu.wassu.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
+@Entity
 @Getter
 @Setter
-@Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TouristSpotPresetEntity {
-
+public class TouristSpotStampEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "preset", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotCourseEntity> course;
-
     @Column(nullable = false)
-    private String theme;
+    private Long touristSpotId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
 }

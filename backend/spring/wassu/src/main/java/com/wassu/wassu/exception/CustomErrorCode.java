@@ -1,5 +1,6 @@
 package com.wassu.wassu.exception;
 
+import co.elastic.clients.elasticsearch.nodes.Http;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -47,7 +48,8 @@ public enum CustomErrorCode {
     FAILED_TO_SAVE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Save Article"),
     FAILED_TO_MATCHING_PROFILE_AND_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Falied To Matching Profile and Article"),
     ERROR_WHILE_SEARCH_TOURIST_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Search TouristSpot"),
-    FAILED_TO_FILTERING_BY_CATEGORY(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Filter By Category"),;
+    FAILED_TO_FILTERING_BY_CATEGORY(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Filter By Category"),
+    FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Match With TouristSpot and Ismatched"),;
 
     private final HttpStatus status;
     private final String message;

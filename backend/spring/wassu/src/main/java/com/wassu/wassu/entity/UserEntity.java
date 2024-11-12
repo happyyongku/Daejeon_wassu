@@ -3,6 +3,7 @@ package com.wassu.wassu.entity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
+import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -78,6 +79,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduleEntity> schedules;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TouristSpotStampEntity> touristSpotStamp = new ArrayList<>();
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

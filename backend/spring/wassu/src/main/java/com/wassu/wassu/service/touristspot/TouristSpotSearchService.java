@@ -9,8 +9,11 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
+import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
+import com.wassu.wassu.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -29,6 +33,7 @@ import java.util.Map;
 public class TouristSpotSearchService {
 
     private final ElasticsearchClient elasticsearchClient;
+    private final UserRepository userRepository;
 
     public Page<Map<String, Object>> searchByText(String searchText, Pageable pageable) throws IOException {
         log.info("Search Tourist Spot by Text");

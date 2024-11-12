@@ -20,6 +20,7 @@ public class TouristSpotDTO {
     private int reviewCount;
     private int imageCount;
     private boolean isFavorite;
+    private boolean isStamped;
     private String phone;
     private String businessHours;
     private String spotDescription;

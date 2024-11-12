@@ -42,6 +42,7 @@ public class TouristSpotService {
     private final UserRepository userRepository;
     private final ReviewService reviewService;
     private final TouristSpotFavoritesRepository touristSpotFavoritesRepository;
+    private final TouristSpotUtilService touristSpotUtilService;
 
     public TouristSpotDTO getTouristSpotDetails(String email, String spotId) {
         TouristSpotEntity spot = touristSpotRepository.findDetailById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
@@ -49,9 +50,11 @@ public class TouristSpotService {
         List<TouristSpotTagDto> tagDto = tagRepository.findByTouristId(spotId).stream().map(tags -> new TouristSpotTagDto(tags.getId(), tags.getTag())).toList();
         List<ReviewEntity> reviews = spot.getReviews();
         boolean isFavorite = false;
+        boolean isStamped = false;
         if (email != null) {
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserId(spot.getId(), user.getId());
+            isStamped = touristSpotUtilService.isStamped(spot.getId(), email);
         }
         List<ReviewDTO> reviewDto = reviewService.getReviewDTOS(email, reviews);
         return TouristSpotDTO.builder()
@@ -65,6 +68,7 @@ public class TouristSpotService {
                 .phone(spot.getPhone())
                 .businessHours(spot.getBusinessHours())
                 .isFavorite(isFavorite)
+                .isStamped(isStamped)
                 .spotDescription(spot.getSpotDescription())
                 .latitude(spot.getLatitude())
                 .longitude(spot.getLongitude())
