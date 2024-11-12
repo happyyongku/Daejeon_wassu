@@ -65,9 +65,7 @@ public class SecurityConfig {
                                         "/wassu/tourist/details/**",
                                         "/error",
                                         // swagger
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui.html"
+                                        "/swagger/**"
                                 ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
