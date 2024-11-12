@@ -1,10 +1,12 @@
 package com.wassu.wassu.entity;
 
 import com.wassu.wassu.entity.review.ReviewEntity;
+import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -73,6 +75,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotFavorites> touristSpotFavorites;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleEntity> schedules;
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

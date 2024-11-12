@@ -32,9 +32,16 @@ public class TouristSpotEntity {
 
     private Integer userRatingsTotal;
 
+    @Column(columnDefinition = "TEXT")
     private String spotDescription;
 
     private int favoritesCount;
+
+    private int reviewCount;
+    
+    private String businessHours;
+
+    private String phone;
 
     @Column(nullable = false)
     private Double latitude;
@@ -53,9 +60,5 @@ public class TouristSpotEntity {
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews;
-
-    @ManyToOne
-    @JoinColumn(name = "daily_plan_entity_id")
-    private DailyPlanEntity dailyPlan;
 
 }

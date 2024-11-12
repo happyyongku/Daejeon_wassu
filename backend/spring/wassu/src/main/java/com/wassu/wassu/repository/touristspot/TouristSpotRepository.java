@@ -9,10 +9,10 @@ import java.util.Optional;
 public interface TouristSpotRepository extends JpaRepository<TouristSpotEntity, Long> {
 
     @Query("select ts from TouristSpotEntity ts " +
-            "join fetch ts.touristSpotTags tt " +
-            "join fetch ts.touristSpotImages ti " +
-            "join fetch ts.reviews tr " +
+            "left join fetch ts.reviews tr " +
             "where ts.elasticId=:id")
     Optional<TouristSpotEntity> findDetailById(String id);
+
+    Optional<TouristSpotEntity> findByElasticId(String elasticId);
 
 }

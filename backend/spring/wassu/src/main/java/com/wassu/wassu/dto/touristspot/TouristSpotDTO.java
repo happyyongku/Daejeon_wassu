@@ -1,22 +1,27 @@
 package com.wassu.wassu.dto.touristspot;
 
 import com.wassu.wassu.dto.review.ReviewDTO;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
-@Builder
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TouristSpotDTO {
 
-    private Long id;
+    private String spotId;
     private String spotName;
     private String spotAddress;
     private Float rating;
     private Integer userRatingsTotal;
     private int favoritesCount;
+    private int reviewCount;
+    private int imageCount;
     private boolean isFavorite;
+    private String phone;
+    private String businessHours;
     private String spotDescription;
     private Double latitude;
     private Double longitude;

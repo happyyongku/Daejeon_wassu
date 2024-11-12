@@ -51,6 +51,8 @@ public class ReviewService {
         ReviewEntity savedReview = reviewRepository.save(review);
         // 이미지 업로드
         uploadReviewImages(images, savedReview);
+        // 관광지 리뷰 수 +1
+        spot.setReviewCount(spot.getReviewCount()+1);
     }
 
     public void updateReview(String email, List<MultipartFile> images, ReviewUpdateDTO dto, Long reviewId) {
@@ -111,6 +113,9 @@ public class ReviewService {
         // s3에서도 이미지 삭제
         review.getImages().forEach(image -> s3Util.deleteFile(image.getImageUrl()));
         reviewRepository.delete(review);
+        // 관광지 리뷰 수 -1
+        TouristSpotEntity touristSpot = review.getTouristSpot();
+        touristSpot.setReviewCount(touristSpot.getReviewCount()-1);
     }
 
     public void likesReview(String email, Long reviewId) {
@@ -150,24 +155,26 @@ public class ReviewService {
 
     public List<ReviewDTO> getReviewDTOS(String email, List<ReviewEntity> reviews) {
         List<ReviewDTO> reviewDto = new ArrayList<>();
-        for (ReviewEntity review : reviews) {
-            boolean isLiked = false;
-            if (email != null) {
-                isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+        if (reviews != null && !reviews.isEmpty()) {
+            for (ReviewEntity review : reviews) {
+                boolean isLiked = false;
+                if (email != null) {
+                    isLiked = reviewLikesRepository.existsByReviewIdAndUserEmail(review.getId(), email);
+                }
+                UserEntity user = review.getUser();
+                List<ReviewImageDTO> reviewImages = review.getImages().stream()
+                        .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
+                UserProfileDTO profile = userService.convertToDTO(user);
+                ReviewDTO dto = ReviewDTO.builder()
+                        .reviewId(review.getId())
+                        .content(review.getContent())
+                        .likeCount(review.getLikeCount())
+                        .isLiked(isLiked)
+                        .profile(profile)
+                        .reviewImages(reviewImages)
+                        .createdAt(review.getCreatedAt()).build();
+                reviewDto.add(dto);
             }
-            UserEntity user = review.getUser();
-            List<ReviewImageDTO> reviewImages = review.getImages().stream()
-                    .map(image -> new ReviewImageDTO(image.getId(), image.getImageUrl())).toList();
-            UserProfileDTO profile = userService.convertToDTO(user);
-            ReviewDTO dto = ReviewDTO.builder()
-                    .reviewId(review.getId())
-                    .content(review.getContent())
-                    .likeCount(review.getLikeCount())
-                    .isLiked(isLiked)
-                    .profile(profile)
-                    .reviewImages(reviewImages)
-                    .createdAt(review.getCreatedAt()).build();
-            reviewDto.add(dto);
         }
         return reviewDto;
     }
