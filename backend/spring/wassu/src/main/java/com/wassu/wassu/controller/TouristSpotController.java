@@ -40,7 +40,7 @@ public class TouristSpotController {
     // 찜하기
     @PostMapping("/{spotId}/favorite")
     public ResponseEntity<?> touristSpotFavorite(@AuthenticationPrincipal String userEmail,
-                                                 @PathVariable Long spotId) {
+                                                 @PathVariable String spotId) { // 엘라스틱 id
         TouristSpotFavoriteDTO result = touristSpotService.touristSpotFavorite(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
@@ -48,7 +48,7 @@ public class TouristSpotController {
     // 찜취소
     @DeleteMapping("/{spotId}/favorite")
     public ResponseEntity<?> touristSpotUnFavorite(@AuthenticationPrincipal String userEmail,
-                                                   @PathVariable Long spotId) {
+                                                   @PathVariable String spotId) {
         TouristSpotFavoriteDTO result = touristSpotService.touristSpotUnfavorite(userEmail, spotId);
         return ResponseEntity.ok(result);
     }
