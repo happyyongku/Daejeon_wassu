@@ -6,7 +6,7 @@
         "decompound_mode": "mixed"
       }
     },
-    "filter" : {
+    "filter": {
       "nori_readingform": {
         "type": "nori_readingform"
       },
@@ -15,16 +15,24 @@
       },
       "edge_ngram_filter": {
         "type": "edge_ngram",
-        "min_gram": 1,
+        "min_gram": 2,
         "max_gram": 10
       }
     },
     "analyzer": {
-      "nori_analyzer": {
+      "nori_analyzer_index": {
         "type": "custom",
         "tokenizer": "nori_tokenizer",
         "filter": [
+          "nori_readingform",
           "edge_ngram_filter",
+          "lowercase_filter"
+        ]
+      },
+      "nori_analyzer_search": {
+        "type": "custom",
+        "tokenizer": "nori_tokenizer",
+        "filter": [
           "nori_readingform",
           "lowercase_filter"
         ]

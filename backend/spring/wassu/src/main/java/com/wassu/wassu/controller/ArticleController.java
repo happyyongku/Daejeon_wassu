@@ -13,6 +13,7 @@ import com.wassu.wassu.repository.article.ArticleRepository;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.service.article.*;
+import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
 import com.wassu.wassu.entity.ArticleEntity;
 
@@ -54,6 +55,7 @@ public class ArticleController {
     private final ArticleReadService articleReadService;
     private final ArticleLikeService articleLikeService;
     private final ArticleProfileService articleProfileService;
+    private final UserUtil userUtil;
 
     @GetMapping(value = "/test")
     public ResponseEntity<?> putTest() {
@@ -135,11 +137,7 @@ public class ArticleController {
             Page<Map<String, Object>> response = articleSearchServiceImpl.searchByText(
                     requestDTO.getSearchText(), requestDTO.getTags(), pageable
             );
-            String userEmail = null;
-            if (accessToken != null) {
-                String token = jwtUtil.extractUserEmail(accessToken);
-                userEmail = jwtUtil.extractUserEmail(token);
-            }
+            String userEmail = userUtil.extractUserEmail(accessToken);
             articleProfileService.matchingProfileWithArticleList(response, userEmail);
 
             System.out.println("Search Test Completed --------------------------");

@@ -1,11 +1,13 @@
 package com.wassu.wassu.service.touristspot;
 
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.review.ReviewRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.util.Optional;
 public class TouristSpotUtilService {
 
     private final TouristSpotRepository touristSpotRepository;
+    private final ReviewRepository reviewRepository;
     private UserRepository userRepository;
 
     public Boolean isStamped(
@@ -64,9 +67,11 @@ public class TouristSpotUtilService {
                 if (touristSpot.isPresent()) {
                     Long touristSplotId = touristSpot.get().getId();
                     Boolean isStamped = isStamped(touristSplotId, userEmail);
+                    Integer reviewCount = totalReviewCount(touristSplotId);
                     result.put("isStamped", isStamped);
+                    result.put("reviewCount", reviewCount);
                 } else {
-                    log.error("Elastic Id doesn't matched with postgres: {}", elasticSpotId);
+                    log.warn("Elastic Id doesn't matched with postgres: {}", elasticSpotId);
                 }
             }
             log.info("End to Match result and isStamped");
@@ -74,6 +79,18 @@ public class TouristSpotUtilService {
         } catch (Exception e){
             log.error("Exception in MatchingWithSpotAndIsStamped", e);
             throw new CustomException(CustomErrorCode.FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED);
+        }
+    }
+
+    public Integer totalReviewCount(Long touristSpotId) {
+        Optional<ReviewEntity> optionalReview = reviewRepository.findByIdWithJoin(touristSpotId);
+        if (optionalReview.isPresent()) {
+            Integer reviewCount = reviewRepository.countByTouristSpotId(touristSpotId);
+            log.info("Review count : {}", reviewCount);
+            return reviewCount;
+        } else {
+            log.warn("Review with id {} not found", touristSpotId);
+            return 0;
         }
     }
 }

@@ -51,6 +51,7 @@ public class TouristSpotService {
         List<ReviewEntity> reviews = spot.getReviews();
         boolean isFavorite = false;
         boolean isStamped = false;
+        Integer reviewCount = touristSpotUtilService.totalReviewCount(spot.getId());
         if (email != null) {
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             isFavorite = touristSpotFavoritesRepository.existsByTouristSpotIdAndUserId(spot.getId(), user.getId());
