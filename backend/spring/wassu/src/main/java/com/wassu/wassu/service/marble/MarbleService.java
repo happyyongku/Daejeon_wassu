@@ -3,20 +3,26 @@ package com.wassu.wassu.service.marble;
 import com.wassu.wassu.dto.marble.CreateRoomDTO;
 import com.wassu.wassu.dto.marble.InviteRoomDTO;
 import com.wassu.wassu.dto.marble.JoinRoomDTO;
+import com.wassu.wassu.dto.marble.MarbleDTO;
+import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.marble.MarbleEntity;
 import com.wassu.wassu.entity.marble.MarbleRoomEntity;
+import com.wassu.wassu.entity.marble.NodeEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.marble.MarbleRepository;
 import com.wassu.wassu.repository.marble.MarbleRoomRepository;
+import com.wassu.wassu.repository.marble.RedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,11 +33,17 @@ public class MarbleService {
     private final UserRepository userRepository;
     private final MarbleRepository marbleRepository;
     private final MarbleRoomRepository roomRepository;
+    private final RedisRepository redisRepository;
 
     public int[] rollDice() {
         int dice1 = (int) (Math.random() * 6) + 1;
         int dice2 = (int) (Math.random() * 6);
         return new int[]{dice1, dice2};
+    }
+
+    public List<MarbleDTO> getMarbles() {
+        return marbleRepository.findAll().stream()
+                .map(marble -> new MarbleDTO(marble.getId(), marble.getMarbleName())).toList();
     }
 
     public InviteRoomDTO createMarble(Long marbleId, String email, CreateRoomDTO dto) {
@@ -42,16 +54,34 @@ public class MarbleService {
                 .marble(marble)
                 .creator(creator)
                 .build();
+        String code = null;
         if (!dto.isSingle()) { // 같이도슈면 초대코드 생성
+            code = generateInviteCode();
             room.setSingle(true);
-            room.setInviteCode(generateInviteCode());
+            room.setInviteCode(code);
         }
         MarbleRoomEntity savedRoom = roomRepository.save(room);
+        if (code != null) {
+            redisRepository.createCertification(code, savedRoom.getId());
+        }
         return new InviteRoomDTO(savedRoom.getId(), savedRoom.getInviteCode());
     }
 
-    public void joinRoom(String email, JoinRoomDTO dto) {
+    public Long joinRoom(String email, JoinRoomDTO dto) {
+        if (redisRepository.existsByInviteCode(dto.getInviteCode())) {
+            Long roomId = redisRepository.getRoomId(dto.getInviteCode());
+            MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+            room.setGuest(user);
+            return roomId;
+        }
+        return null;
+    }
 
+    public String reGenerateInviteCode(Long roomId) {
+        String code = generateInviteCode();
+        redisRepository.createCertification(code, roomId);
+        return code;
     }
 
     private String generateInviteCode() {

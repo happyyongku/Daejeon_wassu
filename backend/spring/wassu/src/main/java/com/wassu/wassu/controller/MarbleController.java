@@ -1,9 +1,6 @@
 package com.wassu.wassu.controller;
 
-import com.wassu.wassu.dto.marble.CreateRoomDTO;
-import com.wassu.wassu.dto.marble.InviteRoomDTO;
-import com.wassu.wassu.dto.marble.JoinRoomDTO;
-import com.wassu.wassu.dto.marble.MissionVerifyDTO;
+import com.wassu.wassu.dto.marble.*;
 import com.wassu.wassu.service.marble.MarbleService;
 import com.wassu.wassu.service.marble.SseService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +25,12 @@ public class MarbleController {
     private final MarbleService marbleService;
     private final SseService sseService;
 
+    @GetMapping
+    public ResponseEntity<?> getMarbles() {
+        List<MarbleDTO> result = marbleService.getMarbles();
+        return ResponseEntity.ok(Map.of("data", result));
+    }
+
     // 테마보드 선택 및 방 생성
     @PostMapping("/{marbleId}")
     public ResponseEntity<?> createMarble(@AuthenticationPrincipal String userEmail,
@@ -37,6 +40,7 @@ public class MarbleController {
         return ResponseEntity.ok(result);
     }
 
+    // SSE 연결
     @GetMapping("/{marbleId}/sync")
     public SseEmitter connect(@PathVariable Long marbleId) {
         return sseService.createEmitter(marbleId); // 클라이언트 연결을 위한 Emitter 생성
@@ -46,7 +50,17 @@ public class MarbleController {
     @PostMapping("/room/join")
     public ResponseEntity<?> joinRoom(@AuthenticationPrincipal String userEmail,
                                         @RequestBody JoinRoomDTO dto) {
-        marbleService.joinRoom(userEmail, dto);
+        Long roomId = marbleService.joinRoom(userEmail, dto);
+        if (roomId != null) {
+            return ResponseEntity.ok(Map.of("roomId", roomId));
+        }
+        return ResponseEntity.badRequest().body(Map.of("message", "invalid inviteCode"));
+    }
+
+    @PostMapping("/room/{roomId}/code")
+    public ResponseEntity<?> generateInviteCode(@PathVariable Long roomId) {
+        String code = marbleService.reGenerateInviteCode(roomId);
+        return ResponseEntity.ok(Map.of("inviteCode", code));
     }
 
     @PostMapping("/{roomCode}/roll-dice")
