@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Header from '../common/Header';
@@ -28,6 +29,7 @@ import type {RootStackParamList} from '../../router/Navigator';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {getTouristSpotDetails} from '../../api/tourist';
 import {favoriteTouristSpot, unfavoriteTouristSpot} from '../../api/tourist';
+import GpsComponent from '../common/GpsComponent'; // GpsComponent 파일 경로
 
 type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -36,7 +38,10 @@ const {width} = Dimensions.get('window');
 type PlaceDetailRouteProp = {
   id: string;
 };
-
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
 const scheduleData = [
   {
     id: '1',
@@ -67,7 +72,9 @@ const PlaceDetail = () => {
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
-  const [stampModalVisible, setStampModalVisible] = useState<any>(null);
+  const [stampModalVisible, setStampModalVisible] = useState(false);
+  const [showGpsComponent, setShowGpsComponent] = useState(false); // GPS 컴포넌트 렌더링 제어
+  const [_coordinates, setCoordinates] = useState<Coordinates | null>(null); // 타입 명시
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
 
@@ -130,6 +137,24 @@ const PlaceDetail = () => {
       await fetchSpotDetails();
     }
   };
+  // 스탬프 버튼 클릭 시 처리
+  const handleStampPress = () => {
+    setShowGpsComponent(true); // GPS 좌표 요청 트리거
+  };
+  // GpsComponent로부터 좌표를 수신하는 콜백
+  const onLocationRetrieved = (coords: Coordinates | null) => {
+    if (!coords) {
+      Alert.alert('좌표 불러오기 실패', '현재 위치를 가져올 수 없습니다.');
+      setShowGpsComponent(false);
+      return;
+    }
+    const {latitude, longitude} = coords;
+    setCoordinates(coords);
+    console.log('Received Coordinates:', latitude, longitude);
+    Alert.alert('좌표 불러오기 성공', `위도: ${latitude}, 경도: ${longitude}`);
+    setStampModalVisible(true); // 좌표 수신 성공 후 모달 열기
+    setShowGpsComponent(false); // 좌표 수신 후 GpsComponent 숨기기
+  };
 
   if (!spotDetails) {
     return <Text>Loading...</Text>; // 데이터가 로드될 때까지 로딩 메시지를 표시
@@ -189,11 +214,13 @@ const PlaceDetail = () => {
             <StarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>리뷰쓰기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => setStampModalVisible(true)}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleStampPress}>
             <StempIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>스탬프</Text>
           </TouchableOpacity>
         </View>
+        {/* GpsComponent는 좌표를 가져오는 역할만 수행하고 아무것도 화면에 렌더링하지 않습니다. */}
+        {showGpsComponent && <GpsComponent onLocationRetrieved={onLocationRetrieved} />}
 
         <View style={styles.detailSection}>
           <Text style={styles.detailTitle}>상세 정보</Text>
