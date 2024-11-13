@@ -70,7 +70,7 @@ export interface LocationData {
 }
 
 export interface CourseData {
-  course_id: number;
+  id: number;
   course_name: string;
   description: string;
   image_url: string;

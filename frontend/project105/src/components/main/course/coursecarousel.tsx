@@ -10,7 +10,7 @@ interface CarouselProps {
         course_name: string;
         description: string;
         image_url: string;
-        course_id: number;
+        id: number;
       }[]
     | undefined;
 }
@@ -21,9 +21,9 @@ export default function CourseCarousel({ course }: CarouselProps) {
   const router = useRouter();
 
   //   라우팅 설정합시다. 코스 상세 페이지로 이동해야 합니다.
-  //   const toCourseDetail = () => {
-  //     router.push(`/course/${course?.course_id}`)
-  //   }
+  const toCourseDetail = (courseId: number) => {
+    router.push(`/course/${courseId}`);
+  };
 
   // images가 undefined 또는 빈 배열일 경우 렌더링하지 않도록 처리
   if (!course || course.length === 0) {
@@ -70,6 +70,7 @@ export default function CourseCarousel({ course }: CarouselProps) {
           src={course[currentIndex]?.image_url || "/images/default.png"}
           alt="코스 이미지"
           className={style.carouselImage}
+          onClick={() => toCourseDetail(course[currentIndex]?.id)}
         />
         <p className={style.p1}>{course[currentIndex]?.course_name}</p>
         <p className={style.p2}>{course[currentIndex]?.description}</p>
