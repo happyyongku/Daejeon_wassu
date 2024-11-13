@@ -15,21 +15,22 @@ import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import LogoIcon from '../assets/imgs/Logo2.svg';
-import GroupIcon from '../assets/imgs/Group.svg';
 import FoodIcon from '../assets/imgs/food.svg';
 import HomeIcon from '../assets/imgs/home.svg';
-import RainIcon from '../assets/imgs/rain.svg';
 import SportIcon from '../assets/imgs/sport.svg';
 import ArtIcon from '../assets/imgs/art.svg';
 import BreadIcon from '../assets/imgs/mainbread.svg';
 import FlameIcon from '../assets/imgs/mainhot.svg';
-import NatureIcon from '../assets/imgs/na.svg';
 import ScienceIcon from '../assets/imgs/sei.svg';
 import CalendarIcon from '../assets/imgs/maincalendar.svg';
 import MonopolyIcon from '../assets/imgs/monopoly.svg';
 import LoginIcon from '../assets/imgs/user.svg';
 import {getTokens} from '../utills/tokenStorage';
 import {getRecommendedPosts} from '../api/community';
+import HistoryIcon from '../assets/imgs/categoryicon/history-1436604.svg';
+import CultureIcon from '../assets/imgs/categoryicon/culture1.svg';
+import FamilyIcon from '../assets/imgs/categoryicon/family8.svg';
+import LandIcon from '../assets/imgs/categoryicon/land.svg';
 
 const {width} = Dimensions.get('window');
 
@@ -50,16 +51,16 @@ type Review = {
 };
 
 const categories: Category[] = [
-  {id: '1', name: '전체', icon: <GroupIcon width={40} height={40} />},
-  {id: '2', name: '맛집', icon: <FoodIcon width={40} height={40} />},
-  {id: '3', name: '숙소', icon: <HomeIcon width={40} height={40} />},
-  {id: '4', name: '우천', icon: <RainIcon width={40} height={40} />},
-  {id: '5', name: '스포츠', icon: <SportIcon width={40} height={40} />},
-  {id: '6', name: '예술', icon: <ArtIcon width={40} height={40} />},
-  {id: '7', name: '과학', icon: <ScienceIcon width={40} height={40} />},
-  {id: '8', name: '빵', icon: <BreadIcon width={40} height={40} />},
-  {id: '9', name: '자연', icon: <NatureIcon width={40} height={40} />},
-  {id: '10', name: '인기', icon: <FlameIcon width={40} height={40} />},
+  {id: '1', name: '음식', icon: <FoodIcon width={30} height={30} />},
+  {id: '2', name: '자연', icon: <HomeIcon width={30} height={30} />},
+  {id: '3', name: '역사', icon: <HistoryIcon width={30} height={30} />},
+  {id: '4', name: '문화', icon: <CultureIcon width={30} height={30} />},
+  {id: '5', name: '과학', icon: <ScienceIcon width={30} height={30} />},
+  {id: '6', name: '교육', icon: <ArtIcon width={30} height={30} />},
+  {id: '7', name: '가족 ', icon: <FamilyIcon width={30} height={30} />},
+  {id: '8', name: '빵집', icon: <BreadIcon width={30} height={30} />},
+  {id: '9', name: '스포츠', icon: <SportIcon width={30} height={30} />},
+  {id: '10', name: '랜드마크', icon: <LandIcon width={30} height={30} />},
 ];
 
 const chunkArray = <T,>(array: T[], size: number): T[][] => {
@@ -97,9 +98,8 @@ const MainPage = () => {
   }, []);
 
   const goToRecommend = () => {
-    navigation.navigate('RecommendedPlace');
+    navigation.navigate('RecommendedPlace', {category: ''});
   };
-
   const goToTravelChallenge = () => {
     navigation.navigate('TravelChallenge');
   };
@@ -162,7 +162,7 @@ const MainPage = () => {
   ];
 
   const handlePress = (categoryName: string) => {
-    console.log(`${categoryName}`);
+    navigation.navigate('RecommendedPlace', {category: categoryName});
   };
 
   const categoryRows = chunkArray<Category>(categories, 5);

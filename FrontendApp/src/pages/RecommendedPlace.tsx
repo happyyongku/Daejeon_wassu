@@ -1,4 +1,3 @@
-// RecommendedPlace.tsx
 import React, {useEffect, useState} from 'react';
 import {
   View,
@@ -11,16 +10,22 @@ import {
 } from 'react-native';
 import RecommendedSearchBar from '../components/RecommendedPlace/RecommendedSearchBar';
 import CategoryList from '../components/RecommendedPlace/CategoryList';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import Header from '../components/common/Header';
 import MarkerIcon from '../assets/imgs/marker.svg';
-import {getTouristSpotsByCategory} from '../api/tourist'; // API 함수 불러오기
+import {getTouristSpotsByCategory} from '../api/tourist';
 
 const {width} = Dimensions.get('window');
 
 type RecommendedPlaceNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceList'>;
+
+type RouteParams = {
+  RecommendedPlace: {
+    category: string;
+  };
+};
 
 interface TouristSpot {
   id: string;
@@ -32,22 +37,22 @@ interface TouristSpot {
 
 const RecommendedPlace = () => {
   const navigation = useNavigation<RecommendedPlaceNavigationProp>();
+  const route = useRoute<RouteProp<RouteParams, 'RecommendedPlace'>>();
+  const initialCategory = route.params?.category || '전체';
   const [places, setPlaces] = useState<TouristSpot[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
 
   // 데이터 요청 함수
   const fetchPlacesByCategory = async (category: string) => {
     try {
-      console.log('Fetching places for category:', category);
       const response = await getTouristSpotsByCategory(category === '전체' ? '' : category);
-      console.log('API Response:', response);
 
       if (response) {
         const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
-          id: item.spotName,
+          id: item.id,
           image:
-            item.images && item.images.length > 0
-              ? {uri: item.images[0].image} // 첫 번째 이미지 URL을 사용
+            item.image && item.image !== null
+              ? {uri: item.image}
               : require('../assets/imgs/hanbat.png'),
           area: item.spotAddress.split(' ')[1],
           address: item.spotAddress,
@@ -67,8 +72,17 @@ const RecommendedPlace = () => {
     fetchPlacesByCategory(selectedCategory);
   }, [selectedCategory]);
 
+  useEffect(() => {
+    fetchPlacesByCategory(selectedCategory);
+  }, [selectedCategory]);
+
   const goToPlaceList = () => {
     navigation.navigate('PlaceList');
+  };
+
+  const goToPlaceDetail = (id: string) => {
+    console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
+    navigation.navigate('PlaceDetail', {id});
   };
 
   return (
@@ -94,21 +108,23 @@ const RecommendedPlace = () => {
 
             <ScrollView nestedScrollEnabled={true}>
               {places.map(item => (
-                <View key={item.id} style={styles.card}>
-                  <View style={styles.imageWrapper}>
-                    <ImageBackground source={item.image} style={styles.image}>
-                      <View style={styles.overlay}>
-                        <View style={styles.leftOverlay}>
-                          <MarkerIcon width={20} height={20} />
-                          <Text style={styles.areaText}>{item.area}</Text>
+                <TouchableOpacity key={item.id} onPress={() => goToPlaceDetail(item.id)}>
+                  <View key={item.id} style={styles.card}>
+                    <View style={styles.imageWrapper}>
+                      <ImageBackground source={item.image} style={styles.image}>
+                        <View style={styles.overlay}>
+                          <View style={styles.leftOverlay}>
+                            <MarkerIcon width={20} height={20} />
+                            <Text style={styles.areaText}>{item.area}</Text>
+                          </View>
+                          <Text style={styles.tagsText}>#태그 없음</Text>
                         </View>
-                        <Text style={styles.tagsText}>#태그 없음</Text>
-                      </View>
-                    </ImageBackground>
+                      </ImageBackground>
+                    </View>
+                    <Text style={styles.addressText}>{item.address}</Text>
+                    <Text style={styles.nameText}>{item.name}</Text>
                   </View>
-                  <Text style={styles.addressText}>{item.address}</Text>
-                  <Text style={styles.nameText}>{item.name}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>

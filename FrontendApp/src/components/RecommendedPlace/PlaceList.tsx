@@ -1,4 +1,3 @@
-// PlaceList.tsx
 import React, {useEffect, useState} from 'react';
 import {
   View,
@@ -16,11 +15,10 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
 import MarkerIcon from '../../assets/imgs/marker.svg';
-import {getTouristSpotsByCategory} from '../../api/tourist'; // Import API function
+import {getTouristSpotsByCategory} from '../../api/tourist';
 
 const {width} = Dimensions.get('window');
 
-// Define the TouristSpot type
 interface TouristSpot {
   id: string;
   image: {uri: string} | number;
@@ -39,16 +37,14 @@ const PlaceList: React.FC = () => {
   // 데이터 요청 함수
   const fetchPlacesByCategory = async (category: string) => {
     try {
-      console.log('Fetching places for category:', category);
       const response = await getTouristSpotsByCategory(category === '전체' ? '' : category);
-      console.log('API Response:', response);
 
       if (response) {
         const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
           id: item.id,
           image:
-            item.images && item.images.length > 0
-              ? {uri: item.images[0].image} // 첫 번째 이미지 URL을 사용
+            item.image && item.image !== null
+              ? {uri: item.image}
               : require('../../assets/imgs/hanbat.png'),
           area: item.spotAddress.split(' ')[1],
           address: item.spotAddress,
@@ -64,7 +60,6 @@ const PlaceList: React.FC = () => {
     }
   };
 
-  // Fetch data on category change
   useEffect(() => {
     fetchPlacesByCategory(selectedCategory);
   }, [selectedCategory]);
@@ -88,7 +83,7 @@ const PlaceList: React.FC = () => {
         <View style={styles.cardSection}>
           <View style={styles.cardContainer}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>전체 관광지</Text>
+              <Text style={styles.cardHeaderText}>전체관광지</Text>
             </View>
 
             <ScrollView nestedScrollEnabled={true}>
