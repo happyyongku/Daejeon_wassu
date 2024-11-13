@@ -99,7 +99,7 @@ public class TouristSpotService {
         return new TouristSpotFavoriteDTO("Spot successfully unliked", totalFavorites - 1, false);
     }
 
-    private static TouristSpotDTO createTouristSpotDTO(TouristSpotEntity spot, List<ReviewEntity> reviews, List<TouristSpotImageDto> imageDto, boolean isFavorite, boolean isStamped, List<TouristSpotTagDto> tagDto, List<ReviewDTO> reviewDto) {
+    public TouristSpotDTO createTouristSpotDTO(TouristSpotEntity spot, List<ReviewEntity> reviews, List<TouristSpotImageDto> imageDto, boolean isFavorite, boolean isStamped, List<TouristSpotTagDto> tagDto, List<ReviewDTO> reviewDto) {
         return TouristSpotDTO.builder()
                 .spotId(spot.getElasticId())
                 .spotName(spot.getSpotName())
