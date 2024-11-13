@@ -83,7 +83,7 @@ const PlaceList: React.FC = () => {
         <View style={styles.cardSection}>
           <View style={styles.cardContainer}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>전체 관광지</Text>
+              <Text style={styles.cardHeaderText}>전체관광지</Text>
             </View>
 
             <ScrollView nestedScrollEnabled={true}>
