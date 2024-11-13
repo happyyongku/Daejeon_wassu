@@ -7,6 +7,7 @@ import axios from "axios";
 import style from "./page.module.css";
 import Comment from "@/components/location/comment";
 import UseApp from "@/components/useapp";
+import Carousel from "@/components/location/carousel";
 
 export default function Page() {
   const { id } = useParams();
@@ -18,7 +19,7 @@ export default function Page() {
     const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
-        `https://k11b105.p.ssafy.io/wassu/tourist/details/d60696b9-aa39-4449-ade7-dfa520d70cec`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/details/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -37,11 +38,10 @@ export default function Page() {
   // 장소 찜하기 axios 요청
   const jjimLoca = async () => {
     const token = localStorage.getItem("authToken");
-    const idid = 1138;
     console.log(token);
     try {
       const response = await axios.post(
-        `https://k11b105.p.ssafy.io/wassu/tourist/${idid}/favorite`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
         {},
         {
           headers: {
@@ -61,11 +61,9 @@ export default function Page() {
   // 장소 찜하기 취소 axios 요청
   const unJjimLoca = async () => {
     const token = localStorage.getItem("authToken");
-    const idid = 1138;
     try {
       const response = await axios.delete(
-        // `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
-        `https://k11b105.p.ssafy.io/wassu/tourist/${idid}/favorite`,
+        `https://k11b105.p.ssafy.io/wassu/tourist/${id}/favorite`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -111,11 +109,13 @@ export default function Page() {
             src="/images/location.png"
             alt=""
           />
+
           <div className={style.location}>{location?.spotAddress}</div>
         </div>
       </div>
       <div>
-        <img className={style.locaimg} src="/images/building.png" alt="" />
+        {/* <img className={style.locaimg} src="/images/building.png" alt="" /> */}
+        <Carousel touristSpotImages={location?.touristSpotImages} />
       </div>
       {/* 여기에 상호작용 들어가자 클라이언트 컴포넌트 */}
       <div>

@@ -1,9 +1,37 @@
 "use client";
 
+import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import style from "./page.module.css";
+import axios from "axios";
 
 export default function Page() {
   const promArray = [1, 2, 3, 4, 5, 6, 7];
+
+  const { id } = useParams();
+  console.log(id);
+
+  // const router = useRouter();
+  // console.log(router.query);
+  // const {courseId} = router.query
+
+  const getCourse = async () => {
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/fast_api/courses/${id}`
+      );
+
+      if (response.data) {
+        console.log("코스 상세 조회 성공", response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getCourse();
+  }, []);
 
   return (
     <div>

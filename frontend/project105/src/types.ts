@@ -1,9 +1,11 @@
 export interface ImageData {
   url: string;
+  alt: string;
 }
 
 export interface LocaImgData {
-  image: string;
+  imageId: number;
+  imageUrl: string;
 }
 
 export interface CategoryData {
@@ -51,7 +53,7 @@ export interface LocationData {
   id: number;
   businessHours: string;
   categories: CategoryData[];
-  images: LocaImgData[];
+  touristSpotImages: LocaImgData[];
   latitude: number;
   longitude: number;
   liked: number;
@@ -65,4 +67,11 @@ export interface LocationData {
   favorite: boolean;
   phone: string;
   reviews: ReviewData[]; // reviews 배열은 ReviewData 타입의 객체들을 포함
+}
+
+export interface CourseData {
+  id: number;
+  course_name: string;
+  description: string;
+  image_url: string;
 }
