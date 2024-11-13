@@ -1,20 +1,19 @@
 package com.wassu.wassu.service.marble;
 
-import com.wassu.wassu.dto.marble.CreateRoomDTO;
-import com.wassu.wassu.dto.marble.InviteRoomDTO;
-import com.wassu.wassu.dto.marble.JoinRoomDTO;
-import com.wassu.wassu.dto.marble.MarbleDTO;
+import com.wassu.wassu.dto.marble.*;
 import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.marble.MarbleEntity;
 import com.wassu.wassu.entity.marble.MarbleRoomEntity;
 import com.wassu.wassu.entity.marble.NodeEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotImageEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.marble.MarbleRepository;
 import com.wassu.wassu.repository.marble.MarbleRoomRepository;
+import com.wassu.wassu.repository.marble.NodeRepository;
 import com.wassu.wassu.repository.marble.RedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +33,7 @@ public class MarbleService {
     private final MarbleRepository marbleRepository;
     private final MarbleRoomRepository roomRepository;
     private final RedisRepository redisRepository;
+    private final NodeRepository nodeRepository;
 
     public int[] rollDice() {
         int dice1 = (int) (Math.random() * 6) + 1;
@@ -82,6 +82,14 @@ public class MarbleService {
         String code = generateInviteCode();
         redisRepository.createCertification(code, roomId);
         return code;
+    }
+
+    public NodeDTO getNodeDetails(Long nodeId) {
+        NodeEntity node = nodeRepository.findByIdWithJoin(nodeId).orElseThrow(() -> new CustomException(CustomErrorCode.NODE_NOT_FOUND));
+        TouristSpotEntity spot = node.getTouristSpot();
+        TouristSpotImageEntity thumbnail = spot.getTouristSpotImages().get(0);
+        String thumbnailUrl = thumbnail.getTouristSpotImageUrl();
+        return new NodeDTO(nodeId, spot.getId(), spot.getSpotName(), thumbnailUrl);
     }
 
     private String generateInviteCode() {

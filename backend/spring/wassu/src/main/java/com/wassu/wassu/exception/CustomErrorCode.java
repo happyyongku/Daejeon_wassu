@@ -28,6 +28,7 @@ public enum CustomErrorCode {
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Plan Not Found"),
     MARBLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Marble Not Found"),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Room Not Found"),
+    NODE_NOT_FOUND(HttpStatus.NOT_FOUND, "Node Not Found"),
 
     FAILED_TO_UPDATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Article"),
     FAILED_TO_CREATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Article"),

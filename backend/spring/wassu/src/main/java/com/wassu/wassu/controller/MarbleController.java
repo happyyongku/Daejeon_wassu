@@ -25,6 +25,7 @@ public class MarbleController {
     private final MarbleService marbleService;
     private final SseService sseService;
 
+    // 마블 목록 조회
     @GetMapping
     public ResponseEntity<?> getMarbles() {
         List<MarbleDTO> result = marbleService.getMarbles();
@@ -57,12 +58,20 @@ public class MarbleController {
         return ResponseEntity.badRequest().body(Map.of("message", "invalid inviteCode"));
     }
 
+    // 초대코드 재생성
     @PostMapping("/room/{roomId}/code")
     public ResponseEntity<?> generateInviteCode(@PathVariable Long roomId) {
         String code = marbleService.reGenerateInviteCode(roomId);
         return ResponseEntity.ok(Map.of("inviteCode", code));
     }
 
+    @GetMapping("/node/{nodeId}")
+    public ResponseEntity<?> getNodeDetails(@PathVariable Long nodeId) {
+        NodeDTO result = marbleService.getNodeDetails(nodeId);
+        return ResponseEntity.ok(result);
+    }
+
+    // 주사위 굴리기
     @PostMapping("/{roomCode}/roll-dice")
     public ResponseEntity<?> rollDice(@PathVariable String roomCode, @RequestBody int currentPosition) {
         int[] diceValues = marbleService.rollDice();
@@ -71,10 +80,12 @@ public class MarbleController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/mission/verify")
-    public ResponseEntity<?> verifyMission(@RequestBody MissionVerifyDTO dto) {
+    // 장소 인증
+//    @PostMapping("/mission/verify")
+//    public ResponseEntity<?> verifyMission(@RequestBody MissionVerifyDTO dto) {
+//
+//    }
 
-    }
 
     // 데이터 변경 이벤트가 발생할 때마다 모든 연결된 Emitter에 데이터 전송
     @EventListener
