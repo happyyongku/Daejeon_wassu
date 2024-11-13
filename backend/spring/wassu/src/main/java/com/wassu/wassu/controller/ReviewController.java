@@ -1,5 +1,7 @@
 package com.wassu.wassu.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wassu.wassu.dto.review.ReviewCreateDTO;
 import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewUpdateDTO;
@@ -25,24 +27,24 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @RequestBody(content = @Content(
-            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/tourist/{spotId}/review", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable String spotId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewCreateDTO review) {
+                                          @RequestParam("review") String reviewJson) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ReviewCreateDTO review = objectMapper.readValue(reviewJson, ReviewCreateDTO.class);
         reviewService.createReview(userEmail, spotId, images, review);
         return ResponseEntity.ok("review created");
     }
 
-    @RequestBody(content = @Content(
-            encoding = @Encoding(name = "review", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PutMapping(value = "/review/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateReview(@AuthenticationPrincipal String userEmail,
                                           @PathVariable Long reviewId,
                                           @RequestPart(name = "image", required = false) List<MultipartFile> images,
-                                          @RequestPart(name = "review") ReviewUpdateDTO review) {
+                                          @RequestParam( "review") String reviewJson) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ReviewUpdateDTO review = objectMapper.readValue(reviewJson, ReviewUpdateDTO.class);
         reviewService.updateReview(userEmail, images, review, reviewId);
         return ResponseEntity.ok("review updated");
     }
