@@ -38,6 +38,9 @@ public class TouristSpotStampService {
             Double currentLongitude,
             String userEmail
     ) {
+        log.info("""
+                Input ID: {}
+                """, touristSpotId);
         Optional<UserEntity> optionalUser = userRepository.findByEmail(userEmail);
         Optional<TouristSpotEntity> optioanlSpot = touristSpotRepository.findById(touristSpotId);
         UserEntity userEntity;

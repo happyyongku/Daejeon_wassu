@@ -29,5 +29,6 @@ public class TouristSpotDTO {
     private List<TouristSpotTagDto> touristSpotTags;
     private List<TouristSpotImageDto> touristSpotImages;
     private List<ReviewDTO> reviews;
+    private String stampImageUrl;
 
 }

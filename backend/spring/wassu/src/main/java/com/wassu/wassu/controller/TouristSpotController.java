@@ -7,6 +7,7 @@ import com.wassu.wassu.dto.touristspot.TouristSpotStampDTO;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.touristspot.TouristSpotStampRepository;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.service.touristspot.TouristSpotSearchService;
 import com.wassu.wassu.service.touristspot.TouristSpotService;
@@ -42,17 +43,18 @@ public class TouristSpotController {
     private final JwtUtil jwtUtil;
     private final UserUtil userUtil;
     private final TouristSpotStampService touristSpotStampService;
+    private final TouristSpotStampRepository touristSpotStampRepository;
 
     // 관광지 상세조회
     @SecurityRequirement(name = "") // 스웨거 헤더 제외
-    @GetMapping("/details/{spotId}")
+    @GetMapping("/details/{elasticSpotId}")
     public ResponseEntity<?> getTouristSpotDetails(
             @RequestHeader(value = "Authorization", required = false) String accessToken,
-            @PathVariable String spotId
+            @PathVariable String elasticSpotId
     ) { // 엘라스틱 id
-        log.info("controller spot id -> {}", spotId);
+        log.info("controller spot id -> {}", elasticSpotId);
         String userEmail = userUtil.extractUserEmail(accessToken);
-        TouristSpotDTO result = touristSpotService.getTouristSpotDetails(userEmail, spotId);
+        TouristSpotDTO result = touristSpotService.getTouristSpotDetails(userEmail, elasticSpotId);
         return ResponseEntity.ok(result);
     }
 
@@ -128,18 +130,21 @@ public class TouristSpotController {
              @RequestBody TouristSpotStampDTO touristSpotStampDTO
              ) {
         try {
+            System.out.println("Start to Stamp");
             String userEmail = userUtil.extractUserEmail(accessToken);
             if (userEmail == null){
                 log.error("User not found -- stamp");
                 return ResponseEntity.status(500).body(utilTool.createResponse("status","user not found"));
             }
-            if (touristSpotUtilService.isStamped(touristSpotStampDTO.getTouristSpotId(), userEmail)){
-                log.warn("Already stamped");
-                return ResponseEntity.status(404).body(utilTool.createResponse("status","already stamped"));
-            }
+            Long userId = userRepository.findByEmail(userEmail).get().getId();
             Long touristSpotId = touristSpotStampDTO.getTouristSpotId();
             Double currentLatitude = touristSpotStampDTO.getCurrentLatitude();
             Double currentLongitude = touristSpotStampDTO.getCurrentLongitude();
+            if (touristSpotStampRepository.findByUserIdAndTouristSpotId(userId, touristSpotId).isPresent()){
+                log.warn("Already stamped");
+                return ResponseEntity.status(404).body(utilTool.createResponse("status","already stamped"));
+            }
+            System.out.println(touristSpotStampDTO.getTouristSpotId());
             Boolean isStamped = touristSpotStampService.touristSpotStamp(
                     touristSpotId,
                     currentLatitude,
@@ -151,7 +156,7 @@ public class TouristSpotController {
                 return ResponseEntity.ok(utilTool.createResponse("status","success"));
             } else {
                 log.warn("Stamp failed");
-                return ResponseEntity.ok(utilTool.createResponse("status","failed"));
+                return ResponseEntity.ok(utilTool.createResponse("status","out of range"));
             }
         } catch (CustomException ce){
             return ResponseEntity.status(404).body(utilTool.createResponse("status","user not found"));
