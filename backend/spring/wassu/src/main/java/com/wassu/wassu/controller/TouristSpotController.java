@@ -3,10 +3,14 @@ package com.wassu.wassu.controller;
 import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
 import com.wassu.wassu.dto.touristspot.TouristSpotFavoriteDTO;
 import com.wassu.wassu.dto.touristspot.TouristSpotSearchDTO;
+import com.wassu.wassu.dto.touristspot.TouristSpotStampDTO;
+import com.wassu.wassu.exception.CustomErrorCode;
+import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.service.touristspot.TouristSpotSearchService;
 import com.wassu.wassu.service.touristspot.TouristSpotService;
+import com.wassu.wassu.service.touristspot.TouristSpotStampService;
 import com.wassu.wassu.service.touristspot.TouristSpotUtilService;
 import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
@@ -37,6 +41,7 @@ public class TouristSpotController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final UserUtil userUtil;
+    private final TouristSpotStampService touristSpotStampService;
 
     // 관광지 상세조회
     @SecurityRequirement(name = "") // 스웨거 헤더 제외
@@ -116,5 +121,44 @@ public class TouristSpotController {
             return ResponseEntity.status(500).body(utilTool.createResponse("status","failed"));
         }
     }
+
+    @PostMapping("/stamp")
+    public ResponseEntity<?> touristSpotStamp(
+             @RequestHeader(value = "Authorization") String accessToken,
+             @RequestBody TouristSpotStampDTO touristSpotStampDTO
+             ) {
+        try {
+            String userEmail = userUtil.extractUserEmail(accessToken);
+            if (userEmail == null){
+                log.error("User not found -- stamp");
+                return ResponseEntity.status(500).body(utilTool.createResponse("status","user not found"));
+            }
+            if (touristSpotUtilService.isStamped(touristSpotStampDTO.getTouristSpotId(), userEmail)){
+                log.warn("Already stamped");
+                return ResponseEntity.status(404).body(utilTool.createResponse("status","already stamped"));
+            }
+            Long touristSpotId = touristSpotStampDTO.getTouristSpotId();
+            Double currentLatitude = touristSpotStampDTO.getCurrentLatitude();
+            Double currentLongitude = touristSpotStampDTO.getCurrentLongitude();
+            Boolean isStamped = touristSpotStampService.touristSpotStamp(
+                    touristSpotId,
+                    currentLatitude,
+                    currentLongitude,
+                    userEmail
+            );
+            if (isStamped) {
+                log.info("Stamped touristSpotId: {}", touristSpotId);
+                return ResponseEntity.ok(utilTool.createResponse("status","success"));
+            } else {
+                log.warn("Stamp failed");
+                return ResponseEntity.ok(utilTool.createResponse("status","failed"));
+            }
+        } catch (CustomException ce){
+            return ResponseEntity.status(404).body(utilTool.createResponse("status","user not found"));
+        } catch (Exception e) {
+            log.error("Exception occurred while stamping tourist spot", e);
+            return ResponseEntity.status(500).body(utilTool.createResponse("status", e.getMessage()));
+        }
+     }
 
 }

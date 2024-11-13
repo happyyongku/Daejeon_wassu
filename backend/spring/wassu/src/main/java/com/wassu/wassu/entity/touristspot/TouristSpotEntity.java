@@ -57,4 +57,11 @@ public class TouristSpotEntity {
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TouristSpotStampEntity> touristSpotStamps = new ArrayList<>();
+
+    public int getStampCount() {
+        return touristSpotStamps.size();
+    }
+
 }

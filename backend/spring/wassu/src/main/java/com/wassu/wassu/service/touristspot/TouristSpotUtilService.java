@@ -33,24 +33,17 @@ public class TouristSpotUtilService {
             Long touristSpotId,
             String userEmail
     ) {
-        if (userEmail != null && !userEmail.trim().isEmpty()) {
-            Optional<UserEntity> optionalUser = userRepository.findByEmail(userEmail);
-            if (optionalUser.isPresent()) {
-                UserEntity userEntity = optionalUser.get();
-                List<TouristSpotStampEntity> stampList = userEntity.getTouristSpotStamp();
-                if (stampList != null && !stampList.isEmpty()) {
-                    boolean containsId = stampList.stream()
-                            .anyMatch(stamp -> stamp.getTouristSpotId().equals(touristSpotId));
-                    if (containsId) {
-                        log.info("Stamped tourist spot: {}", touristSpotId);
-                        return true;
-                    }
-                }
-            } else {
-                log.warn("User with email {} not found", userEmail);
-            }
+        if (userEmail == null || userEmail.trim().isEmpty()) {
+            log.warn("User email is null or empty");
+            return false;
         }
-        return false;
+        return userRepository.findByEmail(userEmail)
+                .map(UserEntity::getTouristSpotStamp)
+                .filter(stampList -> !stampList.isEmpty())
+                .map(stampList -> stampList.stream()
+                        .anyMatch(stamp -> stamp.getTouristSpot().getId().equals(touristSpotId))
+                )
+                .orElse(false);
     }
 
     public void matchingWithSpotAndIsStamped(

@@ -49,7 +49,9 @@ public enum CustomErrorCode {
     FAILED_TO_MATCHING_PROFILE_AND_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Falied To Matching Profile and Article"),
     ERROR_WHILE_SEARCH_TOURIST_SPOT(HttpStatus.INTERNAL_SERVER_ERROR, "Error While Search TouristSpot"),
     FAILED_TO_FILTERING_BY_CATEGORY(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Filter By Category"),
-    FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Match With TouristSpot and Ismatched"),;
+    FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Match With TouristSpot and Ismatched"),
+    USER_OR_SPOT_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Or Spot Not Found"),
+    FAILED_TO_SAVING_STAMP(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to saving stamp");
 
     private final HttpStatus status;
     private final String message;

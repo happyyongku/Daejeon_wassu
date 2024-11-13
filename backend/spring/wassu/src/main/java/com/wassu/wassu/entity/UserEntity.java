@@ -83,5 +83,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotStampEntity> touristSpotStamp = new ArrayList<>();
 
+
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

@@ -8,15 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,26 +47,28 @@ public class DataService {
                 String longitudeStr = record.get("longitude").trim();
 
                 spot.setId(UUID.randomUUID().toString());
-                spot.setSpotName(record.get("name"));
-                spot.setSpotAddress(record.get("address"));
-                spot.setSpotDescription(record.get("description"));
+                spot.setSpotName(record.get("spot_name"));
+                spot.setSpotAddress(record.get("spot_address"));
+                spot.setSpotDescription(record.get("spot_description"));
 
                 spot.setLatitude(latitudeStr.isEmpty() ? null : Double.parseDouble(latitudeStr));
                 spot.setLongitude(longitudeStr.isEmpty() ? null : Double.parseDouble(longitudeStr));
-                spot.setPhoneNumber(record.get("전화번호"));
-                spot.setBusinessHour(record.get("영업시간"));
+                spot.setPhoneNumber(record.get("phone"));
+                spot.setBusinessHour(record.get("business_hours"));
                 spot.setLiked(0);
                 spot.setStamp(0);
 
-                String categoryValue = record.get("종류").trim();
+                String categoryValue = record.get("tag").trim();
                 List<ElasticTouristSpotEntity.Category> categories = new ArrayList<>();
-                categories.add(new ElasticTouristSpotEntity.Category(categoryValue));
+                for (String category: categoryValue.split("; ")) {
+                    categories.add(new ElasticTouristSpotEntity.Category(category.trim()));
+                }
                 spot.setCategories(categories);
 
                 List<ElasticTouristSpotEntity.Image> images = new ArrayList<>();
                 String imageCountStr = record.get("image_count").trim();
                 int imageCount = imageCountStr.isEmpty() ? 0 : Integer.parseInt(record.get("image_count"));
-                String spotName = record.get("name").trim().replaceAll("[^a-zA-Z0-9가-힣()\\s]", "_");
+                String spotName = record.get("spot_name").trim().replaceAll("[^a-zA-Z0-9가-힣()\\s]", "_");
 
                 for (int i = 1; i <= imageCount; i++) {
                     String fileName = String.format("tourist_spot_image/%s_(%d).jpg", spotName, i);
@@ -95,5 +96,4 @@ public class DataService {
             throw e;
         }
     }
-
 }
