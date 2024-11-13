@@ -24,6 +24,7 @@ interface TripItem {
   title: string;
   date: string;
   places: string;
+  thumbnail?: string;
 }
 const TravelItinerary = () => {
   const navigation = useNavigation<TravelItineraryNavigationProp>();
@@ -42,6 +43,7 @@ const TravelItinerary = () => {
             title: schedules.onGoingSchedules.title,
             date: `${schedules.onGoingSchedules.startDate} ~ ${schedules.onGoingSchedules.endDate}`,
             places: `${schedules.onGoingSchedules.spotCount}개 관광지`,
+            thumbnail: schedules.onGoingSchedules.thumbnail,
           }
         : null;
 
@@ -50,6 +52,7 @@ const TravelItinerary = () => {
         title: schedule.title,
         date: `${schedule.startDate} ~ ${schedule.endDate}`,
         places: `${schedule.spotCount}개 관광지`,
+        thumbnail: schedule.thumbnail,
       }));
 
       const past = schedules.pastSchedules.map(schedule => ({
@@ -57,6 +60,7 @@ const TravelItinerary = () => {
         title: schedule.title,
         date: `${schedule.startDate} ~ ${schedule.endDate}`,
         places: `${schedule.spotCount}개 관광지`,
+        thumbnail: schedule.thumbnail,
       }));
 
       setOnGoingSchedules(ongoingSchedule);
@@ -128,7 +132,10 @@ const TravelItinerary = () => {
           <Text style={styles.tripDate}>{item.date}</Text>
           <Text style={styles.tripPlaces}>{item.places}</Text>
         </View>
-        <Image source={require('../assets/imgs/travel1.png')} style={styles.tripImage} />
+        <Image
+          source={item.thumbnail ? {uri: item.thumbnail} : require('../assets/imgs/travel1.png')}
+          style={styles.tripImage}
+        />
         <TouchableOpacity style={styles.trashButton} onPress={() => handleTrashPress(item.id)}>
           <Image source={require('../assets/imgs/trash.png')} style={styles.trashIcon} />
         </TouchableOpacity>
@@ -144,7 +151,10 @@ const TravelItinerary = () => {
           <Text style={styles.tripDate}>{item.date}</Text>
           <Text style={styles.tripPlaces}>{item.places}</Text>
         </View>
-        <Image source={require('../assets/imgs/travel1.png')} style={styles.tripImage} />
+        <Image
+          source={item.thumbnail ? {uri: item.thumbnail} : require('../assets/imgs/travel1.png')}
+          style={styles.tripImage}
+        />
         <TouchableOpacity style={styles.trashButton} onPress={() => handleTrashPress(item.id)}>
           <Image source={require('../assets/imgs/trash.png')} style={styles.trashIcon} />
         </TouchableOpacity>

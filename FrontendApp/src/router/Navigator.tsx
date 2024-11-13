@@ -92,6 +92,7 @@ export type RootStackParamList = {
       endDate: string;
       dailyPlans: {
         planId: number;
+        day: number;
         date: string;
         touristSpots: {
           spotId: number;

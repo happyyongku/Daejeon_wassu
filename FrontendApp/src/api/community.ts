@@ -12,6 +12,8 @@ export interface Article {
   liked: number;
   createdAt: string;
   updatedAt: string;
+  nickName: string;
+  profileImage: string;
 }
 
 export interface FilteredPostsResponse {
@@ -229,6 +231,27 @@ export async function filterPosts(category?: string): Promise<FilteredPostsRespo
     }
   } catch (error) {
     console.error(error);
+    return null;
+  }
+}
+
+// 인기 게시글 조회
+export async function getRecommendedPosts(): Promise<Article[] | null> {
+  try {
+    const response = await api.get('/posts/read/recommend');
+
+    if (response && response.data && response.data.data) {
+      return response.data.data;
+    } else {
+      console.error('인기 게시글 조회 실패');
+      return null;
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('인기 게시글 조회 실패 (Axios 에러):', error.response);
+    } else {
+      console.error('인기 게시글 조회 실패 (예기치 않은 에러):', error);
+    }
     return null;
   }
 }

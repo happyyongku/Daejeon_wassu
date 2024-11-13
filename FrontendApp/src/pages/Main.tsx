@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -29,6 +29,7 @@ import CalendarIcon from '../assets/imgs/maincalendar.svg';
 import MonopolyIcon from '../assets/imgs/monopoly.svg';
 import LoginIcon from '../assets/imgs/user.svg';
 import {getTokens} from '../utills/tokenStorage';
+import {getRecommendedPosts} from '../api/community';
 
 const {width} = Dimensions.get('window');
 
@@ -61,23 +62,6 @@ const categories: Category[] = [
   {id: '10', name: '인기', icon: <FlameIcon width={40} height={40} />},
 ];
 
-const review: Review[] = [
-  {
-    id: '1',
-    nickname: '대전의 아들 장현수',
-    userimg: require('../assets/imgs/hotLong.png'),
-    title: '대전 노잼 아닙니다 놀러오세요',
-    context:
-      '안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!',
-  },
-  {
-    id: '2',
-    nickname: '대전의 아들 장현수',
-    userimg: require('../assets/imgs/hotLong.png'),
-    title: '대전 노잼 아닙니다 놀러오세요',
-    context: '안녕하세요 대전의 아들 장현수입니다!',
-  },
-];
 const chunkArray = <T,>(array: T[], size: number): T[][] => {
   const chunkedArr: T[][] = [];
   for (let i = 0; i < array.length; i += size) {
@@ -88,6 +72,29 @@ const chunkArray = <T,>(array: T[], size: number): T[][] => {
 
 const MainPage = () => {
   const navigation = useNavigation<MainScreenNavigationProp>();
+  const [review, setReview] = useState<Review[]>([]);
+
+  useEffect(() => {
+    const fetchRecommendedPosts = async () => {
+      try {
+        const recommendedPosts = await getRecommendedPosts();
+        if (recommendedPosts) {
+          const formattedReviews = recommendedPosts.map(post => ({
+            id: post.id,
+            nickname: post.nickName,
+            userimg: {uri: post.profileImage},
+            title: post.title,
+            context: post.content,
+          }));
+          setReview(formattedReviews);
+        }
+      } catch (error) {
+        console.error('Error fetching recommended posts:', error);
+      }
+    };
+
+    fetchRecommendedPosts();
+  }, []);
 
   const goToRecommend = () => {
     navigation.navigate('RecommendedPlace');
@@ -299,29 +306,33 @@ const MainPage = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.reviewContainer}>
-          <View style={styles.reviewHeader}>
-            <View style={styles.reviewM}>
-              <Text style={styles.reviewHeaderTitle}>대전와슈 인기 여행기</Text>
-              <FlameIcon width={20} height={20} />
-            </View>
-            <TouchableOpacity style={styles.communityLink} onPress={goToCommunity}>
-              <Text style={styles.communityLinkText}>커뮤니티 보기</Text>
-            </TouchableOpacity>
-          </View>
-
-          {review.map(item => (
-            <View key={item.id} style={styles.reviewCard}>
-              <View style={styles.userInfo}>
-                <Image source={item.userimg} style={styles.userImage} />
-                <Text style={styles.nickname}>{item.nickname}</Text>
+        <ScrollView style={styles.container}>
+          {/* 인기 리뷰 섹션 */}
+          <View style={styles.reviewContainer}>
+            <View style={styles.reviewHeader}>
+              <View style={styles.reviewM}>
+                <Text style={styles.reviewHeaderTitle}>대전와슈 인기 여행기</Text>
+                <FlameIcon width={20} height={20} />
               </View>
-
-              <Text style={styles.reviewTitle}>{item.title}</Text>
-              <Text style={styles.reviewText}>{item.context}</Text>
+              <TouchableOpacity style={styles.communityLink} onPress={goToCommunity}>
+                <Text style={styles.communityLinkText}>커뮤니티 보기</Text>
+              </TouchableOpacity>
             </View>
-          ))}
-        </View>
+
+            {/* 인기 게시글 목록 */}
+            {review.map(item => (
+              <View key={item.id} style={styles.reviewCard}>
+                <View style={styles.userInfo}>
+                  <Image source={item.userimg} style={styles.userImage} />
+                  <Text style={styles.nickname}>{item.nickname}</Text>
+                </View>
+                <Text style={styles.reviewTitle}>{item.title}</Text>
+                <Text style={styles.reviewText}>{item.context}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+
         <TouchableOpacity style={styles.communityLink} onPress={goToMap}>
           <Text style={styles.communityLinkText}>맵</Text>
         </TouchableOpacity>
