@@ -122,7 +122,7 @@ export default function Page() {
                       <div className={style.resulttitle}>
                         <span className={style.qstring1}>
                           &quot;{qString}&quot;
-                        </span>{" "}
+                        </span>
                         과 일치하는 장소
                       </div>
                     </div>
@@ -143,7 +143,6 @@ export default function Page() {
             ) : (
               <></>
             )}
-
             <Reco />
             <div className={style.bar}></div>
             <Course />

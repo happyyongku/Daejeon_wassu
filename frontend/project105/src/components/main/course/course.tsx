@@ -13,9 +13,15 @@ export default function Course() {
 
   // 추천코스들 요청하는 axios
   const coursesRequest = async () => {
+    const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
-        `https://k11b105.p.ssafy.io/fast_api/courses`
+        `https://k11b105.p.ssafy.io/fast_api/courses`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.data) {
         console.log("추천코스들 요청 성공", response.data);
