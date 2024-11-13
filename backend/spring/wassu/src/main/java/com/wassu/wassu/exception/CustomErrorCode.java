@@ -26,6 +26,7 @@ public enum CustomErrorCode {
     TOURIST_NOT_FOUND(HttpStatus.NOT_FOUND, "TouristSpot Not Found"),
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "Schedule Not Found"),
     PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Plan Not Found"),
+    MARBLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Marble Not Found"),
 
     FAILED_TO_UPDATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Update Article"),
     FAILED_TO_CREATE_ARTICLE(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Create Article"),

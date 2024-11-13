@@ -104,7 +104,6 @@ public class TouristSpotService {
                 .spotId(spot.getElasticId())
                 .spotName(spot.getSpotName())
                 .spotAddress(spot.getSpotAddress())
-                .rating(spot.getRating())
                 .favoritesCount(spot.getFavoritesCount())
                 .reviewCount(reviews.size())
                 .imageCount(imageDto.size())
