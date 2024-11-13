@@ -40,7 +40,7 @@ export type RootStackParamList = {
   Main: undefined;
   Login: undefined;
   SignUp: undefined;
-  RecommendedPlace: undefined;
+  RecommendedPlace: {category?: string};
   TravelChallenge: undefined;
   MonopolyPage: undefined;
   Community: undefined;

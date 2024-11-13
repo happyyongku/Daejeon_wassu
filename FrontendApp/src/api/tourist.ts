@@ -2,10 +2,10 @@ import axios from 'axios';
 import {api, Authapi} from './core';
 
 export interface TouristSpot {
-  spot_id: number;
-  spot_name: string;
-  spot_addr: string;
-  spot_image_url: string | null;
+  id: string;
+  spotName: string;
+  spotAddress: string;
+  image: string | null;
 }
 
 export interface TouristSpotDetails {
@@ -84,12 +84,17 @@ export async function getTouristSpots(
 export async function getTouristSpotsByCategory(category: string): Promise<TouristSpot[] | null> {
   try {
     const response = await api.get('/tourist/filter', {
-      params: {categories: category},
+      params: {category},
     });
+
     if (response && response.status === 200) {
-      // API 응답 구조가 content일 경우에 맞게 변경
-      console.log(response.data.content);
-      return response.data.content as TouristSpot[];
+      const spots: TouristSpot[] = response.data.content.map((spot: any) => ({
+        id: spot.id,
+        spotName: spot.spotName,
+        spotAddress: spot.spotAddress,
+        image: spot.images.length > 0 ? spot.images[0].image : null,
+      }));
+      return spots;
     } else {
       console.error(response.data);
       return null;
