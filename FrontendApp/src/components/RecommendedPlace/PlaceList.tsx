@@ -45,7 +45,7 @@ const PlaceList: React.FC = () => {
 
       if (response) {
         const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
-          id: item.spotName,
+          id: item.id,
           image:
             item.images && item.images.length > 0
               ? {uri: item.images[0].image} // 첫 번째 이미지 URL을 사용
@@ -69,10 +69,10 @@ const PlaceList: React.FC = () => {
     fetchPlacesByCategory(selectedCategory);
   }, [selectedCategory]);
 
-  const goToPlaceDetail = (name: string) => {
-    navigation.navigate('PlaceDetail', {name});
+  const goToPlaceDetail = (id: string) => {
+    console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
+    navigation.navigate('PlaceDetail', {id});
   };
-
   return (
     <>
       <Header />
@@ -95,7 +95,7 @@ const PlaceList: React.FC = () => {
               {places.map((item, index) => (
                 <TouchableOpacity
                   key={`${item.id}-${index}`}
-                  onPress={() => goToPlaceDetail(item.name)}>
+                  onPress={() => goToPlaceDetail(item.id)}>
                   <View style={styles.card}>
                     <View style={styles.imageWrapper}>
                       <ImageBackground source={item.image} style={styles.image}>

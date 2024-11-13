@@ -16,6 +16,9 @@ export interface TouristSpotDetails {
   detail: string;
   tags: string[];
   images: string[];
+  favorite: boolean; // 추가
+  favoritesCount: number; // 추가
+  Liked: boolean;
 }
 
 export interface TouristSpotLocation {
@@ -104,7 +107,7 @@ export async function getTouristSpotsByCategory(category: string): Promise<Touri
 // 관광지 상세보기 정보
 export async function getTouristSpotDetails(id: string): Promise<TouristSpotDetails | null> {
   try {
-    const response = await api.get(`/tourist/details/${id}`);
+    const response = await Authapi.get(`/tourist/details/${id}`);
 
     if (response && response.status === 200) {
       console.log(response.data);
@@ -168,18 +171,30 @@ export async function getTouristSpotReviews(id: string): Promise<TouristSpotRevi
 }
 
 // 후기 작성
+
+// API 호출 함수
 export async function createReview(
   spotId: string,
-  content: string,
-  imageFiles: File[],
+  review: {content: string},
+  image: any[],
 ): Promise<boolean | null> {
   try {
     const formData = new FormData();
-    formData.append('content', content);
-    imageFiles.forEach(file => formData.append('images', file));
+    formData.append('review', JSON.stringify(review)); // content를 JSON 문자열로 추가
+
+    // 이미지 파일이 있을 경우에만 추가
+    image.forEach((file, index) => {
+      formData.append('file', {
+        uri: file.uri,
+        type: file.type || 'image/jpeg',
+        name: file.name || `image_${index}.jpg`,
+      } as unknown as Blob);
+    });
 
     const response = await Authapi.post(`/tourist/${spotId}/review`, formData, {
-      headers: {'Content-Type': 'multipart/form-data'},
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
 
     if (response && response.status === 200 && response.data === 'review created') {
@@ -241,12 +256,20 @@ export async function unlikeReview(reviewId: string): Promise<boolean | null> {
 }
 
 // 찜하기
-export async function favoriteTouristSpot(spotId: string): Promise<boolean | null> {
+export async function favoriteTouristSpot(
+  spotId: string,
+): Promise<{totalFavorites: number; userLiked: boolean} | null> {
   try {
     const response = await Authapi.post(`/tourist/${spotId}/favorite`);
-
-    if (response && response.status === 200 && response.data === 'tourist spot liked') {
-      return true;
+    if (
+      response &&
+      response.status === 200 &&
+      response.data.message === 'Spot successfully liked'
+    ) {
+      return {
+        totalFavorites: response.data.totalFavorites,
+        userLiked: response.data.userLiked,
+      };
     } else {
       console.error(response.data);
       return null;
@@ -260,7 +283,34 @@ export async function favoriteTouristSpot(spotId: string): Promise<boolean | nul
     return null;
   }
 }
-
+// 찜 취소하기
+export async function unfavoriteTouristSpot(
+  spotId: string,
+): Promise<{totalFavorites: number; userLiked: boolean} | null> {
+  try {
+    const response = await Authapi.delete(`/tourist/${spotId}/favorite`);
+    if (
+      response &&
+      response.status === 200 &&
+      response.data.message === 'Spot successfully unliked'
+    ) {
+      return {
+        totalFavorites: response.data.totalFavorites,
+        userLiked: response.data.userLiked,
+      };
+    } else {
+      console.error(response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error(err.response);
+    } else {
+      console.error(err);
+    }
+    return null;
+  }
+}
 // 후기 상세 조회
 export async function getReviewDetails(reviewId: string): Promise<ReviewDetails | null> {
   try {

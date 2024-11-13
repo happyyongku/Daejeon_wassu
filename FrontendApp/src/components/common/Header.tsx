@@ -19,6 +19,9 @@ const Header = () => {
   const goToArPage = () => {
     navigation.navigate('Ar');
   };
+  const goToGpsPage = () => {
+    navigation.navigate('Gps');
+  };
 
   return (
     <View style={styles.container}>
@@ -31,6 +34,9 @@ const Header = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.myButton} onPress={goToArPage}>
         <Text style={styles.myButtonText}>Ar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.myButton} onPress={goToGpsPage}>
+        <Text style={styles.myButtonText}>Gps</Text>
       </TouchableOpacity>
     </View>
   );
