@@ -18,12 +18,15 @@ public class TouristSpotStampEntity {
     @Column(nullable = false)
     private String category;
 
-    @ManyToOne
-    @JoinColumn(name = "tourist_spot_id", nullable = false)
-    private TouristSpotEntity touristSpot;
+    @Column(nullable = false)
+    private String elasticSpotId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name="spot_id", nullable = false)
+    private TouristSpotEntity touristSpot;
 
 }

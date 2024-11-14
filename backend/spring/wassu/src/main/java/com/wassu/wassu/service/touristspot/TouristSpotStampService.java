@@ -37,7 +37,7 @@ public class TouristSpotStampService {
     }
 
     public Boolean touristSpotStamp(
-            Long touristSpotId,
+            String elasticSpotId,
             Double currentLatitude,
             Double currentLongitude,
             String userEmail,
@@ -45,24 +45,22 @@ public class TouristSpotStampService {
     ) {
         log.info("""
                 Input ID: {}
-                """, touristSpotId);
+                """, elasticSpotId);
         Optional<UserEntity> optionalUser = userRepository.findByEmail(userEmail);
-        Optional<TouristSpotEntity> optioanlSpot = touristSpotRepository.findById(touristSpotId);
+        Optional<TouristSpotEntity> optionalSpot = touristSpotRepository.findByElasticId(elasticSpotId);
         UserEntity userEntity;
-        TouristSpotEntity spotEntity;
-        if (optionalUser.isPresent() && optioanlSpot.isPresent()) {
+        if (optionalUser.isPresent() && optionalSpot.isPresent()) {
             userEntity = optionalUser.get();
-            spotEntity = optioanlSpot.get();
         } else {
             log.error("User or Spot not found -- stamp");
             throw new CustomException(CustomErrorCode.USER_OR_SPOT_NOT_FOUND);
         }
-        Double latitude = spotEntity.getLatitude();
-        Double longitude = spotEntity.getLongitude();
+        Double latitude = optionalSpot.get().getLatitude();
+        Double longitude = optionalSpot.get().getLongitude();
 
         double distance = calculateDistance(latitude, longitude, currentLatitude, currentLongitude);
         if (distance <= SEARCH_RADIUS) {
-            savingStamp(userEntity, spotEntity, category);
+            savingStamp(userEntity, elasticSpotId, category);
             return true;
         } else {
             log.error("Distance exceeded -- stamp");
@@ -85,13 +83,23 @@ public class TouristSpotStampService {
         return EARTH_RADIUS * c * 1000;
     }
 
-    private void savingStamp(UserEntity userEntity, TouristSpotEntity touristSpotEntity, String category) {
+    private void savingStamp(UserEntity userEntity, String elasticSpotId, String category) {
         try {
             log.info("Start to save tourist spot: ");
+            Optional<TouristSpotEntity> optionalSpot = touristSpotRepository.findByElasticId(elasticSpotId);
+            TouristSpotEntity touristSpotEntity;
+            if (optionalSpot.isPresent()) {
+                touristSpotEntity = optionalSpot.get();
+            } else {
+                log.error("Tourist Spot not found -- stamp");
+                throw new CustomException(CustomErrorCode.FAILED_TO_SAVING_STAMP);
+            }
+
             TouristSpotStampEntity touristSpotStampEntity = TouristSpotStampEntity.builder()
-                    .touristSpot(touristSpotEntity)
+                    .elasticSpotId(elasticSpotId)
                     .user(userEntity)
                     .category(category)
+                    .touristSpot(touristSpotEntity)
                     .build();
             touristSpotStampRepository.save(touristSpotStampEntity);
         } catch (Exception e) {
@@ -117,7 +125,7 @@ public class TouristSpotStampService {
             for (TouristSpotStampEntity stampEntity : stampResponse) {
                 if (category_name == null || stampEntity.getCategory().equals(category_name)) {
                     TouristSpotStampResponseDTO stamp = TouristSpotStampResponseDTO.builder()
-                            .spotName(stampEntity.getTouristSpot().getSpotName())
+                            .spotName(stampEntity.getElasticSpotId())
                             .category(stampEntity.getCategory())
                             .build();
                     stampResponseList.add(stamp);

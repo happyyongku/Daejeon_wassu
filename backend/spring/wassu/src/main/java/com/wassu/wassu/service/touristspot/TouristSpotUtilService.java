@@ -37,11 +37,19 @@ public class TouristSpotUtilService {
             log.warn("User email is null or empty");
             return false;
         }
+        String elasticSpotId;
+        Optional<TouristSpotEntity> optionalTouristSpot = touristSpotRepository.findById(touristSpotId);
+        if (optionalTouristSpot.isPresent()) {
+            elasticSpotId = optionalTouristSpot.get().getElasticId();
+        } else {
+            log.error("Spot not found");
+            return false;
+        }
         return userRepository.findByEmail(userEmail)
                 .map(UserEntity::getTouristSpotStamp)
                 .filter(stampList -> !stampList.isEmpty())
                 .map(stampList -> stampList.stream()
-                        .anyMatch(stamp -> stamp.getTouristSpot().getId().equals(touristSpotId))
+                        .anyMatch(stamp -> stamp.getElasticSpotId().equals(elasticSpotId))
                 )
                 .orElse(false);
     }

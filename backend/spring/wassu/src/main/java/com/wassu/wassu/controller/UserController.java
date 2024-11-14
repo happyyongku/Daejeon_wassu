@@ -1,13 +1,17 @@
 package com.wassu.wassu.controller;
 
+import com.wassu.wassu.dto.article.ArticleResponseDTO;
+import com.wassu.wassu.dto.user.UserArticleDetailDTO;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.dto.user.UserProfileUpdateDTO;
 import com.wassu.wassu.dto.user.UserPasswordUpdateDTO;
 import com.wassu.wassu.entity.UserEntity;
+import com.wassu.wassu.service.user.UserArticleService;
 import com.wassu.wassu.service.user.UserProfileUpdateService;
 import com.wassu.wassu.service.user.UserService;
 import com.wassu.wassu.security.JwtUtil;
 import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.util.UserUtil;
 import com.wassu.wassu.util.UtilTool;
 
 import lombok.AllArgsConstructor;
@@ -18,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,6 +36,8 @@ public class UserController {
     private final UserRepository userRepository;
     private final UtilTool utilTool;
     private final UserProfileUpdateService userProfileUpdateService;
+    private final UserUtil userUtil;
+    private final UserArticleService userArticleService;
 
 
     // 사용자 정보 조회
@@ -65,7 +72,8 @@ public class UserController {
             return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
         }
     }
-
+    
+    // 프로필 이미지 수정
     @PutMapping("/profile/edit/image")
     public ResponseEntity<?> editProfileImage(
             @RequestHeader(value = "Authorization") String accessToken,
@@ -99,5 +107,25 @@ public class UserController {
         }
         log.error("User not found while change password: {}", userEmail);
         return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+    }
+
+    // 사용자가 작성한 게시글 조회
+    @GetMapping("/article")
+    public ResponseEntity<?> getArticle(@RequestHeader(value="Authorization") String accessToken) {
+        String userEmail = userUtil.extractUserEmail(accessToken);
+        if (userEmail == null) {
+            log.error("User not found");
+            return ResponseEntity.status(404).body(utilTool.createResponse("status", "user not found"));
+        }
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(userEmail);
+        if (optionalUser.isPresent()) {
+            Long userId = optionalUser.get().getId();
+            List<UserArticleDetailDTO> response = userArticleService.getUserArticles(userId);
+            log.info("Getting Articles by User ID: {}", userId);
+            return ResponseEntity.ok(response);
+        } else {
+            log.error("User not found while article: {}", userEmail);
+            return ResponseEntity.status(404).body(utilTool.createResponse("status", "failed"));
+        }
     }
 }
