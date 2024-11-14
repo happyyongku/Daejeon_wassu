@@ -12,9 +12,7 @@ export default function Carousel({ images }: CarouselProps) {
 
   // images가 undefined 또는 빈 배열일 경우 렌더링하지 않도록 처리
   if (!images || images.length === 0) {
-    return (
-      <div className={styles.noimg}>&quot; 장소 이미지가 없어요 😢 &quot;</div>
-    );
+    return <div className={styles.noimg}>&quot; 이미지가 없어요 😢 &quot;</div>;
   }
 
   // 이전 슬라이드로 이동
