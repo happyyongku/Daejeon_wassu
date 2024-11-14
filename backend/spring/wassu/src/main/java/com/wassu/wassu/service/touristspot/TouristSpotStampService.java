@@ -1,6 +1,8 @@
 package com.wassu.wassu.service.touristspot;
 
 
+import com.wassu.wassu.dto.touristspot.TouristSpotStampDTO;
+import com.wassu.wassu.dto.touristspot.TouristSpotStampResponseDTO;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.model.DeletedObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -94,7 +98,37 @@ public class TouristSpotStampService {
             log.error("Exception in saving stamp");
             throw new CustomException(CustomErrorCode.FAILED_TO_SAVING_STAMP);
         }
+    }
 
+    // 유저가 찍은 스탬프 리스트 반환
+    public List<TouristSpotStampResponseDTO> findStampList(
+        String userEmail,
+        String category_name
+    ) {
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(userEmail);
+        if (optionalUser.isPresent()) {
+            Long userId = optionalUser.get().getId();
+            List<TouristSpotStampEntity> stampResponse = touristSpotStampRepository.findByUserId(userId);
+            if (stampResponse.isEmpty()) {
+                log.warn("User has no stamp");
+                return null;
+            }
+            List<TouristSpotStampResponseDTO> stampResponseList  = new ArrayList<>();
+            for (TouristSpotStampEntity stampEntity : stampResponse) {
+                if (category_name == null || stampEntity.getCategory().equals(category_name)) {
+                    TouristSpotStampResponseDTO stamp = TouristSpotStampResponseDTO.builder()
+                            .spotName(stampEntity.getTouristSpot().getSpotName())
+                            .category(stampEntity.getCategory())
+                            .build();
+                    stampResponseList.add(stamp);
+                }
+            }
+            log.info("Found stamp response: " + stampResponseList.size());
+            return stampResponseList;
 
+        } else {
+            log.error("User or Spot not found -- stamp");
+            throw new CustomException(CustomErrorCode.USER_OR_SPOT_NOT_FOUND);
+        }
     }
 }

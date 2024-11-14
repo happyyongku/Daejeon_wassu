@@ -51,7 +51,8 @@ public enum CustomErrorCode {
     FAILED_TO_FILTERING_BY_CATEGORY(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Filter By Category"),
     FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Match With TouristSpot and Ismatched"),
     USER_OR_SPOT_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Or Spot Not Found"),
-    FAILED_TO_SAVING_STAMP(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to saving stamp");
+    FAILED_TO_SAVING_STAMP(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to saving stamp"),
+    EXCEPTION_IN_LISTENER(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in listener"),;
 
     private final HttpStatus status;
     private final String message;

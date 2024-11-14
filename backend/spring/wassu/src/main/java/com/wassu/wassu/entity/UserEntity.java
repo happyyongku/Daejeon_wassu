@@ -4,6 +4,7 @@ import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
+import com.wassu.wassu.eventListener.UserEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(UserEntityListener.class)
 public class UserEntity {
 
     @Id

@@ -1,9 +1,7 @@
 package com.wassu.wassu.controller;
 
-import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotFavoriteDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotSearchDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotStampDTO;
+import com.wassu.wassu.dto.touristspot.*;
+import com.wassu.wassu.entity.touristspot.TouristSpotStampEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
@@ -26,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -166,6 +165,28 @@ public class TouristSpotController {
             log.error("Exception occurred while stamping tourist spot", e);
             return ResponseEntity.status(500).body(utilTool.createResponse("status", e.getMessage()));
         }
-     }
+    }
 
+    @GetMapping("/stamp/detail")
+    public ResponseEntity<?> touristSpotStampDetail(
+            @RequestHeader(value = "Authorization") String accessToken,
+            @RequestParam(name = "category", required = false) String category
+    ) {
+        String userEmail = userUtil.extractUserEmail(accessToken);
+        if (userEmail == null){
+            log.error("User not found -- stamp");
+            return ResponseEntity.status(500).body(utilTool.createResponse("status","user not found"));
+        }
+        try {
+
+            List<TouristSpotStampResponseDTO> response = touristSpotStampService.findStampList(userEmail, category);
+            log.info("Read stamp detail successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Exception occurred while read stamp list: {}", e.getMessage());
+            return ResponseEntity.status(500).body(utilTool.createResponse("status","failed"));
+        }
+
+    }
 }

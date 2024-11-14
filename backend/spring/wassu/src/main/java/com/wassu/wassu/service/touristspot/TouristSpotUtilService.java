@@ -58,11 +58,12 @@ public class TouristSpotUtilService {
                 log.info("Elastic Id : {}", elasticSpotId);
                 Optional<TouristSpotEntity> touristSpot =  touristSpotRepository.findByElasticId(elasticSpotId);
                 if (touristSpot.isPresent()) {
-                    Long touristSplotId = touristSpot.get().getId();
-                    Boolean isStamped = isStamped(touristSplotId, userEmail);
-                    Integer reviewCount = totalReviewCount(touristSplotId);
-                    result.put("isStamped", isStamped);
-                    result.put("reviewCount", reviewCount);
+                    TouristSpotEntity touristSpotEntity = touristSpot.get();
+                    Long touristSplotId = touristSpotEntity.getId();
+                    result.put("isStamped", isStamped(touristSplotId, userEmail));
+                    result.put("reviewCount", totalReviewCount(touristSplotId));
+                    result.put("stamp", touristSpotEntity.getTouristSpotStamps().size());
+                    result.put("liked", touristSpotEntity.getFavoritesCount());
                 } else {
                     log.warn("Elastic Id doesn't matched with postgres: {}", elasticSpotId);
                 }
