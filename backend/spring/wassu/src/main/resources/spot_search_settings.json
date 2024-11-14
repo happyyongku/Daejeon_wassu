@@ -34,6 +34,7 @@
         "tokenizer": "nori_tokenizer",
         "filter": [
           "nori_readingform",
+          "edge_ngram_filter",
           "lowercase_filter"
         ]
       }

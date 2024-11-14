@@ -44,9 +44,10 @@ public class TouristSpotSearchService {
                         q -> q.multiMatch(MultiMatchQuery.of(
                                 m -> m.fields(List.of("spotName^2", "spotAddress"))
                                         .query(searchText)
-                                        .type(TextQueryType.MostFields)
+                                        .type(TextQueryType.BestFields)
                                         .operator(Operator.Or)
                                         .fuzziness("AUTO")
+                                        .prefixLength(3)
                         ))
                 );
                 mustQueries.add(multiMatchQuery);

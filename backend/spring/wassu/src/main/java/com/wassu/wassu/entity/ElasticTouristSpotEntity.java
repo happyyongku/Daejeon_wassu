@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Document(indexName = "elastic_tourist_spot")
+@Document(indexName = "index_setting_change")
 @AllArgsConstructor
 @NoArgsConstructor
 @Setting(settingPath = "/spot_search_settings.json")
