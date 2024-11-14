@@ -19,23 +19,32 @@ public class SseService {
 
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter createEmitter(Long marbleId) {
-        SseEmitter emitter = new SseEmitter();
-        emitters.put(marbleId, emitter);
-        emitter.onCompletion(() -> emitters.remove(marbleId));
-        emitter.onTimeout(() -> emitters.remove(marbleId));
+    public SseEmitter createEmitter(Long roomId) {
+        SseEmitter emitter = new SseEmitter(-1L);
+        emitters.put(roomId, emitter);
+        emitter.onCompletion(() -> emitters.remove(roomId));
+        emitter.onTimeout(() -> emitters.remove(roomId));
         return emitter;
     }
 
-    public void sendPiecePosition(String roomCode, int position, int[] diceValues) {
-        SseEmitter emitter = emitters.get(roomCode);
+    public void emitterTest(Long roomId) {
+        SseEmitter sseEmitter = emitters.get(roomId);
+        try {
+            sseEmitter.send("sse connect test success");
+        } catch (IOException e) {
+            log.info(e.getMessage());
+        }
+    }
+
+    public void sendPiecePosition(Long roomId, int position, int[] diceValues) {
+        SseEmitter emitter = emitters.get(roomId);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("positionUpdate")
                         .data(Map.of("position", position, "dice", diceValues)));
             } catch (IOException e) {
-                emitters.remove(roomCode);
+                emitters.remove(roomId);
             }
         }
     }

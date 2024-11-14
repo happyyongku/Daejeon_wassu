@@ -42,9 +42,16 @@ public class MarbleController {
     }
 
     // SSE 연결
-    @GetMapping("/{marbleId}/sync")
-    public SseEmitter connect(@PathVariable Long marbleId) {
-        return sseService.createEmitter(marbleId); // 클라이언트 연결을 위한 Emitter 생성
+    @GetMapping("/{roomId}/sync")
+    public ResponseEntity<?> connect(@PathVariable Long roomId) {
+        SseEmitter emitter = sseService.createEmitter(roomId);// 클라이언트 연결을 위한 Emitter 생성
+        return ResponseEntity.ok(emitter);
+    }
+
+    @GetMapping("/test/{roomId}")
+    public ResponseEntity<?> test(@PathVariable Long roomId) {
+        sseService.emitterTest(roomId);
+        return ResponseEntity.ok().build();
     }
 
     // 방 입장
@@ -80,11 +87,11 @@ public class MarbleController {
     }
 
     // 주사위 굴리기
-    @PostMapping("/{roomCode}/roll-dice")
-    public ResponseEntity<?> rollDice(@PathVariable String roomCode, @RequestBody int currentPosition) {
+    @PostMapping("/{roomId}/roll-dice")
+    public ResponseEntity<?> rollDice(@PathVariable Long roomId, @RequestBody int currentPosition) {
         int[] diceValues = marbleService.rollDice();
         int newPosition = currentPosition + diceValues[0] + diceValues[1];
-        sseService.sendPiecePosition(roomCode, newPosition, diceValues);
+        sseService.sendPiecePosition(roomId, newPosition, diceValues);
         return ResponseEntity.ok().build();
     }
 
