@@ -177,6 +177,10 @@ const PlaceDetail = () => {
       })),
     }),
   );
+
+  const goToTravelItinerary = () => {
+    navigation.navigate('MyPage');
+  };
   return (
     <>
       <Header />
@@ -206,7 +210,7 @@ const PlaceDetail = () => {
             )}
             <Text style={styles.iconButtonText}>{isFavorite ? '찜취소' : '찜하기'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => setScheduleModalVisible(true)}>
+          <TouchableOpacity style={styles.iconButton} onPress={goToTravelItinerary}>
             <CalendarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>일정추가</Text>
           </TouchableOpacity>

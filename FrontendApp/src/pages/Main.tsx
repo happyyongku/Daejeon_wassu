@@ -27,8 +27,10 @@ import MonopolyIcon from '../assets/imgs/monopoly.svg';
 import LoginIcon from '../assets/imgs/user.svg';
 import {getTokens} from '../utills/tokenStorage';
 import {getRecommendedPosts} from '../api/community';
+import {getSpots} from '../api/itinerary';
+import {TouristSpot} from '../types';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -106,6 +108,32 @@ const chunkArray = <T,>(array: T[], size: number): T[][] => {
 const MainPage = () => {
   const navigation = useNavigation<MainScreenNavigationProp>();
   const [review, setReview] = useState<Review[]>([]);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
+  const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
+
+  const handleSearch = async () => {
+    if (searchText.trim()) {
+      // 검색어가 있을 때만 검색 실행
+      const results = await getSpots(searchText);
+      setSearchResults(results ?? []); // If results is null, set an empty array
+      setIsSearchResultVisible(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchResultVisible(false); // 검색어가 없으면 검색 결과 숨김
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchText('');
+    setIsSearchResultVisible(false);
+  };
+
+  // searchText가 변경될 때마다 handleSearch 실행
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
 
   useEffect(() => {
     const fetchRecommendedPosts = async () => {
@@ -166,6 +194,11 @@ const MainPage = () => {
     }
   };
 
+  const goToPlaceDetail = (id: string) => {
+    console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
+    navigation.navigate('PlaceDetail', {id});
+  };
+
   const insertLineBreak = (text: string, maxChars: number) => {
     const words = text.split(' ');
     let line = '';
@@ -222,8 +255,36 @@ const MainPage = () => {
       </View>
 
       <View style={styles.searchBarContainer}>
-        <SearchBar />
+        <SearchBar
+          value={searchText}
+          onChangeText={setSearchText} // 검색어 변경 시 자동 호출
+          onSearch={handleSearch} // 엔터 키를 눌렀을 때 검색
+          onClear={handleClearSearch} // X 버튼 클릭 시 검색어 초기화
+        />
       </View>
+
+      {isSearchResultVisible && (
+        <View style={styles.searchResultContainer}>
+          {searchResults.length > 0 ? (
+            <FlatList
+              data={searchResults}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <TouchableOpacity onPress={() => goToPlaceDetail(item.id)}>
+                  <View style={styles.listItem}>
+                    <Text style={styles.spotName}>{item.spotName}</Text>
+                    <Text style={styles.spotAddress}>{item.spotAddress}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Text style={styles.noResultsText}>검색 결과가 없습니다</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.recommendContainer}>
@@ -738,6 +799,50 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
     fontFamily: 'Pretendard-Regular',
+  },
+  searchResultContainer: {
+    position: 'absolute',
+    top: 115, // 검색창 아래 위치하도록 적절히 설정
+    width: width * 0.75,
+    maxHeight: height * 0.5,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    alignSelf: 'center',
+    zIndex: 10,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  listItem: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  spotName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  spotAddress: {
+    fontSize: 14,
+    color: '#555',
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#888',
+    fontFamily: 'Pretendard-Medium',
   },
 });
 

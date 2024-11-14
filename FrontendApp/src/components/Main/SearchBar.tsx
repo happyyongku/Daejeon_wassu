@@ -1,10 +1,17 @@
 import React from 'react';
-import {View, TextInput, StyleSheet, Dimensions} from 'react-native';
+import {View, TextInput, StyleSheet, Dimensions, TouchableOpacity, Text} from 'react-native';
 import SearchIcon from '../../assets/imgs/search.svg';
 
 const {width} = Dimensions.get('window');
 
-const SearchBar = () => {
+type SearchBarProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+  onSearch: () => void;
+  onClear: () => void;
+};
+
+const SearchBar = ({value, onChangeText, onSearch, onClear}: SearchBarProps) => {
   return (
     <View style={styles.centerContainer}>
       <View style={styles.searchBarContainer}>
@@ -14,8 +21,19 @@ const SearchBar = () => {
           autoCapitalize="none"
           maxLength={100}
           placeholder="대전 관광지를 검색해보세요"
+          value={value} // value 설정
+          onChangeText={onChangeText} // onChangeText 호출
+          onSubmitEditing={onSearch} // 엔터 누르면 검색
         />
-        <SearchIcon width={20} height={20} />
+        {value ? (
+          <TouchableOpacity onPress={onClear}>
+            <Text>X</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onSearch}>
+            <SearchIcon width={20} height={20} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
