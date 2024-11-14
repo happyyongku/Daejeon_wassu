@@ -15,12 +15,14 @@ import com.wassu.wassu.repository.marble.MarbleRepository;
 import com.wassu.wassu.repository.marble.MarbleRoomRepository;
 import com.wassu.wassu.repository.marble.NodeRepository;
 import com.wassu.wassu.repository.marble.RedisRepository;
+import com.wassu.wassu.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +36,8 @@ public class MarbleService {
     private final MarbleRoomRepository roomRepository;
     private final RedisRepository redisRepository;
     private final NodeRepository nodeRepository;
+    private final UserService userService;
+    private static final double EARTH_RADIUS = 6371000;
 
     public int[] rollDice() {
         int dice1 = (int) (Math.random() * 6) + 1;
@@ -50,14 +54,13 @@ public class MarbleService {
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         MarbleEntity marble = marbleRepository.findById(marbleId).orElseThrow(() -> new CustomException(CustomErrorCode.MARBLE_NOT_FOUND));
         MarbleRoomEntity room = MarbleRoomEntity.builder()
-                .single(dto.isSingle())
                 .marble(marble)
                 .creator(creator)
                 .build();
         String code = null;
         if (!dto.isSingle()) { // 같이도슈면 초대코드 생성
             code = generateInviteCode();
-            room.setSingle(true);
+            room.setSingle(false);
             room.setInviteCode(code);
         }
         MarbleRoomEntity savedRoom = roomRepository.save(room);
@@ -89,7 +92,46 @@ public class MarbleService {
         TouristSpotEntity spot = node.getTouristSpot();
         TouristSpotImageEntity thumbnail = spot.getTouristSpotImages().get(0);
         String thumbnailUrl = thumbnail.getTouristSpotImageUrl();
-        return new NodeDTO(nodeId, spot.getId(), spot.getSpotName(), thumbnailUrl);
+        return new NodeDTO(nodeId, spot.getId(), spot.getSpotName(), thumbnailUrl, node.getNodeOrder());
+    }
+
+    public RoomDTO getRoomDetails(Long roomId) {
+        if (roomRepository.isSingleRoom(roomId)) {
+            MarbleRoomEntity room = roomRepository.findSingleRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+            return createRoomDTO(roomId, room);
+        } else {
+            MarbleRoomEntity room = roomRepository.findMultiRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+            RoomDTO roomDTO = createRoomDTO(roomId, room);
+            roomDTO.setGuest(userService.convertToDTO(room.getGuest()));
+            return roomDTO;
+        }
+    }
+
+    public boolean verifyMission(Long nodeId, MissionVerifyDTO dto) {
+        NodeEntity node = nodeRepository.findByIdWithSpot(nodeId).orElseThrow(() -> new CustomException(CustomErrorCode.NODE_NOT_FOUND));
+        TouristSpotEntity spot = node.getTouristSpot();
+        Double longitude = spot.getLongitude();
+        Double latitude = spot.getLatitude();
+        return isMissionVerified(latitude, longitude, dto.getLatitude(), dto.getLongitude());
+    }
+
+    private RoomDTO createRoomDTO(Long roomId, MarbleRoomEntity room) {
+        MarbleEntity marble = room.getMarble();
+        List<NodeEntity> nodes = marble.getNodes();
+        List<NodeDTO> nodeDTOs = new ArrayList<>();
+        for (NodeEntity node : nodes) {
+            TouristSpotEntity spot = node.getTouristSpot();
+            TouristSpotImageEntity thumbnail = spot.getTouristSpotImages().get(0);
+            NodeDTO nodeDTO = new NodeDTO(node.getId(), spot.getId(), spot.getSpotName(), thumbnail.getTouristSpotImageUrl(), node.getNodeOrder());
+            nodeDTOs.add(nodeDTO);
+        }
+        return RoomDTO.builder()
+                .roomId(roomId)
+                .marbleId(marble.getId())
+                .marbleName(marble.getMarbleName())
+                .single(room.isSingle())
+                .nodes(nodeDTOs)
+                .creator(userService.convertToDTO(room.getCreator())).build();
     }
 
     private String generateInviteCode() {
@@ -98,6 +140,20 @@ public class MarbleService {
                 .mapToObj("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"::charAt)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
+    }
+
+    private boolean isMissionVerified(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = EARTH_RADIUS * c;
+
+        return distance <= 100;
     }
 
 }

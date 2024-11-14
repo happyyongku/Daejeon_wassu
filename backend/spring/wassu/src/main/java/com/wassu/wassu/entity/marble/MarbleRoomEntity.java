@@ -15,7 +15,7 @@ public class MarbleRoomEntity {
     private Long id;
 
     private String inviteCode; // 초대 코드 -> 혼자면 없음
-    private boolean single = false; // 혼자 or 같이 여부
+    private boolean single = true; // 혼자 or 같이 여부
 
     @ManyToOne
     @JoinColumn(name = "marble_entity_id")

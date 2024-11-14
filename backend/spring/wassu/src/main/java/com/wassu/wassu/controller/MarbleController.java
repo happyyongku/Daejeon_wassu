@@ -65,6 +65,14 @@ public class MarbleController {
         return ResponseEntity.ok(Map.of("inviteCode", code));
     }
 
+    // 마블 상세조회
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<?> getRoomDetails(@PathVariable Long roomId) {
+        RoomDTO result = marbleService.getRoomDetails(roomId);
+        return ResponseEntity.ok(result);
+    }
+
+    // 노드 상세정보 조회
     @GetMapping("/node/{nodeId}")
     public ResponseEntity<?> getNodeDetails(@PathVariable Long nodeId) {
         NodeDTO result = marbleService.getNodeDetails(nodeId);
@@ -81,11 +89,12 @@ public class MarbleController {
     }
 
     // 장소 인증
-//    @PostMapping("/mission/verify")
-//    public ResponseEntity<?> verifyMission(@RequestBody MissionVerifyDTO dto) {
-//
-//    }
-
+    @PostMapping("/mission/{nodeId}/verify")
+    public ResponseEntity<?> verifyMission(@PathVariable Long nodeId,
+                                           @RequestBody MissionVerifyDTO dto) {
+        boolean result = marbleService.verifyMission(nodeId, dto);
+        return ResponseEntity.ok(Map.of("verified", result));
+    }
 
     // 데이터 변경 이벤트가 발생할 때마다 모든 연결된 Emitter에 데이터 전송
     @EventListener

@@ -9,5 +9,6 @@ public class NodeDTO {
     private Long spotId;
     private String spotName;
     private String thumbnail;
+    private int nodeOrder;
 
 }

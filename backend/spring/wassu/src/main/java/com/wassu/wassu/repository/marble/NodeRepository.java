@@ -14,4 +14,9 @@ public interface NodeRepository extends JpaRepository<NodeEntity, Long> {
             "where n.id=:nodeId")
     Optional<NodeEntity> findByIdWithJoin(Long nodeId);
 
+    @Query("select n from NodeEntity n " +
+            "left join fetch n.touristSpot t " +
+            "where n.id=:nodeId")
+    Optional<NodeEntity> findByIdWithSpot(Long nodeId);
+
 }
