@@ -15,6 +15,9 @@ public class TouristSpotStampEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String category;
+
     @ManyToOne
     @JoinColumn(name = "tourist_spot_id", nullable = false)
     private TouristSpotEntity touristSpot;

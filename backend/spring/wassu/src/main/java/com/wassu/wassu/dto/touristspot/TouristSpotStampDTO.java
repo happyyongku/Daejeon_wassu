@@ -11,4 +11,5 @@ public class TouristSpotStampDTO {
     private Long touristSpotId;
     private Double currentLatitude;
     private Double currentLongitude;
+    private String category;
 }

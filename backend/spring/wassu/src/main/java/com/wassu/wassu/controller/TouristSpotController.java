@@ -140,6 +140,7 @@ public class TouristSpotController {
             Long touristSpotId = touristSpotStampDTO.getTouristSpotId();
             Double currentLatitude = touristSpotStampDTO.getCurrentLatitude();
             Double currentLongitude = touristSpotStampDTO.getCurrentLongitude();
+            String category = touristSpotStampDTO.getCategory();
             if (touristSpotStampRepository.findByUserIdAndTouristSpotId(userId, touristSpotId).isPresent()){
                 log.warn("Already stamped");
                 return ResponseEntity.status(404).body(utilTool.createResponse("status","already stamped"));
@@ -149,7 +150,8 @@ public class TouristSpotController {
                     touristSpotId,
                     currentLatitude,
                     currentLongitude,
-                    userEmail
+                    userEmail,
+                    category
             );
             if (isStamped) {
                 log.info("Stamped touristSpotId: {}", touristSpotId);

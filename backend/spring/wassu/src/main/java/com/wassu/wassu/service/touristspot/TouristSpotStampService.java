@@ -36,7 +36,8 @@ public class TouristSpotStampService {
             Long touristSpotId,
             Double currentLatitude,
             Double currentLongitude,
-            String userEmail
+            String userEmail,
+            String category
     ) {
         log.info("""
                 Input ID: {}
@@ -57,7 +58,7 @@ public class TouristSpotStampService {
 
         double distance = calculateDistance(latitude, longitude, currentLatitude, currentLongitude);
         if (distance <= SEARCH_RADIUS) {
-            savingStamp(userEntity, spotEntity);
+            savingStamp(userEntity, spotEntity, category);
             return true;
         } else {
             log.error("Distance exceeded -- stamp");
@@ -80,12 +81,13 @@ public class TouristSpotStampService {
         return EARTH_RADIUS * c * 1000;
     }
 
-    private void savingStamp(UserEntity userEntity, TouristSpotEntity touristSpotEntity) {
+    private void savingStamp(UserEntity userEntity, TouristSpotEntity touristSpotEntity, String category) {
         try {
             log.info("Start to save tourist spot: ");
             TouristSpotStampEntity touristSpotStampEntity = TouristSpotStampEntity.builder()
                     .touristSpot(touristSpotEntity)
                     .user(userEntity)
+                    .category(category)
                     .build();
             touristSpotStampRepository.save(touristSpotStampEntity);
         } catch (Exception e) {
