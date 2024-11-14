@@ -104,9 +104,9 @@ public class MarbleController {
     }
 
     // 데이터 변경 이벤트가 발생할 때마다 모든 연결된 Emitter에 데이터 전송
-    @EventListener
-    public void handleDataChangeEvent() {
-        // 여기에 전달할 마블 데이터 객체 만들어서 인자로 받고
-        // ApplicationEventPublisher 로 변경 발생때마다 객체 publish 하면 됨
-    }
+//    @EventListener
+//    public void handleDataChangeEvent() {
+//        // 여기에 전달할 마블 데이터 객체 만들어서 인자로 받고
+//        // ApplicationEventPublisher 로 변경 발생때마다 객체 publish 하면 됨
+//    }
 }
