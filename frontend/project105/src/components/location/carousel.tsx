@@ -11,7 +11,9 @@ export default function Carousel({ touristSpotImages }: CarouselProps) {
 
   // images가 undefined 또는 빈 배열일 경우 렌더링하지 않도록 처리
   if (!touristSpotImages || touristSpotImages.length === 0) {
-    return <div>이미지가 없습니다.</div>;
+    return (
+      <div className={styles.noimg}>&quot; 장소 이미지가 없어요 😢 &quot;</div>
+    );
   }
 
   // 이전 슬라이드로 이동
@@ -31,7 +33,6 @@ export default function Carousel({ touristSpotImages }: CarouselProps) {
   return (
     <div className={styles.carousel}>
       {/* 이전 버튼 */}
-      {/* 조건 처리 해야한다 */}
       {touristSpotImages.length > 1 ? (
         <button
           className={`${styles.carouselButton} ${styles.carouselButtonPrev}`}
@@ -53,7 +54,6 @@ export default function Carousel({ touristSpotImages }: CarouselProps) {
       </div>
 
       {/* 다음 버튼 */}
-      {/* 조건 처리 해야한다 */}
       {touristSpotImages.length > 1 ? (
         <button
           className={`${styles.carouselButton} ${styles.carouselButtonNext}`}
