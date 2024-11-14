@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TouristSpotStampDTO {
-    private Long touristSpotId;
+    private String elasticSpotId;
     private Double currentLatitude;
     private Double currentLongitude;
     private String category;
