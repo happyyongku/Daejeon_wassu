@@ -96,7 +96,13 @@ export default function Page() {
 
   // 로딩중일 때
   if (!forLoading) {
-    return <div>게시글 정보를 로딩하는 중입니다...</div>;
+    return (
+      <div className={style.prom}>
+        <svg className={style.loading_container}>
+          <rect className={`${style.loading_boxes}`}></rect>
+        </svg>
+      </div>
+    );
   }
 
   // 모달 열기

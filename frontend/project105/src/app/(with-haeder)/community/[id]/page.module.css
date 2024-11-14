@@ -273,3 +273,33 @@
   width: 70px;
   height: 30px;
 }
+
+.prom {
+  width: 100%;
+  height: 85vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading_container {
+  width: 50px;
+  height: 50px;
+}
+
+.loading_container .loading_boxes {
+  width: 50px;
+  height: 50px;
+  fill: none;
+  stroke-width: 50px;
+  stroke: #43cb85;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50%;
+  animation: animate 2s linear infinite;
+}
+
+@keyframes animate {
+  to {
+    stroke-dashoffset: 250%;
+  }
+}
