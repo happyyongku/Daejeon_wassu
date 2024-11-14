@@ -44,9 +44,8 @@ public class MarbleController {
 
     // SSE 연결
     @GetMapping(value = "/{roomId}/sync", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<?> connect(@PathVariable Long roomId) {
-        SseEmitter emitter = sseService.createEmitter(roomId);// 클라이언트 연결을 위한 Emitter 생성
-        return ResponseEntity.ok(emitter);
+    public SseEmitter connect(@PathVariable Long roomId) {
+        return sseService.createEmitter(roomId);
     }
 
     @GetMapping("/test/{roomId}")
