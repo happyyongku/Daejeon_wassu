@@ -38,7 +38,7 @@ public class UserService {
             throw new IllegalStateException("Email already exists");
         }
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        if (userEntity.getProfileImage().equals("default")) {
+        if (userEntity.getProfileImage() == null) {
             userEntity.setProfileImage(
                     String.format(
                             "https://%s.s3.%s.amazonaws.com/%s",
