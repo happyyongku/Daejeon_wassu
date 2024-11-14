@@ -1,5 +1,14 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import {sendVerificationCode, verifyCode, signUp} from '../api/user';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -18,6 +27,7 @@ const SignUp = (): React.JSX.Element => {
   const [birthYear, setBirthYear] = useState('');
   const [nickname, setNickname] = useState('');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
 
   const navigation = useNavigation<SignUpScreenNavigationProp>();
 
@@ -52,6 +62,8 @@ const SignUp = (): React.JSX.Element => {
       return;
     }
 
+    setIsVerifyingEmail(true);
+
     try {
       const response = await sendVerificationCode(email);
       if (response && response.status === 200) {
@@ -62,6 +74,8 @@ const SignUp = (): React.JSX.Element => {
     } catch (error) {
       console.error(error);
       Alert.alert('오류가 발생했습니다. 다시 시도해 주세요.');
+    } finally {
+      setIsVerifyingEmail(false); // 요청 완료 후 버튼 다시 활성화
     }
   };
 
@@ -81,108 +95,126 @@ const SignUp = (): React.JSX.Element => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, focusedField === 'email' && styles.focusedLabel]}>이메일</Text>
-      <View style={styles.row}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={[styles.labels, focusedField === 'email' && styles.focusedLabel]}>이메일</Text>
+        <View style={styles.row}>
+          <TextInput
+            style={[
+              styles.input,
+              styles.emailInput,
+              focusedField === 'email' && styles.focusedInput,
+            ]}
+            placeholder="이메일"
+            placeholderTextColor="#F1F1F1"
+            value={email}
+            onChangeText={setEmail}
+            onFocus={() => setFocusedField('email')}
+            onBlur={() => setFocusedField(null)}
+          />
+          <TouchableOpacity
+            style={[styles.verifyButton, isVerifyingEmail && styles.disabledButton]}
+            onPress={handleEmailVerification}
+            disabled={isVerifyingEmail} // 버튼 비활성화
+          >
+            <Text style={styles.verifyButtonText}>
+              {isVerifyingEmail ? '인증 중...' : '인증하기'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.label, focusedField === 'code' && styles.focusedLabel]}>인증번호</Text>
+        <View style={styles.row}>
+          <TextInput
+            style={[
+              styles.input,
+              styles.emailInput,
+              focusedField === 'code' && styles.focusedInput,
+            ]}
+            placeholder="코드번호"
+            placeholderTextColor="#F1F1F1"
+            value={code}
+            onChangeText={setCode}
+            onFocus={() => setFocusedField('code')}
+            onBlur={() => setFocusedField(null)}
+          />
+          <TouchableOpacity style={styles.verifyButton} onPress={handleCodeVerification}>
+            <Text style={styles.verifyButtonText}>인증하기</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.label, focusedField === 'password' && styles.focusedLabel]}>
+          비밀번호
+        </Text>
         <TextInput
-          style={[styles.input, styles.emailInput, focusedField === 'email' && styles.focusedInput]}
-          placeholder="이메일"
+          style={[styles.input, focusedField === 'password' && styles.focusedInput]}
+          placeholder="비밀번호"
           placeholderTextColor="#F1F1F1"
-          value={email}
-          onChangeText={setEmail}
-          onFocus={() => setFocusedField('email')}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          onFocus={() => setFocusedField('password')}
           onBlur={() => setFocusedField(null)}
         />
-        <TouchableOpacity style={styles.verifyButton} onPress={handleEmailVerification}>
-          <Text style={styles.verifyButtonText}>인증하기</Text>
-        </TouchableOpacity>
-      </View>
 
-      <Text style={[styles.label, focusedField === 'code' && styles.focusedLabel]}>인증번호</Text>
-      <View style={styles.row}>
+        <Text style={[styles.label, focusedField === 'confirmPassword' && styles.focusedLabel]}>
+          비밀번호 확인
+        </Text>
         <TextInput
-          style={[styles.input, styles.emailInput, focusedField === 'code' && styles.focusedInput]}
-          placeholder="코드번호"
+          style={[styles.input, focusedField === 'confirmPassword' && styles.focusedInput]}
+          placeholder="비밀번호 확인"
           placeholderTextColor="#F1F1F1"
-          value={code}
-          onChangeText={setCode}
-          onFocus={() => setFocusedField('code')}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          onFocus={() => setFocusedField('confirmPassword')}
           onBlur={() => setFocusedField(null)}
         />
-        <TouchableOpacity style={styles.verifyButton} onPress={handleCodeVerification}>
-          <Text style={styles.verifyButtonText}>인증하기</Text>
+
+        <Text style={styles.label}>성별</Text>
+        <View style={styles.genderContainer}>
+          <TouchableOpacity
+            style={[styles.genderOption, gender === 'Male' && styles.genderSelected]}
+            onPress={() => setGender('Male')}>
+            <Text style={styles.genderText}>남</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.genderOption, gender === 'Female' && styles.genderSelected]}
+            onPress={() => setGender('Female')}>
+            <Text style={styles.genderText}>여</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.label, focusedField === 'birthYear' && styles.focusedLabel]}>
+          출생년도
+        </Text>
+        <TextInput
+          style={[styles.input, focusedField === 'birthYear' && styles.focusedInput]}
+          placeholder="YYYY"
+          placeholderTextColor="#F1F1F1"
+          value={birthYear}
+          onChangeText={setBirthYear}
+          keyboardType="numeric"
+          onFocus={() => setFocusedField('birthYear')}
+          onBlur={() => setFocusedField(null)}
+        />
+
+        <Text style={[styles.label, focusedField === 'nickname' && styles.focusedLabel]}>
+          닉네임
+        </Text>
+        <TextInput
+          style={[styles.input, focusedField === 'nickname' && styles.focusedInput]}
+          placeholder="닉네임"
+          placeholderTextColor="#F1F1F1"
+          value={nickname}
+          onChangeText={setNickname}
+          onFocus={() => setFocusedField('nickname')}
+          onBlur={() => setFocusedField(null)}
+        />
+
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>회원가입</Text>
         </TouchableOpacity>
-      </View>
-
-      <Text style={[styles.label, focusedField === 'password' && styles.focusedLabel]}>
-        비밀번호
-      </Text>
-      <TextInput
-        style={[styles.input, focusedField === 'password' && styles.focusedInput]}
-        placeholder="비밀번호"
-        placeholderTextColor="#F1F1F1"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        onFocus={() => setFocusedField('password')}
-        onBlur={() => setFocusedField(null)}
-      />
-
-      <Text style={[styles.label, focusedField === 'confirmPassword' && styles.focusedLabel]}>
-        비밀번호 확인
-      </Text>
-      <TextInput
-        style={[styles.input, focusedField === 'confirmPassword' && styles.focusedInput]}
-        placeholder="비밀번호 확인"
-        placeholderTextColor="#F1F1F1"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        onFocus={() => setFocusedField('confirmPassword')}
-        onBlur={() => setFocusedField(null)}
-      />
-
-      <Text style={styles.label}>성별</Text>
-      <View style={styles.genderContainer}>
-        <TouchableOpacity
-          style={[styles.genderOption, gender === 'Male' && styles.genderSelected]}
-          onPress={() => setGender('Male')}>
-          <Text style={styles.genderText}>남</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.genderOption, gender === 'Female' && styles.genderSelected]}
-          onPress={() => setGender('Female')}>
-          <Text style={styles.genderText}>여</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={[styles.label, focusedField === 'birthYear' && styles.focusedLabel]}>
-        출생년도
-      </Text>
-      <TextInput
-        style={[styles.input, focusedField === 'birthYear' && styles.focusedInput]}
-        placeholder="YYYY"
-        placeholderTextColor="#F1F1F1"
-        value={birthYear}
-        onChangeText={setBirthYear}
-        keyboardType="numeric"
-        onFocus={() => setFocusedField('birthYear')}
-        onBlur={() => setFocusedField(null)}
-      />
-
-      <Text style={[styles.label, focusedField === 'nickname' && styles.focusedLabel]}>닉네임</Text>
-      <TextInput
-        style={[styles.input, focusedField === 'nickname' && styles.focusedInput]}
-        placeholder="닉네임"
-        placeholderTextColor="#F1F1F1"
-        value={nickname}
-        onChangeText={setNickname}
-        onFocus={() => setFocusedField('nickname')}
-        onBlur={() => setFocusedField(null)}
-      />
-
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>회원가입</Text>
-      </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
@@ -190,9 +222,12 @@ const SignUp = (): React.JSX.Element => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: width * 0.08,
     backgroundColor: '#fff',
+  },
+  scrollContainer: {
+    paddingHorizontal: width * 0.08,
     justifyContent: 'center',
+    paddingBottom: 20,
   },
   row: {
     flexDirection: 'row',
@@ -204,6 +239,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     marginTop: 10,
+    marginBottom: 4,
+  },
+  labels: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 80,
     marginBottom: 4,
   },
   focusedLabel: {
@@ -268,6 +309,9 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButton: {
+    backgroundColor: '#aaa', // 비활성화 상태의 버튼 색상
   },
 });
 

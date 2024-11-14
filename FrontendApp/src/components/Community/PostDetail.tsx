@@ -148,7 +148,7 @@ const PostDetail = () => {
               {liked ? (
                 <Image
                   source={require('../../assets/imgs/heart1.png')}
-                  style={{width: 25, height: 25}}
+                  style={{width: 20, height: 20}}
                 />
               ) : (
                 <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
