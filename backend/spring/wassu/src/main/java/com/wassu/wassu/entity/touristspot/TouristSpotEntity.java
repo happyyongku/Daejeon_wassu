@@ -22,13 +22,11 @@ public class TouristSpotEntity {
     @Column(unique = true, nullable = false)
     private String elasticId; // 검색용 엘라스틱 문서랑 매치될 id
 
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(nullable = false, length = 50)
     private String spotName;
 
     @Column(nullable = false)
     private String spotAddress;
-
-    private Float rating;
 
     @Column(columnDefinition = "TEXT")
     private String spotDescription;
