@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class UserSignupDTO {
     private String email;
     private String password;
