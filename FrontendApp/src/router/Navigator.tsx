@@ -70,7 +70,7 @@ export type RootStackParamList = {
   ChallengeDetail: undefined;
   PlaceList: undefined;
   PlaceDetail: {id: string};
-  Writing: {spotId: string};
+  Writing: undefined;
   CommunitySearch: undefined;
   WriteReview: {spotId: string}; // 여기에 spotId 추가
   Map: undefined;
