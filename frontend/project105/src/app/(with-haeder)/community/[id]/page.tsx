@@ -96,7 +96,13 @@ export default function Page() {
 
   // 로딩중일 때
   if (!forLoading) {
-    return <div>게시글 정보를 로딩하는 중입니다...</div>;
+    return (
+      <div className={style.prom}>
+        <svg className={style.loading_container}>
+          <rect className={`${style.loading_boxes}`}></rect>
+        </svg>
+      </div>
+    );
   }
 
   // 모달 열기
@@ -186,10 +192,17 @@ export default function Page() {
       {isModalVisible && (
         <div className={style.modalOverlay}>
           <div className={style.modalContent}>
-            <p>정말로 이 게시글을 삭제하시겠습니까?</p>
+            <div className={style.imgbox2}>
+              <img className={style.img3} src="/images/logo.png" alt="" />
+              <img className={style.img4} src="/images/logotext.png" alt="" />
+            </div>
+            <p className={style.contenttitle}>정말로 삭제하시겠습니까?</p>
+            <p className={style.contentdesc}>
+              삭제한 게시글은 다시 볼 수 없습니다
+            </p>
             <div className={style.modalButtons}>
               <button
-                className={style.modalButton}
+                className={style.modalButton1}
                 onClick={remove} // 삭제 확인 시 게시글 삭제
               >
                 확인

@@ -68,6 +68,7 @@ export interface LocationData {
   phone: string;
   reviews: ReviewData[]; // reviews 배열은 ReviewData 타입의 객체들을 포함
   images: Array<{ image: string }>;
+  stamped: boolean;
 }
 
 export interface CourseData {
@@ -75,4 +76,19 @@ export interface CourseData {
   course_name: string;
   description: string;
   image_url: string;
+}
+
+export interface BakeriesData {
+  address: string;
+  bakery_name: string;
+  business_hours: string;
+  description: string;
+  elastic_id: string;
+  image_url: string;
+  phone: string;
+}
+
+export interface CourseDetailData {
+  bakeries: BakeriesData[];
+  course: CourseData;
 }

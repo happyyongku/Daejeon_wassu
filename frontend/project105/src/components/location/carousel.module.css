@@ -24,11 +24,15 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(65, 134, 99, 0.3);
+  width: 40px;
+  height: 40px;
+  background-color: none;
   color: white;
   border: none;
-  font-size: 2rem;
-  padding: 10px;
+  border-radius: 50px;
+  font-size: 20px;
+  padding: 5px;
   cursor: pointer;
   z-index: 10;
 }
@@ -42,5 +46,16 @@
 }
 
 .carouselButton:hover {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(65, 134, 99, 0.8);
+}
+
+.noimg {
+  width: 100%;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  color: #333333;
+  opacity: 40%;
+  font-size: 16px;
+  font-weight: bold;
 }

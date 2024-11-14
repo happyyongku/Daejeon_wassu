@@ -37,6 +37,15 @@ export default function LoginForm() {
       }
     } catch (error) {
       console.error("인증 요청 실패:", error);
+      alert("이메일 혹은, 비밀번호를 잘못 입력했습니다.");
+    }
+  };
+
+  // 엔터키 로그인
+  const loginEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      console.log("Enter 키가 눌렸습니다!");
+      loginRequest();
     }
   };
 
@@ -63,6 +72,7 @@ export default function LoginForm() {
         name="password"
         placeholder="비밀번호"
         onChange={onChangePassword}
+        onKeyDown={loginEnter}
       />
       <button className={style.button_st} onClick={loginRequest}>
         로그인

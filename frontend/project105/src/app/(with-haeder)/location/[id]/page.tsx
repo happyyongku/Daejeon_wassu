@@ -13,6 +13,7 @@ export default function Page() {
   const { id } = useParams();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [forLoading, setForLoading] = useState(false);
 
   // 장소 디테일 호출 axios 함수
   const getDetail = async () => {
@@ -29,6 +30,7 @@ export default function Page() {
       if (response.data) {
         console.log("장소 상세 조회 성공", response.data);
         setLocation(response.data);
+        setForLoading(true);
       }
     } catch (error) {
       console.error(error);
@@ -93,6 +95,17 @@ export default function Page() {
     setIsModalOpen(false);
   };
 
+  // 로딩중일 때
+  if (!forLoading) {
+    return (
+      <div className={style.prom}>
+        <svg className={style.loading_container}>
+          <rect className={`${style.loading_boxes}`}></rect>
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className={style.header}>
@@ -114,13 +127,10 @@ export default function Page() {
         </div>
       </div>
       <div>
-        {/* <img className={style.locaimg} src="/images/building.png" alt="" /> */}
         <Carousel touristSpotImages={location?.touristSpotImages} />
       </div>
-      {/* 여기에 상호작용 들어가자 클라이언트 컴포넌트 */}
       <div>
         <div className={style.container1}>
-          {/* 찜하기 조건 처리 해서 좋아요 기능 구현 */}
           <div className={style.box1}>
             {location?.favorite ? (
               <div onClick={unJjimLoca}>
@@ -155,8 +165,21 @@ export default function Page() {
             <img className={style.icon1} src="/images/star.png" alt="star" />
             <p className={style.text1}>리뷰쓰기</p>
           </div>
-          <div className={style.box1} onClick={openModal}>
-            <img className={style.icon1} src="/images/stamp.png" alt="stamp" />
+          <div className={style.box1}>
+            {location?.stamped ? (
+              <img
+                className={style.icon1}
+                src="/images/dojang.png"
+                alt="stamp"
+              />
+            ) : (
+              <img
+                className={style.icon1}
+                src="/images/stamp.png"
+                alt="stamp"
+              />
+            )}
+
             <p className={style.text1}>스탬프</p>
           </div>
         </div>
