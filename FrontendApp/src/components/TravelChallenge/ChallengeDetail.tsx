@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,39 +6,53 @@ import {
   ImageBackground,
   StyleSheet,
   Dimensions,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
   TouchableOpacity,
 } from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import type {RouteProp} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
-import FlameIcon from '../../assets/imgs/flame.svg';
-import BreadIcon from '../../assets/imgs/breadB.svg';
-import RunIcon from '../../assets/imgs/run.svg';
 import MonIcon from '../../assets/imgs/mon1.svg';
 import MononeIcon from '../../assets/imgs/mon2.svg';
 import MontwoIcon from '../../assets/imgs/mon3.svg';
 import PlayIcon from '../../assets/imgs/play.svg';
 import CalendarIcon from '../../assets/imgs/calendar.svg';
+import {getCourseDetail} from '../../api/recommended';
 
 const {width} = Dimensions.get('window');
+type ChallengeDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceDetail'>;
+type ChallengeDetailRouteProp = RouteProp<RootStackParamList, 'ChallengeDetail'>;
+
+interface Bakery {
+  bakery_name: string;
+  address: string;
+  elastic_id: string;
+}
 
 const ChallengeDetail = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const navigation = useNavigation<ChallengeDetailNavigationProp>();
+  const route = useRoute<ChallengeDetailRouteProp>();
+  const {id} = route.params;
+  const [courseName, setCourseName] = useState('');
+  const [images, setImages] = useState<string[]>([]);
+  const [bakeries, setBakeries] = useState<Bakery[]>([]);
 
-  const images = [
-    require('../../assets/imgs/breadFull.png'),
-    require('../../assets/imgs/hotLong.png'),
-  ];
+  useEffect(() => {
+    const fetchCourseDetail = async () => {
+      const data = await getCourseDetail(id);
+      if (data) {
+        setCourseName(data.course.course_name);
+        setImages([data.course.image_url]);
+        setBakeries(data.bakeries);
+      }
+    };
+    fetchCourseDetail();
+  }, [id]);
 
-  const hashtags = [
-    {id: '1', icon: <FlameIcon width={25} height={25} />, text: '# 대전핫플'},
-    {id: '2', icon: <BreadIcon width={25} height={25} />, text: '# 빵덕후'},
-    {id: '3', icon: <RunIcon width={25} height={25} />, text: '# 부지런한여행'},
-  ];
-
-  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slide = Math.floor(event.nativeEvent.contentOffset.x / width);
-    setActiveIndex(slide);
+  const goToPlaceDetail = (placeId: string) => {
+    console.log('Navigating to PlaceDetail with ID:', placeId);
+    navigation.navigate('PlaceDetail', {id: placeId});
   };
 
   return (
@@ -46,111 +60,62 @@ const ChallengeDetail = () => {
       <Header />
       <ScrollView style={styles.container}>
         <View>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
-            style={styles.imageContainer}>
-            {images.map((image, index) => (
-              <ImageBackground key={index} source={image} style={styles.image} resizeMode="cover" />
-            ))}
-          </ScrollView>
-          <View style={styles.pagination}>
-            {images.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, activeIndex === index ? styles.activeDot : styles.inactiveDot]}
-              />
-            ))}
-          </View>
+          {images.map((image, index) => (
+            <ImageBackground
+              key={index}
+              source={{uri: image}}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ))}
         </View>
 
         <View style={styles.containerT}>
-          <Text style={styles.title}>대전 빵지순례 투어</Text>
+          <Text style={styles.title}>{courseName}</Text>
 
-          <View style={styles.hashtagContainer}>
-            {hashtags.map(hashtag => (
-              <TouchableOpacity>
-                <View key={hashtag.id} style={styles.hashtagButton}>
-                  {hashtag.icon}
-                  <Text style={styles.hashtagText}>{hashtag.text}</Text>
+          {bakeries.map((bakery, index) => (
+            <TouchableOpacity
+              key={bakery.elastic_id}
+              onPress={() => goToPlaceDetail(bakery.elastic_id)}>
+              <View style={styles.courseItem}>
+                <View style={styles.numberContainer}>
+                  <Text style={styles.numberText}>{index + 1}</Text>
                 </View>
-              </TouchableOpacity>
-            ))}
+
+                <View style={styles.courseDetails}>
+                  <Text style={styles.courseTitle}>{bakery.bakery_name}</Text>
+                  <Text style={styles.courseAddress}>{bakery.address}</Text>
+                </View>
+                <MonIcon width={75} height={75} style={styles.courseIcon} />
+              </View>
+            </TouchableOpacity>
+          ))}
+
+          <Text style={styles.title2}>등장 왔슈몬</Text>
+          <View style={styles.monContainer}>
+            <View style={styles.monItem}>
+              <MonIcon width={75} height={75} />
+              <Text style={styles.monText}>단팥몬</Text>
+            </View>
+            <View style={styles.monItem}>
+              <MononeIcon width={75} height={75} />
+              <Text style={styles.monText}>소보루몬</Text>
+            </View>
+            <View style={styles.monItem}>
+              <MontwoIcon width={75} height={75} />
+              <Text style={styles.monText}>바게트몬</Text>
+            </View>
           </View>
 
-          <View>
-            <Text style={styles.title}>코스 소개</Text>
+          <TouchableOpacity style={styles.challengeButton}>
+            <PlayIcon width={20} height={20} style={styles.buttonIcon} />
+            <Text style={styles.challengeButtonText}>챌린지 시작</Text>
+          </TouchableOpacity>
 
-            <View style={styles.courseItem}>
-              <View style={styles.numberContainer}>
-                <Text style={styles.numberText}>1</Text>
-              </View>
-
-              <View style={styles.courseDetails}>
-                <Text style={styles.courseTitle}>성심당</Text>
-                <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
-                <View style={styles.tagContainer}>
-                  <TouchableOpacity style={styles.tag}>
-                    <Text style={styles.tagText}># 문화</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.tag}>
-                    <Text style={styles.tagText}># 인기</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <MonIcon width={75} height={75} style={styles.courseIcon} />
-            </View>
-
-            <View style={styles.courseItem}>
-              <View style={styles.numberContainer}>
-                <Text style={styles.numberText}>2</Text>
-              </View>
-              <View style={styles.courseDetails}>
-                <Text style={styles.courseTitle}>하레하레</Text>
-                <Text style={styles.courseAddress}>대전광역시 대흥동 xxx-xx</Text>
-                <View style={styles.tagContainer}>
-                  <TouchableOpacity style={styles.tag}>
-                    <Text style={styles.tagText}># 문화</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.tag}>
-                    <Text style={styles.tagText}># 인기</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <MontwoIcon width={75} height={75} style={styles.courseIcon} />
-            </View>
-
-            <View>
-              <Text style={styles.title2}>등장 왔슈몬</Text>
-              <View style={styles.monContainer}>
-                <View style={styles.monItem}>
-                  <MonIcon width={75} height={75} />
-                  <Text style={styles.monText}>단팥몬</Text>
-                </View>
-                <View style={styles.monItem}>
-                  <MononeIcon width={75} height={75} />
-                  <Text style={styles.monText}>소보루몬</Text>
-                </View>
-                <View style={styles.monItem}>
-                  <MontwoIcon width={75} height={75} />
-                  <Text style={styles.monText}>바게트몬</Text>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity style={styles.challengeButton}>
-              <PlayIcon width={20} height={20} style={styles.buttonIcon} />
-              <Text style={styles.challengeButtonText}>챌린지 시작</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.challengeButton}>
-              <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
-              <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.challengeButton}>
+            <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
+            <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </>
@@ -162,29 +127,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  imageContainer: {
-    width: width,
-  },
   image: {
     width: width,
     aspectRatio: 2.5,
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 3,
-  },
-  activeDot: {
-    backgroundColor: '#418663',
-  },
-  inactiveDot: {
-    backgroundColor: '#C8DECB',
   },
   containerT: {
     paddingHorizontal: width * 0.06,
@@ -193,31 +138,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
+    color: '#333333',
     marginVertical: 20,
-  },
-  hashtagContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 20,
-  },
-  hashtagButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderWidth: 1.5,
-    borderColor: 'rgba(153, 153, 153, 0.5)',
-  },
-  hashtagText: {
-    fontSize: 16,
-    color: '#999999',
-    marginLeft: 5,
-    fontFamily: 'Pretendard-Regular',
-  },
-  courseContainer: {
-    marginTop: 20,
   },
   courseItem: {
     backgroundColor: '#fff',
@@ -227,17 +149,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     marginBottom: 10,
-    position: 'relative',
     elevation: 4,
-    shadowColor: '#333',
+    shadowColor: '#333333',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
   numberContainer: {
-    position: 'absolute',
-    top: 12,
-    left: 10,
     width: 20,
     height: 20,
     borderRadius: 10,
@@ -250,9 +168,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Pretendard-Regular',
   },
-  courseIcon: {
-    alignSelf: 'center',
-  },
   courseDetails: {
     flex: 1,
     marginLeft: 30,
@@ -262,29 +177,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#333333',
   },
   courseAddress: {
     fontSize: 14,
     fontFamily: 'Pretendard-Medium',
-    color: '#rgba(51, 51, 51, 0.6)',
+    color: 'rgba(51, 51, 51, 0.6)',
     marginBottom: 10,
   },
-  tagContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 5,
-  },
-  tag: {
-    backgroundColor: '#C8DECB',
-    borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#418663',
-    fontFamily: 'Pretendard-SemiBold',
+  courseIcon: {
+    alignSelf: 'center',
   },
   title2: {
     color: '#418663',
