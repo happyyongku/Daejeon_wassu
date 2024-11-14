@@ -73,7 +73,7 @@ const categories: Category[] = [
   {id: '6', name: '교육', icon: <ArtIcon width={30} height={30} />},
   {
     id: '7',
-    name: '가족 ',
+    name: '가족',
     icon: (
       <Image
         source={require('../assets/imgs/categoryicon/free-icon-family-3884999.png')}

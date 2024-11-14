@@ -68,7 +68,7 @@ export type RootStackParamList = {
   Course: undefined;
   CourseDescription: undefined;
   ChallengeDetail: undefined;
-  PlaceList: undefined;
+  PlaceList: {category?: string};
   PlaceDetail: {id: string};
   Writing: undefined;
   CommunitySearch: undefined;

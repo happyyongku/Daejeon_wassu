@@ -12,7 +12,6 @@ import {
 import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {getPostDetail, deletePost, toggleLike} from '../../api/community';
 import HeartIcon from '../../assets/imgs/heart.svg';
-import HearthIcon from '../../assets/imgs/hearth.svg';
 import EditIcon from '../../assets/imgs/edit.svg';
 import TrashIcon from '../../assets/imgs/trash.svg';
 import type {StackNavigationProp} from '@react-navigation/stack';
@@ -147,7 +146,10 @@ const PostDetail = () => {
           <View style={styles.likeContainer}>
             <TouchableOpacity onPress={handleToggleLike}>
               {liked ? (
-                <HearthIcon width={20} height={20} /> // 좋아요 누른 후 아이콘
+                <Image
+                  source={require('../../assets/imgs/heart1.png')}
+                  style={{width: 25, height: 25}}
+                />
               ) : (
                 <HeartIcon width={20} height={20} /> // 좋아요 누르기 전 아이콘
               )}
