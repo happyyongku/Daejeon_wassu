@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import RecommendedSearchBar from './RecommendedSearchBar';
 import CategoryList from './CategoryList';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
@@ -29,10 +29,18 @@ interface TouristSpot {
 
 type PlaceListNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceDetail'>;
 
+type RouteParams = {
+  PlaceList: {
+    category: string;
+  };
+};
+
 const PlaceList: React.FC = () => {
   const navigation = useNavigation<PlaceListNavigationProp>();
+  const route = useRoute<RouteProp<RouteParams, 'PlaceList'>>();
   const [places, setPlaces] = useState<TouristSpot[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+  const initialCategory = route.params?.category || '전체'; // 전달된 카테고리 값을 받음
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
 
   // 데이터 요청 함수
   const fetchPlacesByCategory = async (category: string) => {
@@ -83,7 +91,7 @@ const PlaceList: React.FC = () => {
         <View style={styles.cardSection}>
           <View style={styles.cardContainer}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>전체관광지</Text>
+              <Text style={styles.cardHeaderText}>{selectedCategory} 관광지</Text>
             </View>
 
             <ScrollView nestedScrollEnabled={true}>

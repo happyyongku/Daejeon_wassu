@@ -68,9 +68,9 @@ export type RootStackParamList = {
   Course: undefined;
   CourseDescription: undefined;
   ChallengeDetail: undefined;
-  PlaceList: undefined;
+  PlaceList: {category?: string};
   PlaceDetail: {id: string};
-  Writing: {spotId: string};
+  Writing: undefined;
   CommunitySearch: undefined;
   WriteReview: {spotId: string}; // 여기에 spotId 추가
   Map: undefined;

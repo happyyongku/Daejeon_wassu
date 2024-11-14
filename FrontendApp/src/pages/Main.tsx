@@ -27,10 +27,6 @@ import MonopolyIcon from '../assets/imgs/monopoly.svg';
 import LoginIcon from '../assets/imgs/user.svg';
 import {getTokens} from '../utills/tokenStorage';
 import {getRecommendedPosts} from '../api/community';
-import HistoryIcon from '../assets/imgs/categoryicon/history-1436604.svg';
-import CultureIcon from '../assets/imgs/categoryicon/culture1.svg';
-import FamilyIcon from '../assets/imgs/categoryicon/family8.svg';
-import LandIcon from '../assets/imgs/categoryicon/land.svg';
 
 const {width} = Dimensions.get('window');
 
@@ -53,14 +49,50 @@ type Review = {
 const categories: Category[] = [
   {id: '1', name: '음식', icon: <FoodIcon width={30} height={30} />},
   {id: '2', name: '자연', icon: <HomeIcon width={30} height={30} />},
-  {id: '3', name: '역사', icon: <HistoryIcon width={30} height={30} />},
-  {id: '4', name: '문화', icon: <CultureIcon width={30} height={30} />},
+  {
+    id: '3',
+    name: '역사',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-history-1373354.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
+  {
+    id: '4',
+    name: '문화',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-culture-9531233.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
   {id: '5', name: '과학', icon: <ScienceIcon width={30} height={30} />},
   {id: '6', name: '교육', icon: <ArtIcon width={30} height={30} />},
-  {id: '7', name: '가족 ', icon: <FamilyIcon width={30} height={30} />},
+  {
+    id: '7',
+    name: '가족',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-family-3884999.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
   {id: '8', name: '빵집', icon: <BreadIcon width={30} height={30} />},
   {id: '9', name: '스포츠', icon: <SportIcon width={30} height={30} />},
-  {id: '10', name: '랜드마크', icon: <LandIcon width={30} height={30} />},
+  {
+    id: '10',
+    name: '랜드마크',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-landmark-navigation-16996099.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
 ];
 
 const chunkArray = <T,>(array: T[], size: number): T[][] => {
@@ -100,6 +132,11 @@ const MainPage = () => {
   const goToRecommend = () => {
     navigation.navigate('RecommendedPlace', {category: ''});
   };
+
+  const goToRecommends = (category: string) => {
+    navigation.navigate('RecommendedPlace', {category});
+  };
+
   const goToTravelChallenge = () => {
     navigation.navigate('TravelChallenge');
   };
@@ -149,15 +186,15 @@ const MainPage = () => {
   const recommendData = [
     {
       id: '1',
-      title: insertLineBreak('비오는 날에도 즐길 수 있는 실내 대전 여행지, 클릭!', 15),
+      title: insertLineBreak('대전에서 놓치지 말아야 할 명소, 지금 확인하세요!', 18),
       image: require('../assets/imgs/museum.png'),
-      category: '실내',
+      category: '랜드마크',
     },
     {
       id: '2',
-      title: insertLineBreak('대전 야외 명소, 꼭 방문해보세요!', 15),
+      title: insertLineBreak('대전의 유명 빵집 투어, 맛있는 여정을 떠나보세요!', 15),
       image: require('../assets/imgs/breadFull.png'),
-      category: '야외',
+      category: '빵집',
     },
   ];
 
@@ -192,7 +229,9 @@ const MainPage = () => {
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item.id}
             renderItem={({item}) => (
-              <TouchableOpacity style={styles.recommendItem} onPress={goToRecommend}>
+              <TouchableOpacity
+                style={styles.recommendItem}
+                onPress={() => goToRecommends(item.category)}>
                 <Text style={styles.recommendTitle} numberOfLines={2} ellipsizeMode="tail">
                   {item.title}
                 </Text>

@@ -77,7 +77,7 @@ const RecommendedPlace = () => {
   }, [selectedCategory]);
 
   const goToPlaceList = () => {
-    navigation.navigate('PlaceList');
+    navigation.navigate('PlaceList', {category: selectedCategory});
   };
 
   const goToPlaceDetail = (id: string) => {
@@ -100,7 +100,7 @@ const RecommendedPlace = () => {
         <View style={styles.cardSection}>
           <View style={styles.cardContainer}>
             <View style={styles.cardHeader}>
-              <Text style={styles.cardHeaderText}>전체 관광지</Text>
+              <Text style={styles.cardHeaderText}>{selectedCategory} 관광지</Text>
               <TouchableOpacity onPress={goToPlaceList}>
                 <Text style={styles.cardHeaderButton}>전체 보기 &gt;</Text>
               </TouchableOpacity>

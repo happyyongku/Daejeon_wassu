@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import HeartIcon from '../assets/imgs/heart.svg';
-import HearthIcon from '../assets/imgs/hearth.svg';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import {filterPosts, toggleLike} from '../api/community'; // toggleLike 함수 추가
@@ -228,7 +227,10 @@ const Community = () => {
                   <Text style={styles.likes}>좋아요 {likesCount[item.id]}</Text>
                   <TouchableOpacity onPress={() => handleToggleLike(item.id)}>
                     {likedPosts[item.id] ? (
-                      <HearthIcon width={20} height={20} />
+                      <Image
+                        source={require('../assets/imgs/heart1.png')}
+                        style={{width: 20, height: 20}}
+                      />
                     ) : (
                       <HeartIcon width={20} height={20} />
                     )}

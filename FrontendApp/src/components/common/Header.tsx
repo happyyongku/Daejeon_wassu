@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <View style={styles.container}>
-      <Text>로고</Text>
+      <Image source={require('../../assets/imgs/LogoHD.png')} style={styles.logo} />
       <TouchableOpacity style={styles.loginButton} onPress={goToLogin}>
         <Text style={styles.loginButtonText}>로그인</Text>
       </TouchableOpacity>
@@ -70,6 +70,9 @@ const styles = StyleSheet.create({
   myButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  logo: {
+    resizeMode: 'contain',
   },
 });
 
