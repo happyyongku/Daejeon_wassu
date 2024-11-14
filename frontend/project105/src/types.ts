@@ -77,3 +77,18 @@ export interface CourseData {
   description: string;
   image_url: string;
 }
+
+export interface BakeriesData {
+  address: string;
+  bakery_name: string;
+  business_hours: string;
+  description: string;
+  elastic_id: string;
+  image_url: string;
+  phone: string;
+}
+
+export interface CourseDetailData {
+  bakeries: BakeriesData[];
+  course: CourseData;
+}
