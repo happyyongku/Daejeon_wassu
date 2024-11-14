@@ -114,13 +114,10 @@ export default function Page() {
         </div>
       </div>
       <div>
-        {/* <img className={style.locaimg} src="/images/building.png" alt="" /> */}
         <Carousel touristSpotImages={location?.touristSpotImages} />
       </div>
-      {/* 여기에 상호작용 들어가자 클라이언트 컴포넌트 */}
       <div>
         <div className={style.container1}>
-          {/* 찜하기 조건 처리 해서 좋아요 기능 구현 */}
           <div className={style.box1}>
             {location?.favorite ? (
               <div onClick={unJjimLoca}>
@@ -155,8 +152,21 @@ export default function Page() {
             <img className={style.icon1} src="/images/star.png" alt="star" />
             <p className={style.text1}>리뷰쓰기</p>
           </div>
-          <div className={style.box1} onClick={openModal}>
-            <img className={style.icon1} src="/images/stamp.png" alt="stamp" />
+          <div className={style.box1}>
+            {location?.stamped ? (
+              <img
+                className={style.icon1}
+                src="/images/dojang.png"
+                alt="stamp"
+              />
+            ) : (
+              <img
+                className={style.icon1}
+                src="/images/stamp.png"
+                alt="stamp"
+              />
+            )}
+
             <p className={style.text1}>스탬프</p>
           </div>
         </div>
