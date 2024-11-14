@@ -20,7 +20,7 @@ import ChangePassword from '../components/Profile/ChangePassword';
 import ChangeInfo from '../components/Profile/ChangeInfo';
 import CreateSchedule from '../components/TravelItinerary/CreateSchedule';
 import Details from '../components/TravelItinerary/Details';
-import Course from '../components/TravelChallenge/Course';
+import CoursePage from '../components/TravelChallenge/CouresePage';
 import CourseDescription from '../components/TravelChallenge/CourseDescription';
 import ChallengeDetail from '../components/TravelChallenge/ChallengeDetail';
 import PlaceList from '../components/RecommendedPlace/PlaceList';
@@ -67,7 +67,7 @@ export type RootStackParamList = {
   };
   Course: undefined;
   CourseDescription: undefined;
-  ChallengeDetail: undefined;
+  ChallengeDetail: {id: number};
   PlaceList: {category?: string};
   PlaceDetail: {id: string};
   Writing: undefined;
@@ -167,7 +167,7 @@ function Navigator() {
         options={{headerShown: false}}
       />
       <Stack.Screen name="Details" component={Details} options={{headerShown: false}} />
-      <Stack.Screen name="Course" component={Course} options={{headerShown: false}} />
+      <Stack.Screen name="Course" component={CoursePage} options={{headerShown: false}} />
       <Stack.Screen
         name="CourseDescription"
         component={CourseDescription}

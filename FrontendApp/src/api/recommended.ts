@@ -44,7 +44,27 @@ export async function getCoursePresets() {
     }
   }
 }
-
+// 코스 상세 조회
+export async function getCourseDetail(id: number) {
+  try {
+    const response = await Authfastapi.get(`/courses/${id}`);
+    if (response && response.data) {
+      console.log('Course detail retrieved successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to retrieve course detail.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Get course detail error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during course detail retrieval:', err);
+      return null;
+    }
+  }
+}
 // AI 코스 추천
 export async function getAiRecommendedCourse() {
   try {
