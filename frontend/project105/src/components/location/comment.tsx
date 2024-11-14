@@ -79,7 +79,6 @@ ReviewData) {
   return (
     <div className={style.card_container}>
       <div className={style.piccontainer}>{renderImage()}</div>
-      {/* <div >프사</div> */}
       {profile.profileImage !== "default" ? (
         <img className={style.profilepic} src={profile.profileImage} alt="" />
       ) : (
