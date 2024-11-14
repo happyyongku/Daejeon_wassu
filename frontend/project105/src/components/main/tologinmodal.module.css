@@ -16,7 +16,7 @@
 /* Modal Content (모달 내부) */
 .modalContent {
   background-color: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 10px;
   text-align: center;
 }
@@ -24,14 +24,44 @@
 .modalContent button {
   padding: 10px 20px;
   margin-top: 10px;
-  background-color: #0070f3;
+  background-color: #418663;
   border: none;
   color: white;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
   border-radius: 5px;
 }
 
 .modalContent button:hover {
-  background-color: #005bb5;
+  background-color: #43745b;
+}
+
+.imgbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.img1 {
+  width: 40px;
+  height: 40px;
+  margin-right: 7px;
+}
+
+.img2 {
+  width: 70px;
+  height: 30px;
+}
+
+.h1 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.content {
+  font-size: 16px;
+  color: #333333;
+  opacity: 70%;
+  margin-bottom: 20px;
 }
