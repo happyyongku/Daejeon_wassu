@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,33 +15,33 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SseService {
 
-    private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter createEmitter(Long roomId) {
-        SseEmitter emitter = new SseEmitter(-1L);
-        emitters.put(roomId, emitter);
-        emitter.onCompletion(() -> emitters.remove(roomId));
-        emitter.onTimeout(() -> emitters.remove(roomId));
+    public SseEmitter createEmitter(String email, Long roomId) {
+        SseEmitter emitter = new SseEmitter();
+
+        // roomId에 해당하는 사용자 맵 가져오기, 없으면 새로 생성
+        emitters.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>())
+                .put(email, emitter);
+
+        // 연결 종료 시 맵에서 emitter 제거
+        emitter.onCompletion(() -> removeEmitter(roomId, email));
+        emitter.onTimeout(() -> removeEmitter(roomId, email));
+        emitter.onError(e -> removeEmitter(roomId, email));
         return emitter;
     }
 
-    public void emitterTest(Long roomId) {
-        SseEmitter sseEmitter = emitters.get(roomId);
-        try {
-            sseEmitter.send("sse connect test success");
-        } catch (IOException e) {
-            log.info(e.getMessage());
-        }
+    public SseEmitter getEmitter(Long roomId, String email) {
+        return emitters.get(roomId).get(email);
     }
 
-    public void sendPiecePosition(Long roomId, int position, int[] diceValues) {
-        SseEmitter emitter = emitters.get(roomId);
-        if (emitter != null) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("positionUpdate")
-                        .data(Map.of("position", position, "dice", diceValues)));
-            } catch (IOException e) {
+    private void removeEmitter(Long roomId, String email) {
+        Map<String, SseEmitter> userEmitters = emitters.get(roomId);
+        if (userEmitters != null) {
+            userEmitters.remove(email);
+
+            // roomId에 해당하는 사용자 목록이 비었으면 roomId도 제거
+            if (userEmitters.isEmpty()) {
                 emitters.remove(roomId);
             }
         }

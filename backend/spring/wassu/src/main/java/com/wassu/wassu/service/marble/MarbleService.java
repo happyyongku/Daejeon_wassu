@@ -36,14 +36,11 @@ public class MarbleService {
     private final MarbleRoomRepository roomRepository;
     private final RedisRepository redisRepository;
     private final NodeRepository nodeRepository;
-    private final UserService userService;
-    private static final double EARTH_RADIUS = 6371000;
 
-    public int[] rollDice() {
-        int dice1 = (int) (Math.random() * 6) + 1;
-        int dice2 = (int) (Math.random() * 6);
-        return new int[]{dice1, dice2};
-    }
+    private final UserService userService;
+    private final SseService sseService;
+
+    private static final double EARTH_RADIUS = 6371000;
 
     public List<MarbleDTO> getMarbles() {
         return marbleRepository.findAll().stream()
@@ -107,6 +104,64 @@ public class MarbleService {
         }
     }
 
+    public void rollDice(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+
+        int dice1 = (int) (Math.random() * 6) + 1;
+        int dice2 = (int) (Math.random() * 6);
+
+        if (isCreator(email, room)) {
+            if (!room.isCreatorVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
+            // emitter 로 roomData + diceNumber send
+        } else {
+            if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
+            // emitter 로 roomData + diceNumber send
+        }
+    }
+
+    public void usePass(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        // 해당 사용자 장소인증 처리 + 패스권 차감
+        if (isCreator(email, room)) {
+            room.setCreatorVerified(true);
+            room.setCreatorPass(room.getCreatorPass() - 1);
+            // emitter 로 roomData send
+        } else {
+            room.setGuestVerified(true);
+            room.setGuestPass(room.getGuestPass() - 1);
+            // emitter 로 roomData send
+        }
+    }
+
+    public void useReroll(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        int dice1 = (int) (Math.random() * 6) + 1;
+        int dice2 = (int) (Math.random() * 6);
+
+        // 해당 사용자 주사위 다시 굴리기 + 리롤권 차감
+        if (isCreator(email, room)) {
+            if (!room.isCreatorVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
+            room.setCreatorReroll(room.getCreatorReroll() - 1);
+            // emitter 로 roomData + diceNumber send
+        } else {
+            if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
+            room.setGuestReroll(room.getGuestReroll() - 1);
+            // emitter 로 roomData + diceNumber send
+        }
+    }
+
     public boolean verifyMission(Long nodeId, MissionVerifyDTO dto) {
         NodeEntity node = nodeRepository.findByIdWithSpot(nodeId).orElseThrow(() -> new CustomException(CustomErrorCode.NODE_NOT_FOUND));
         TouristSpotEntity spot = node.getTouristSpot();
@@ -132,6 +187,18 @@ public class MarbleService {
                 .single(room.isSingle())
                 .nodes(nodeDTOs)
                 .creator(userService.convertToDTO(room.getCreator())).build();
+    }
+
+    private boolean isCreator(String email, MarbleRoomEntity room) {
+        UserEntity guest = room.getGuest();
+        UserEntity creator = room.getCreator();
+        if (email.equals(creator.getEmail())) {
+            return true;
+        } else if (email.equals(guest.getEmail())) {
+            return false;
+        } else {
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+        }
     }
 
     private String generateInviteCode() {

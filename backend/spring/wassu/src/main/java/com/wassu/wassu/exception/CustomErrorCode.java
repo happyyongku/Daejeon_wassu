@@ -14,6 +14,7 @@ public enum CustomErrorCode {
     ALREADY_LIKED_REVIEW(HttpStatus.BAD_REQUEST, "Already Liked Review"),
     ALREADY_LIKED_ARTICLE(HttpStatus.BAD_REQUEST, "Already Liked Article"),
     ALREADY_LIKED_TOURISTSPOT(HttpStatus.BAD_REQUEST, "Already Liked TouristSpot"),
+    MISSION_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "Mission Not Verified"),
 
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
     USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),
