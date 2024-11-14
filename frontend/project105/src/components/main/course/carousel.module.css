@@ -44,3 +44,14 @@
 .carouselButton:hover {
   background-color: rgba(0, 0, 0, 0.8);
 }
+
+.noimg {
+  width: 100%;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  color: #333333;
+  opacity: 40%;
+  font-size: 16px;
+  font-weight: bold;
+}
