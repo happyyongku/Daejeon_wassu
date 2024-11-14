@@ -13,6 +13,7 @@ export default function Page() {
   const { id } = useParams();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [forLoading, setForLoading] = useState(false);
 
   // 장소 디테일 호출 axios 함수
   const getDetail = async () => {
@@ -29,6 +30,7 @@ export default function Page() {
       if (response.data) {
         console.log("장소 상세 조회 성공", response.data);
         setLocation(response.data);
+        setForLoading(true);
       }
     } catch (error) {
       console.error(error);
@@ -92,6 +94,17 @@ export default function Page() {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  // 로딩중일 때
+  if (!forLoading) {
+    return (
+      <div className={style.prom}>
+        <svg className={style.loading_container}>
+          <rect className={`${style.loading_boxes}`}></rect>
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div>
