@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {api, fastapi} from './core';
+import {api, fastapi, Authfastapi} from './core';
 
 // 추천 관광지 조회
 export async function getRecommendedTouristSpots(category: string) {
@@ -26,7 +26,7 @@ export async function getRecommendedTouristSpots(category: string) {
 // 코스 프리셋 조회
 export async function getCoursePresets() {
   try {
-    const response = await api.get('/courses/presets');
+    const response = await Authfastapi.get('/courses');
     if (response && response.data) {
       console.log('Course presets retrieved successfully:', response.data);
       return response.data;
