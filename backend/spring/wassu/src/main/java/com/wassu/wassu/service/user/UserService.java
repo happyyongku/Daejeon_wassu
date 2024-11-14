@@ -38,16 +38,15 @@ public class UserService {
             throw new IllegalStateException("Email already exists");
         }
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        if (userEntity.getProfileImage().equals("default")) {
-            userEntity.setProfileImage(
-                    String.format(
-                            "https://%s.s3.%s.amazonaws.com/%s",
-                            amazonS3Config.getBucket(),
-                            amazonS3Config.getRegion(),
-                            "default.png"
-                    )
-            );
-        }
+        userEntity.setProfileImage(
+                String.format(
+                        "https://%s.s3.%s.amazonaws.com/%s",
+                        amazonS3Config.getBucket(),
+                        amazonS3Config.getRegion(),
+                        "default.png"
+                )
+        );
+
         return userRepository.save(userEntity);
     }
     

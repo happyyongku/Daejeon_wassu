@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class UserSignupDTO {
     private String email;
     private String password;
@@ -13,5 +13,4 @@ public class UserSignupDTO {
     private Integer birthYear;
     private String level;
     private Integer exp;
-    private String profileImage;
 }
