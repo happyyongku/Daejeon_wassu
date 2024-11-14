@@ -92,3 +92,13 @@ export interface CourseDetailData {
   bakeries: BakeriesData[];
   course: CourseData;
 }
+
+export interface UserData {
+  email: string;
+  gender: string;
+  birth_year: string;
+  nickname: string;
+  level: string;
+  exp: number;
+  profileImage: string;
+}

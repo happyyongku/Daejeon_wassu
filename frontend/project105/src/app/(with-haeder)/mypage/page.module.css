@@ -1,0 +1,13 @@
+.navbox {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.nav {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333333;
+  opacity: 35%;
+  cursor: pointer;
+}
