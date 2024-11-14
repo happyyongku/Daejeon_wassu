@@ -161,7 +161,7 @@ public class TouristSpotController {
                 return ResponseEntity.status(404).body(utilTool.createResponse("status","out of range"));
             }
         } catch (CustomException ce){
-            return ResponseEntity.status(404).body(utilTool.createResponse("status","user not found"));
+            return ResponseEntity.status(404).body(utilTool.createResponse("status","user or spot not found"));
         } catch (Exception e) {
             log.error("Exception occurred while stamping tourist spot", e);
             return ResponseEntity.status(500).body(utilTool.createResponse("status", e.getMessage()));
