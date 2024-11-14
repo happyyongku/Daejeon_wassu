@@ -204,6 +204,10 @@ const MainPage = () => {
 
   const categoryRows = chunkArray<Category>(categories, 5);
 
+  const handlePostPress = (articleId: string) => {
+    navigation.navigate('PostDetail', {articleId});
+  };
+
   return (
     <>
       <View style={styles.header}>
@@ -361,12 +365,14 @@ const MainPage = () => {
             {/* 인기 게시글 목록 */}
             {review.map(item => (
               <View key={item.id} style={styles.reviewCard}>
-                <View style={styles.userInfo}>
-                  <Image source={item.userimg} style={styles.userImage} />
-                  <Text style={styles.nickname}>{item.nickname}</Text>
-                </View>
-                <Text style={styles.reviewTitle}>{item.title}</Text>
-                <Text style={styles.reviewText}>{item.context}</Text>
+                <TouchableOpacity onPress={() => handlePostPress(item.id)}>
+                  <View style={styles.userInfo}>
+                    <Image source={item.userimg} style={styles.userImage} />
+                    <Text style={styles.nickname}>{item.nickname}</Text>
+                  </View>
+                  <Text style={styles.reviewTitle}>{item.title}</Text>
+                  <Text style={styles.reviewText}>{item.context}</Text>
+                </TouchableOpacity>
               </View>
             ))}
           </View>

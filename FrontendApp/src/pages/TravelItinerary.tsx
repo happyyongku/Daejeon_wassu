@@ -91,7 +91,7 @@ const TravelItinerary = () => {
   };
 
   const goToRecommend = () => {
-    navigation.navigate('RecommendedPlace');
+    navigation.navigate('RecommendedPlace', {category: ''});
   };
 
   const goToCreateSchedule = () => {
