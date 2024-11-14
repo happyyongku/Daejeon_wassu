@@ -7,6 +7,7 @@ import {
   Dimensions,
   ScrollView,
   ImageBackground,
+  FlatList,
 } from 'react-native';
 import RecommendedSearchBar from './RecommendedSearchBar';
 import CategoryList from './CategoryList';
@@ -16,10 +17,12 @@ import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
 import MarkerIcon from '../../assets/imgs/marker.svg';
 import {getTouristSpotsByCategory} from '../../api/tourist';
+import {getSpots} from '../../api/itinerary';
+import {TouristSpot} from '../../types';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-interface TouristSpot {
+interface TouristSpots {
   id: string;
   image: {uri: string} | number;
   area: string;
@@ -38,9 +41,12 @@ type RouteParams = {
 const PlaceList: React.FC = () => {
   const navigation = useNavigation<PlaceListNavigationProp>();
   const route = useRoute<RouteProp<RouteParams, 'PlaceList'>>();
-  const [places, setPlaces] = useState<TouristSpot[]>([]);
+  const [places, setPlaces] = useState<TouristSpots[]>([]);
   const initialCategory = route.params?.category || '전체'; // 전달된 카테고리 값을 받음
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
+  const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
 
   // 데이터 요청 함수
   const fetchPlacesByCategory = async (category: string) => {
@@ -48,7 +54,7 @@ const PlaceList: React.FC = () => {
       const response = await getTouristSpotsByCategory(category === '전체' ? '' : category);
 
       if (response) {
-        const formattedPlaces: TouristSpot[] = response.map((item: any) => ({
+        const formattedPlaces: TouristSpots[] = response.map((item: any) => ({
           id: item.id,
           image:
             item.image && item.image !== null
@@ -76,13 +82,65 @@ const PlaceList: React.FC = () => {
     console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
     navigation.navigate('PlaceDetail', {id});
   };
+
+  const handleSearch = async () => {
+    if (searchText.trim()) {
+      // 검색어가 있을 때만 검색 실행
+      const results = await getSpots(searchText);
+      setSearchResults(results ?? []); // If results is null, set an empty array
+      setIsSearchResultVisible(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchResultVisible(false); // 검색어가 없으면 검색 결과 숨김
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchText('');
+    setIsSearchResultVisible(false);
+  };
+
+  // searchText가 변경될 때마다 handleSearch 실행
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
   return (
     <>
       <Header />
       <ScrollView style={styles.container}>
         <View style={styles.search}>
-          <RecommendedSearchBar />
+          <RecommendedSearchBar
+            value={searchText}
+            onChangeText={setSearchText} // 검색어 변경 시 자동 호출
+            onSearch={handleSearch} // 엔터 키를 눌렀을 때 검색
+            onClear={handleClearSearch} // X 버튼 클릭 시 검색어 초기화
+          />
         </View>
+
+        {isSearchResultVisible && (
+          <View style={styles.searchResultContainer}>
+            {searchResults.length > 0 ? (
+              <FlatList
+                data={searchResults}
+                keyExtractor={item => item.id}
+                renderItem={({item}) => (
+                  <TouchableOpacity onPress={() => goToPlaceDetail(item.id)}>
+                    <View style={styles.listItem}>
+                      <Text style={styles.spotName}>{item.spotName}</Text>
+                      <Text style={styles.spotAddress}>{item.spotAddress}</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <View style={styles.noResultsContainer}>
+                <Text style={styles.noResultsText}>검색 결과가 없습니다</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={styles.categoryIcon}>
           <CategoryList onSelectCategory={setSelectedCategory} />
@@ -207,6 +265,50 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 14,
     fontFamily: 'Pretendard-Bold',
+  },
+  searchResultContainer: {
+    position: 'absolute',
+    top: 70, // 검색창 아래 위치하도록 적절히 설정
+    width: width * 0.75,
+    maxHeight: height * 0.5,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    alignSelf: 'center',
+    zIndex: 10,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  listItem: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  spotName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  spotAddress: {
+    fontSize: 14,
+    color: '#555',
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#888',
+    fontFamily: 'Pretendard-Medium',
   },
 });
 
