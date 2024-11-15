@@ -93,14 +93,20 @@ public class MarbleService {
         return new NodeDTO(nodeId, spot.getId(), spot.getSpotName(), thumbnailUrl, node.getNodeOrder());
     }
 
-    public RoomDTO getRoomDetails(Long roomId) {
+    public RoomDTO getRoomDetails(String email, Long roomId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         if (roomRepository.isSingleRoom(roomId)) {
             MarbleRoomEntity room = roomRepository.findSingleRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-            return createRoomDTO(roomId, room);
+            return createRoomDTO(user, roomId, room, isCreator(user, room));
         } else {
             MarbleRoomEntity room = roomRepository.findMultiRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-            RoomDTO roomDTO = createRoomDTO(roomId, room);
-            roomDTO.setGuest(userService.convertToDTO(room.getGuest()));
+            boolean isCreator = isCreator(user, room);
+            RoomDTO roomDTO = createRoomDTO(user, roomId, room, isCreator);
+            if (isCreator) {
+                roomDTO.setOpponent(userService.convertToDTO(room.getGuest()));
+            } else {
+                roomDTO.setOpponent(userService.convertToDTO(room.getCreator()));
+            }
             return roomDTO;
         }
     }
@@ -191,7 +197,7 @@ public class MarbleService {
         return isMissionVerified(latitude, longitude, dto.getLatitude(), dto.getLongitude());
     }
 
-    private RoomDTO createRoomDTO(Long roomId, MarbleRoomEntity room) {
+    private RoomDTO createRoomDTO(UserEntity user, Long roomId, MarbleRoomEntity room, boolean isCreator) {
         MarbleEntity marble = room.getMarble();
         List<NodeEntity> nodes = marble.getNodes();
         List<NodeDTO> nodeDTOs = new ArrayList<>();
@@ -201,13 +207,23 @@ public class MarbleService {
             NodeDTO nodeDTO = new NodeDTO(node.getId(), spot.getId(), spot.getSpotName(), thumbnail.getTouristSpotImageUrl(), node.getNodeOrder());
             nodeDTOs.add(nodeDTO);
         }
-        return RoomDTO.builder()
-                .roomId(roomId)
-                .marbleId(marble.getId())
-                .marbleName(marble.getMarbleName())
-                .single(room.isSingle())
-                .nodes(nodeDTOs)
-                .creator(userService.convertToDTO(room.getCreator())).build();
+        if (isCreator) {
+            return RoomDTO.builder()
+                    .roomId(roomId)
+                    .marbleId(marble.getId())
+                    .marbleName(marble.getMarbleName())
+                    .single(room.isSingle())
+                    .nodes(nodeDTOs)
+                    .you(userService.convertToDTO(room.getCreator())).build();
+        } else {
+            return RoomDTO.builder()
+                    .roomId(roomId)
+                    .marbleId(marble.getId())
+                    .marbleName(marble.getMarbleName())
+                    .single(room.isSingle())
+                    .nodes(nodeDTOs)
+                    .you(userService.convertToDTO(room.getGuest())).build();
+        }
     }
 
     private boolean isCreator(UserEntity user, MarbleRoomEntity room) {

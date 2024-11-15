@@ -68,8 +68,9 @@ public class MarbleController {
 
     // 마블 상세조회
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<?> getRoomDetails(@PathVariable Long roomId) {
-        RoomDTO result = marbleService.getRoomDetails(roomId);
+    public ResponseEntity<?> getRoomDetails(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long roomId) {
+        RoomDTO result = marbleService.getRoomDetails(userEmail, roomId);
         return ResponseEntity.ok(result);
     }
 
