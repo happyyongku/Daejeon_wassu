@@ -2,15 +2,13 @@ package com.wassu.wassu.service.touristspot;
 
 import com.wassu.wassu.dto.review.ReviewDTO;
 import com.wassu.wassu.dto.review.ReviewImageDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotFavoriteDTO;
-import com.wassu.wassu.dto.touristspot.TouristSpotImageDto;
-import com.wassu.wassu.dto.touristspot.TouristSpotTagDto;
+import com.wassu.wassu.dto.touristspot.*;
 import com.wassu.wassu.dto.user.UserProfileDTO;
 import com.wassu.wassu.entity.touristspot.TouristSpotEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
+import com.wassu.wassu.entity.touristspot.TouristSpotImageEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
@@ -30,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -97,6 +96,32 @@ public class TouristSpotService {
         spot.setFavoritesCount(totalFavorites - 1);
 
         return new TouristSpotFavoriteDTO("Spot successfully unliked", totalFavorites - 1, false);
+    }
+
+    public List<TouristSpotRecommendDTO> recommendTouristSpot() {
+        List<TouristSpotEntity> scores = touristSpotRepository.findAllWithScores();
+        int top20PercentCount = (int) Math.ceil(scores.size() * 0.2);
+        List<TouristSpotEntity> top20PercentSpots = scores.subList(0, top20PercentCount);
+        Collections.shuffle(top20PercentSpots);
+        List<TouristSpotEntity> list = top20PercentSpots.stream().limit(10).toList();
+        List<TouristSpotRecommendDTO> recommendDTOS = new ArrayList<>();
+        for (TouristSpotEntity spot : list) {
+            String thumbnail = null;
+            List<TouristSpotImageEntity> images = spot.getTouristSpotImages();
+            if (images != null && !images.isEmpty()) {
+                thumbnail = images.get(0).getTouristSpotImageUrl();
+            }
+            TouristSpotRecommendDTO dto = TouristSpotRecommendDTO.builder()
+                    .spotId(spot.getId())
+                    .spotName(spot.getSpotName())
+                    .thumbnail(thumbnail)
+                    .spotDescription(spot.getSpotDescription())
+                    .spotAddress(spot.getSpotAddress())
+                    .likeCount(spot.getFavoritesCount())
+                    .reviewCount(spot.getReviews().size()).build();
+            recommendDTOS.add(dto);
+        }
+        return recommendDTOS;
     }
 
     public TouristSpotDTO createTouristSpotDTO(TouristSpotEntity spot, List<ReviewEntity> reviews, List<TouristSpotImageDto> imageDto, boolean isFavorite, boolean isStamped, List<TouristSpotTagDto> tagDto, List<ReviewDTO> reviewDto) {
