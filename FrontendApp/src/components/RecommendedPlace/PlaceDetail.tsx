@@ -1,5 +1,4 @@
 /* @typescript-eslint/no-explicit-any: "off" */
-
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
@@ -31,6 +30,7 @@ import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {getTouristSpotDetails, registerTouristStamp} from '../../api/tourist';
 import {favoriteTouristSpot, unfavoriteTouristSpot} from '../../api/tourist';
 import GpsComponent from '../common/GpsComponent'; // GpsComponent 파일 경로
+import {getTokens} from '../../utills/tokenStorage';
 
 type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -109,6 +109,21 @@ const PlaceDetail = () => {
       스포츠: require('../../assets/imgs/nostamp/sport.png'),
       랜드마크: require('../../assets/imgs/nostamp/landmark.png'),
     },
+  };
+
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
   };
 
   const fetchSpotDetails = useCallback(async () => {
@@ -286,7 +301,9 @@ const PlaceDetail = () => {
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.iconButton} onPress={handleFavoriteToggle}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(handleFavoriteToggle)}>
             {isFavorite ? (
               <Image source={require('../../assets/imgs/heart1.png')} style={styles.icon} />
             ) : (
@@ -294,15 +311,21 @@ const PlaceDetail = () => {
             )}
             <Text style={styles.iconButtonText}>{isFavorite ? '찜취소' : '찜하기'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={goToTravelItinerary}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(goToTravelItinerary)}>
             <CalendarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>일정추가</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={gotoWrite}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(gotoWrite)}>
             <StarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>리뷰쓰기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleStampPress}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(handleStampPress)}>
             <Image source={getStampIcon()} style={styles.icon} />
             <Text style={styles.iconButtonText}>스탬프</Text>
           </TouchableOpacity>
@@ -367,7 +390,7 @@ const PlaceDetail = () => {
         <View style={styles.reviewSection}>
           <View style={styles.reviewHeader}>
             <Text style={styles.reviewTitle}>방문 후기 {spotDetails.reviewCount}</Text>
-            <TouchableOpacity onPress={gotoWrite}>
+            <TouchableOpacity onPress={() => checkLoginAndExecute(gotoWrite)}>
               <EditIcon width={20} height={20} />
             </TouchableOpacity>
           </View>

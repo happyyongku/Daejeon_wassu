@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import SearchBar from '../components/Main/SearchBar';
 import {useNavigation} from '@react-navigation/native';
@@ -29,6 +30,7 @@ import {getTokens} from '../utills/tokenStorage';
 import {getRecommendedPosts} from '../api/community';
 import {getSpots} from '../api/itinerary';
 import {TouristSpot} from '../types';
+import {getUserProfile} from '../api/mypage';
 
 const {width, height} = Dimensions.get('window');
 
@@ -112,6 +114,10 @@ const MainPage = () => {
   const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
 
+  const [userProfile, setUserProfile] = useState<{
+    profileImage: string | null;
+  } | null>(null);
+
   const handleSearch = async () => {
     if (searchText.trim()) {
       // 검색어가 있을 때만 검색 실행
@@ -157,6 +163,35 @@ const MainPage = () => {
     fetchRecommendedPosts();
   }, []);
 
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const {accessToken} = await getTokens();
+
+      if (accessToken) {
+        const profile = await getUserProfile();
+        if (profile) {
+          setUserProfile({profileImage: profile.profileImage});
+        } else {
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', checkLoginStatus); // 화면 포커싱 시 확인
+    return unsubscribe;
+  }, [navigation]);
+
+  const goToLoginOrProfile = async () => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      navigation.navigate('MyPage');
+    } else {
+      navigation.navigate('Login');
+    }
+  };
+
   const goToRecommend = () => {
     navigation.navigate('RecommendedPlace', {category: ''});
   };
@@ -183,15 +218,6 @@ const MainPage = () => {
 
   const goToMap = () => {
     navigation.navigate('Map');
-  };
-
-  const goToLoginOrProfile = async () => {
-    const {accessToken} = await getTokens();
-    if (accessToken) {
-      navigation.navigate('MyPage');
-    } else {
-      navigation.navigate('Login');
-    }
   };
 
   const goToPlaceDetail = (id: string) => {
@@ -243,6 +269,21 @@ const MainPage = () => {
     navigation.navigate('PostDetail', {articleId});
   };
 
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
+
   return (
     <>
       <View style={styles.header}>
@@ -252,7 +293,11 @@ const MainPage = () => {
         </View>
 
         <TouchableOpacity style={styles.loginButton} onPress={goToLoginOrProfile}>
-          <LoginIcon width={25} height={25} />
+          {userProfile && userProfile.profileImage ? (
+            <Image source={{uri: userProfile.profileImage}} style={styles.profileImage} />
+          ) : (
+            <LoginIcon width={25} height={25} />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -407,7 +452,9 @@ const MainPage = () => {
           />
 
           <Text style={styles.monopolyDescription}>2팀의 대결모드도 가능!</Text>
-          <TouchableOpacity style={styles.monopolyButton} onPress={goToMonopolyPage}>
+          <TouchableOpacity
+            style={styles.monopolyButton}
+            onPress={() => checkLoginAndExecute(goToMonopolyPage)}>
             <Text style={styles.monopolyButtonText}>마블와슈 하러가기!</Text>
           </TouchableOpacity>
         </View>
@@ -863,6 +910,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
+  },
+
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 
