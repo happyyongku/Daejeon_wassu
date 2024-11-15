@@ -1,34 +1,62 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, FlatList} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import CategoryList from '../../components/RecommendedPlace/CategoryList';
+import {getTouristStamps} from '../../api/tourist';
 
 type DaejeonStampNavigationProp = StackNavigationProp<RootStackParamList, 'RecommendedPlace'>;
 const {width} = Dimensions.get('window');
 
+// 이미지 맵
+const categoryImages: {[key: string]: any} = {
+  음식: require('../../assets/imgs/stamp/food.png'),
+  자연: require('../../assets/imgs/stamp/nature.png'),
+  역사: require('../../assets/imgs/stamp/history.png'),
+  문화: require('../../assets/imgs/stamp/culture.png'),
+  과학: require('../../assets/imgs/stamp/science.png'),
+  교육: require('../../assets/imgs/stamp/education.png'),
+  가족: require('../../assets/imgs/stamp/family.png'),
+  빵집: require('../../assets/imgs/stamp/bakery.png'),
+  스포츠: require('../../assets/imgs/stamp/sport.png'),
+  랜드마크: require('../../assets/imgs/stamp/landmark.png'),
+};
+
 const DaejeonStamp = () => {
   const navigation = useNavigation<DaejeonStampNavigationProp>();
+  const [stamps, setStamps] = useState<{id: string; name: string; image: any}[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
 
-  const handleNavigateToRecommended = () => {
-    navigation.navigate('RecommendedPlace');
+  // 카테고리 선택 시 실행될 함수
+  const handleSelectCategory = async (categoryName: string) => {
+    setSelectedCategory(categoryName);
+    try {
+      // 카테고리가 "전체"인 경우 빈값으로 요청
+      const response = await getTouristStamps();
+      if (response) {
+        const filteredStamps = response
+          .filter(stamp => categoryName === '전체' || stamp.category === categoryName)
+          .map((stamp, index) => ({
+            id: (index + 1).toString(),
+            name: stamp.spotName,
+            image: categoryImages[stamp.category] || null,
+          }));
+        setStamps(filteredStamps);
+      }
+    } catch (error) {
+      console.error('Error fetching stamps:', error);
+    }
   };
 
-  // 임시 도장 데이터
-  const stamps = [
-    {id: '1', name: '성심당', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '2', name: '하레하레', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '3', name: '정인구 팥빵', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '4', name: '빵집 A', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-    {id: '5', name: '빵집 B', image: require('../../assets/imgs/Breadstamp.png')},
-  ];
+  // 컴포넌트가 처음 렌더링될 때 전체 스탬프 가져오기
+  useEffect(() => {
+    handleSelectCategory('전체');
+  }, []);
+
+  const handleNavigateToRecommended = () => {
+    navigation.navigate('RecommendedPlace', {});
+  };
 
   return (
     <View style={styles.container}>
@@ -48,10 +76,10 @@ const DaejeonStamp = () => {
       </View>
       {/* 가로 스크롤이 가능한 CategoryList */}
       <View style={styles.categoryIcon}>
-        <CategoryList />
+        <CategoryList onSelectCategory={handleSelectCategory} />
       </View>
       <View>
-        <Text style={styles.stampTitle}>전체 스탬프</Text>
+        <Text style={styles.stampTitle}>{selectedCategory} 스탬프</Text>
       </View>
 
       {/* 도장 리스트 */}
@@ -158,8 +186,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   stampImage: {
-    width: 100,
-    height: 100,
+    width: 75,
+    height: 75,
   },
   stampName: {
     fontSize: 12,
