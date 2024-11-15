@@ -102,3 +102,18 @@ export interface UserData {
   exp: number;
   profileImage: string;
 }
+
+export interface ScheduleData {
+  endDate: string;
+  scheduleId: number;
+  spotCount: number;
+  startDate: string;
+  thumbnail: string;
+  title: string;
+}
+
+export interface MyScheduleData {
+  onGoingSchedules: ScheduleData;
+  pastSchedules: ScheduleData[];
+  upcomingSchedules: ScheduleData[];
+}
