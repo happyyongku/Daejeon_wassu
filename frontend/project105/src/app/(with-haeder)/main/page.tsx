@@ -8,7 +8,7 @@ import Reco from "@/components/main/reco/reco";
 import Community from "../../../components/main/community/community";
 import SearchResultCard from "@/components/main/searchresultcard";
 import Course from "@/components/main/course/course";
-import { LocationData } from "@/types";
+import { LocationData, UserData } from "@/types";
 import axios from "axios";
 
 export default function Page() {
@@ -24,6 +24,7 @@ export default function Page() {
       const isValidToken = checkTokenValidity(token);
       if (isValidToken) {
         setIsAuthenticated(true);
+        getMyData();
       } else {
         setIsAuthenticated(false);
         setIsModalOpen(true);
@@ -72,6 +73,29 @@ export default function Page() {
     }
   };
 
+  // 유저 데이터 요청 axios
+  const [profile, setProfile] = useState<UserData | null>(null);
+
+  const getMyData = async () => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await axios.get(
+        `https://k11b105.p.ssafy.io/wassu/user/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data) {
+        console.log("회원정보 조회 성공", response.data);
+        setProfile(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       console.log("Enter 키가 눌렸습니다!", word);
@@ -92,7 +116,9 @@ export default function Page() {
               alt="mainimage"
             />
             <div className={style.maintext}>
-              <div className={style.sayhello}>안녕하세요, 노은맨님</div>
+              <div className={style.sayhello}>
+                안녕하세요, {profile?.nickname} 님
+              </div>
               <div className={style.textpromo}>재밌게 즐기세요,</div>
               <div className={style.textpromo}>대전왔슈</div>
             </div>

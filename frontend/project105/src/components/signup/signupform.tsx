@@ -64,7 +64,7 @@ export default function SignupForm() {
     const password1Value = e.target.value;
     setPassword1(password1Value);
     if (!passwordPattern.test(password1)) {
-      setPassword1Error("비밀번호 형식에 맞게 입력해라.");
+      setPassword1Error("비밀번호 형식에 맞게 입력해주세요.");
     } else {
       setPassword1Error("");
     }
@@ -295,7 +295,7 @@ export default function SignupForm() {
           type="password"
           id="password1"
           name="password1"
-          placeholder="비밀번호를 입력해주세요"
+          placeholder="대문자, 소문자, 특수문자를 포함하여 8~20글자로 입력해주세요"
           onChange={onChangePassword1}
         />
         {password1Error && (

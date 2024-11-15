@@ -117,3 +117,17 @@ export interface MyScheduleData {
   pastSchedules: ScheduleData[];
   upcomingSchedules: ScheduleData[];
 }
+
+export interface RecoData {
+  likeCount: number;
+  reviewCount: number;
+  spotAddress: string;
+  spotDescription: string;
+  spotId: string;
+  spotName: string;
+  thumbnail: string;
+}
+
+export interface RecosData {
+  data: RecoData[];
+}

@@ -53,10 +53,13 @@
   border: none;
   background: none;
   color: red;
+  margin-top: 10px;
 }
 
 .logoutbutton {
   border: none;
   background: none;
   color: #418663;
+  margin-right: 10px;
+  margin-top: 10px;
 }
