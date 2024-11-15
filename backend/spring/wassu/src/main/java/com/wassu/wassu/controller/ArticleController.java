@@ -78,7 +78,9 @@ public class ArticleController {
         ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
 
         String articleId = articleCreateService.createArticle(userEmail, articleDTO, files);
-
+        log.info("""
+                Article ID : {}
+                """, articleId);
         return ResponseEntity.ok(utilTool.createResponse("articleId", articleId));
     }
     
