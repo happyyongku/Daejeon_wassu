@@ -46,7 +46,7 @@ public class DataService {
                 String latitudeStr = record.get("latitude").trim();
                 String longitudeStr = record.get("longitude").trim();
 
-                spot.setId(UUID.randomUUID().toString());
+                spot.setId(record.get("id").trim());
                 spot.setSpotName(record.get("spot_name"));
                 spot.setSpotAddress(record.get("spot_address"));
                 spot.setSpotDescription(record.get("spot_description"));
@@ -66,19 +66,13 @@ public class DataService {
                 spot.setCategories(categories);
 
                 List<ElasticTouristSpotEntity.Image> images = new ArrayList<>();
-                String imageCountStr = record.get("image_count").trim();
-                int imageCount = imageCountStr.isEmpty() ? 0 : Integer.parseInt(record.get("image_count"));
-                String spotName = record.get("spot_name").trim().replaceAll("[^a-zA-Z0-9가-힣()\\s]", "_");
-
-                for (int i = 1; i <= imageCount; i++) {
-                    String fileName = String.format("tourist_spot_image/%s_(%d).jpg", spotName, i);
-                    images.add(new ElasticTouristSpotEntity.Image(String.format(
-                            "https://%s.s3.%s.amazonaws.com/%s",
-                            amazonS3Config.getBucket(),
-                            amazonS3Config.getRegion(),
-                            fileName
-                    )));
+                String imagsValue = record.get("images").trim();
+                if (imagsValue != null && !imagsValue.isEmpty()) {
+                    for (String image: imagsValue.split("; ")) {
+                        images.add(new ElasticTouristSpotEntity.Image(image.trim()));
+                    }
                 }
+
                 spot.setImages(images);
                 spots.add(spot);
             }
