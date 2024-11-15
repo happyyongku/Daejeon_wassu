@@ -191,4 +191,11 @@ public class TouristSpotController {
         }
 
     }
+
+    // 추천 관광지
+    @GetMapping("/recommend")
+    public ResponseEntity<?> touristSpotRecommend() {
+        List<TouristSpotRecommendDTO> result = touristSpotService.recommendTouristSpot();
+        return ResponseEntity.ok(Map.of("data", result));
+    }
 }
