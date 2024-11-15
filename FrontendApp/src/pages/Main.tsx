@@ -198,7 +198,9 @@ const MainPage = () => {
     console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
     navigation.navigate('PlaceDetail', {id});
   };
-
+  const goToARPage = () => {
+    navigation.navigate('Ar'); // AR 페이지로 이동
+  };
   const insertLineBreak = (text: string, maxChars: number) => {
     const words = text.split(' ');
     let line = '';
@@ -441,6 +443,10 @@ const MainPage = () => {
 
         <TouchableOpacity style={styles.communityLink} onPress={goToMap}>
           <Text style={styles.communityLinkText}>맵</Text>
+        </TouchableOpacity>
+        {/* AR 페이지로 이동하는 버튼 */}
+        <TouchableOpacity style={styles.arButton} onPress={goToARPage}>
+          <Text style={styles.arButtonText}>AR 시작하기</Text>
         </TouchableOpacity>
       </ScrollView>
     </>
@@ -843,6 +849,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
     fontFamily: 'Pretendard-Medium',
+  },
+  arButton: {
+    backgroundColor: '#418663',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  arButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Pretendard-Bold',
+    fontWeight: 'bold',
   },
 });
 
