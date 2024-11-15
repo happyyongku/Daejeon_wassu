@@ -5,6 +5,7 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.marble.MarbleRoomEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
+import com.wassu.wassu.test.TestRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseService {
 
     private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private final Map<Long, TestRoom> testRepository = new ConcurrentHashMap<>();
 
     public SseEmitter createEmitter(String email, Long roomId) {
         SseEmitter emitter = new SseEmitter(300_000L);
@@ -125,16 +127,37 @@ public class SseService {
     }
 
     public SseEmitter testEmitter(String email, Long roomId) {
+        TestRoom existRoom = testRepository.get(roomId);
+        if (existRoom == null) {
+            TestRoom newRoom = new TestRoom();
+            newRoom.setUser1Email(email);
+            testRepository.put(roomId, newRoom);
+        } else {
+            existRoom.setUser2Email(email);
+        }
         return createEmitter(email, roomId);
     }
+
     public void testSend(String email, Long roomId) {
         Random random = new Random();
-        int randomNumber = random.nextInt(100);
-        SseEmitter emitter = getEmitter(roomId, email);
-        try {
-            emitter.send("랜덤숫자 보이나요? " + randomNumber);
-        } catch (IOException e) {
-            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+        int randomNumber1 = random.nextInt(100);
+        int randomNumber2 = random.nextInt(100);
+        Map<String, SseEmitter> roomEmitters = emitters.get(roomId);
+        TestRoom testRoom = testRepository.get(roomId);
+        testRoom.setUser1Data(randomNumber1);
+        testRoom.setUser2Data(randomNumber2);
+        if (roomEmitters != null) {
+            for (Map.Entry<String, SseEmitter> entry : roomEmitters.entrySet()) {
+                String userEmail = entry.getKey();
+                SseEmitter emitter = entry.getValue();
+                try {
+                    emitter.send(testRoom);
+                } catch (IOException e) {
+                    emitter.completeWithError(e);
+                }
+            }
+        } else {
+            log.info("mapping roomId:emitter not found");
         }
     }
 

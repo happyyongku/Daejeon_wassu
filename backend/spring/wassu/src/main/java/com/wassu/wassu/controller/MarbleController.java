@@ -48,18 +48,6 @@ public class MarbleController {
         return sseService.createEmitter(userEmail, roomId);
     }
 
-    // sse 테스트
-    @GetMapping(value = "/test/{roomId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter test(@AuthenticationPrincipal String userEmail, @PathVariable Long roomId) {
-        return sseService.testEmitter(userEmail, roomId);
-    }
-    // sse 전송 테스트
-    @GetMapping("/send/{roomId}")
-    public ResponseEntity<?> send(@AuthenticationPrincipal String userEmail, @PathVariable Long roomId) {
-        sseService.testSend(userEmail, roomId);
-        return ResponseEntity.ok(Map.of("status", "ok"));
-    }
-
     // 방 입장
     @PostMapping("/room/join")
     public ResponseEntity<?> joinRoom(@AuthenticationPrincipal String userEmail,
