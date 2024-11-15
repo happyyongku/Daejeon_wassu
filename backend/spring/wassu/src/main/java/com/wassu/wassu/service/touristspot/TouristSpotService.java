@@ -112,7 +112,7 @@ public class TouristSpotService {
                 thumbnail = images.get(0).getTouristSpotImageUrl();
             }
             TouristSpotRecommendDTO dto = TouristSpotRecommendDTO.builder()
-                    .spotId(spot.getId())
+                    .spotId(spot.getElasticId())
                     .spotName(spot.getSpotName())
                     .thumbnail(thumbnail)
                     .spotDescription(spot.getSpotDescription())

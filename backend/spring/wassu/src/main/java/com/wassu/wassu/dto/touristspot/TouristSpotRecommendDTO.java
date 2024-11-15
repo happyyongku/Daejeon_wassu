@@ -8,7 +8,7 @@ import lombok.Setter;
 @Builder
 public class TouristSpotRecommendDTO {
 
-    private Long spotId;
+    private String spotId;
     private String spotName;
     private String thumbnail;
     private String spotDescription;
