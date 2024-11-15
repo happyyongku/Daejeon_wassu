@@ -17,7 +17,7 @@ public class RoomDTO {
     private String marbleName;
     private boolean single;
     private List<NodeDTO> nodes;
-    private UserProfileDTO creator;
-    private UserProfileDTO guest;
+    private UserProfileDTO you;
+    private UserProfileDTO opponent;
 
 }
