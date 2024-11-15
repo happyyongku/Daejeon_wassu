@@ -15,6 +15,8 @@ public enum CustomErrorCode {
     ALREADY_LIKED_ARTICLE(HttpStatus.BAD_REQUEST, "Already Liked Article"),
     ALREADY_LIKED_TOURISTSPOT(HttpStatus.BAD_REQUEST, "Already Liked TouristSpot"),
     MISSION_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "Mission Not Verified"),
+    PASS_NOT_REMAINING(HttpStatus.BAD_REQUEST, "Pass Not Remaining"),
+    REROLL_NOT_REMAINING(HttpStatus.BAD_REQUEST, "Reroll Not Remaining"),
 
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
     USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),
@@ -56,7 +58,8 @@ public enum CustomErrorCode {
     FAILED_TO_MATCHING_WITH_TOURIST_SPOT_AND_ISMATCHED(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Match With TouristSpot and Ismatched"),
     USER_OR_SPOT_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Or Spot Not Found"),
     FAILED_TO_SAVING_STAMP(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to saving stamp"),
-    EXCEPTION_IN_LISTENER(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in listener"),;
+    EXCEPTION_IN_LISTENER(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in listener"),
+    SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE Connection Error"),;
 
     private final HttpStatus status;
     private final String message;
