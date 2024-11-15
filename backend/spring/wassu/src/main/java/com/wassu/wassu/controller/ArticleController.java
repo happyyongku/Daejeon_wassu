@@ -180,14 +180,16 @@ public class ArticleController {
     // 게시글 조회
     @SecurityRequirement(name = "")
     @GetMapping("/read/{articleId}")
-    public ResponseEntity<?> readArticle(@AuthenticationPrincipal String userEmail,
+    public ResponseEntity<?> readArticle(
                                          @RequestHeader(value="Authorization", required = false) String accessToken,
-                                         @PathVariable String articleId){
+                                         @PathVariable String articleId
+    ){
         Boolean isMatch = false;
+        String userEmail = null;
         if (accessToken != null) {
             String token = accessToken.replace("Bearer ", "");
-            String tokenEmail = jwtUtil.extractUserEmail(token);
-            isMatch = articleReadService.isMatchWithArticleOwner(tokenEmail, articleId);
+            userEmail = jwtUtil.extractUserEmail(token);
+            isMatch = articleReadService.isMatchWithArticleOwner(userEmail, articleId);
         }
         try {
             ArticleResponseDTO article = articleReadService.searchById(userEmail, articleId, isMatch);
