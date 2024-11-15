@@ -34,6 +34,18 @@ export interface TravelStamp {
   visited_at: string;
 }
 
+export interface UserArticle {
+  id: string;
+  title: string;
+  content: string;
+  liked: number;
+  viewCount: number;
+  tags: {tag: string}[];
+  images: {url: string}[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // 사용자 정보 조회
 export async function getUserProfile(): Promise<UserProfile | null> {
   try {
@@ -200,3 +212,26 @@ export const updateProfileImage = async (file?: any): Promise<boolean> => {
     return false;
   }
 };
+
+// 나의 게시글
+export async function getUserArticles(): Promise<UserArticle[] | null> {
+  try {
+    const response = await Authapi.get('/user/article');
+
+    if (response && response.status === 200) {
+      const articles = response.data as UserArticle[];
+      console.log('나의 게시글 불러오기 성공:', articles);
+      return articles;
+    } else {
+      console.error('나의 게시글 불러오기 실패:', response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('나의 게시글 불러오기 에러:', err.response);
+    } else {
+      console.error('나의 게시글 불러오기 에러:', err);
+    }
+    return null;
+  }
+}

@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   titleInput: {
     fontSize: 20,
     fontFamily: 'Pretendard-SemiBold',
-    color: '#999999',
+    color: '#333333',
     paddingVertical: 20,
     paddingHorizontal: width * 0.06,
   },
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   },
   contentInput: {
     fontSize: 16,
-    color: '999999',
+    color: '#333333',
     paddingVertical: 10,
     height: 100,
     textAlignVertical: 'top',
