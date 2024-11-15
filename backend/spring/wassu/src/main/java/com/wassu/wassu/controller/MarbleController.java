@@ -43,15 +43,9 @@ public class MarbleController {
     }
 
     // SSE 연결
-    @GetMapping(value = "/{roomId}/sync", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter connect(@PathVariable Long roomId) {
-        return sseService.createEmitter(roomId);
-    }
-
-    @GetMapping("/test/{roomId}")
-    public ResponseEntity<?> test(@PathVariable Long roomId) {
-        sseService.emitterTest(roomId);
-        return ResponseEntity.ok().build();
+    @GetMapping(value = "/room/{roomId}/sync", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter connect(@AuthenticationPrincipal String userEmail, @PathVariable Long roomId) {
+        return sseService.createEmitter(userEmail, roomId);
     }
 
     // 방 입장
@@ -74,8 +68,9 @@ public class MarbleController {
 
     // 마블 상세조회
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<?> getRoomDetails(@PathVariable Long roomId) {
-        RoomDTO result = marbleService.getRoomDetails(roomId);
+    public ResponseEntity<?> getRoomDetails(@AuthenticationPrincipal String userEmail,
+                                            @PathVariable Long roomId) {
+        RoomDTO result = marbleService.getRoomDetails(userEmail, roomId);
         return ResponseEntity.ok(result);
     }
 
@@ -86,13 +81,22 @@ public class MarbleController {
         return ResponseEntity.ok(result);
     }
 
-    // 주사위 굴리기
-    @PostMapping("/{roomId}/roll-dice")
-    public ResponseEntity<?> rollDice(@PathVariable Long roomId, @RequestBody int currentPosition) {
-        int[] diceValues = marbleService.rollDice();
-        int newPosition = currentPosition + diceValues[0] + diceValues[1];
-        sseService.sendPiecePosition(roomId, newPosition, diceValues);
-        return ResponseEntity.ok().build();
+    // 게임 액션 (주사위 굴리기, 패스권, 리롤권)
+    @PostMapping("/play/{roomId}")
+    public ResponseEntity<?> rollDice(@AuthenticationPrincipal String userEmail,
+                                      @PathVariable Long roomId, @RequestParam String action) {
+        if ("roll-dice".equals(action)) {
+            marbleService.rollDice(userEmail, roomId);
+            return ResponseEntity.ok(Map.of("status", "roll-dice success"));
+        } else if ("pass".equals(action)) {
+            marbleService.usePass(userEmail, roomId);
+            return ResponseEntity.ok(Map.of("status", "pass success"));
+        } else if ("reroll".equals(action)) {
+            marbleService.useReroll(userEmail, roomId);
+            return ResponseEntity.ok(Map.of("status", "reroll success"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "invalid action"));
+        }
     }
 
     // 장소 인증
@@ -103,10 +107,4 @@ public class MarbleController {
         return ResponseEntity.ok(Map.of("verified", result));
     }
 
-    // 데이터 변경 이벤트가 발생할 때마다 모든 연결된 Emitter에 데이터 전송
-//    @EventListener
-//    public void handleDataChangeEvent() {
-//        // 여기에 전달할 마블 데이터 객체 만들어서 인자로 받고
-//        // ApplicationEventPublisher 로 변경 발생때마다 객체 publish 하면 됨
-//    }
 }

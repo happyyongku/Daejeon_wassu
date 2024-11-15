@@ -46,8 +46,8 @@ public class TouristSpotSearchService {
                                         .query(searchText)
                                         .type(TextQueryType.BestFields)
                                         .operator(Operator.Or)
-                                        .fuzziness("AUTO")
-                                        .prefixLength(3)
+//                                        .fuzziness("AUTO")
+                                        .minimumShouldMatch("1")
                         ))
                 );
                 mustQueries.add(multiMatchQuery);

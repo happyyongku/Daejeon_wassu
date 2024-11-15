@@ -125,7 +125,7 @@ public class TouristSpotStampService {
             for (TouristSpotStampEntity stampEntity : stampResponse) {
                 if (category_name == null || stampEntity.getCategory().equals(category_name)) {
                     TouristSpotStampResponseDTO stamp = TouristSpotStampResponseDTO.builder()
-                            .spotName(stampEntity.getElasticSpotId())
+                            .spotName(stampEntity.getTouristSpot().getSpotName())
                             .category(stampEntity.getCategory())
                             .build();
                     stampResponseList.add(stamp);

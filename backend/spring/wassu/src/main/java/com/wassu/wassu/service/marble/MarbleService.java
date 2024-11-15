@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -36,14 +37,11 @@ public class MarbleService {
     private final MarbleRoomRepository roomRepository;
     private final RedisRepository redisRepository;
     private final NodeRepository nodeRepository;
-    private final UserService userService;
-    private static final double EARTH_RADIUS = 6371000;
 
-    public int[] rollDice() {
-        int dice1 = (int) (Math.random() * 6) + 1;
-        int dice2 = (int) (Math.random() * 6);
-        return new int[]{dice1, dice2};
-    }
+    private final UserService userService;
+    private final SseService sseService;
+
+    private static final double EARTH_RADIUS = 6371000;
 
     public List<MarbleDTO> getMarbles() {
         return marbleRepository.findAll().stream()
@@ -95,15 +93,99 @@ public class MarbleService {
         return new NodeDTO(nodeId, spot.getId(), spot.getSpotName(), thumbnailUrl, node.getNodeOrder());
     }
 
-    public RoomDTO getRoomDetails(Long roomId) {
+    public RoomDTO getRoomDetails(String email, Long roomId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         if (roomRepository.isSingleRoom(roomId)) {
             MarbleRoomEntity room = roomRepository.findSingleRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-            return createRoomDTO(roomId, room);
+            return createRoomDTO(user, roomId, room, isCreator(user, room));
         } else {
             MarbleRoomEntity room = roomRepository.findMultiRoomDetails(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-            RoomDTO roomDTO = createRoomDTO(roomId, room);
-            roomDTO.setGuest(userService.convertToDTO(room.getGuest()));
+            boolean isCreator = isCreator(user, room);
+            RoomDTO roomDTO = createRoomDTO(user, roomId, room, isCreator);
+            if (isCreator) {
+                roomDTO.setOpponent(userService.convertToDTO(room.getGuest()));
+            } else {
+                roomDTO.setOpponent(userService.convertToDTO(room.getCreator()));
+            }
             return roomDTO;
+        }
+    }
+
+    public void rollDice(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        int dice1 = (int) (Math.random() * 6) + 1;
+        int dice2 = (int) (Math.random() * 6);
+
+        if (isCreator(user, room)) {
+            if (!room.isCreatorVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
+            // emitter 로 roomData + diceNumber send
+            sseService.sendEmitter(user, room, dice1, dice2);
+        } else {
+            if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
+            // emitter 로 roomData + diceNumber send
+            sseService.sendEmitter(user, room, dice1, dice2);
+        }
+    }
+
+    public void usePass(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        // 해당 사용자 장소인증 처리 + 패스권 차감
+        if (isCreator(user, room)) {
+            if (room.getCreatorPass() < 1) { // 패스권 0이면 불가
+                throw new CustomException(CustomErrorCode.PASS_NOT_REMAINING);
+            }
+            room.setCreatorVerified(true);
+            room.setCreatorPass(room.getCreatorPass() - 1);
+            // emitter 로 roomData send
+            sseService.sendEmitter(user, room);
+        } else {
+            if (room.getGuestPass() < 1) { // 패스권 0이면 불가
+                throw new CustomException(CustomErrorCode.PASS_NOT_REMAINING);
+            }
+            room.setGuestVerified(true);
+            room.setGuestPass(room.getGuestPass() - 1);
+            // emitter 로 roomData send
+            sseService.sendEmitter(user, room);
+        }
+    }
+
+    public void useReroll(String email, Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        int dice1 = (int) (Math.random() * 6) + 1;
+        int dice2 = (int) (Math.random() * 6);
+
+        // 해당 사용자 주사위 다시 굴리기 + 리롤권 차감
+        if (isCreator(user, room)) {
+            if (room.getCreatorReroll() < 1) { // 리롤권 0이면 불가
+                throw new CustomException(CustomErrorCode.REROLL_NOT_REMAINING);
+            }
+            if (!room.isCreatorVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
+            room.setCreatorReroll(room.getCreatorReroll() - 1);
+            // emitter 로 roomData + diceNumber send
+            sseService.sendEmitter(user, room);
+        } else {
+            if (room.getGuestReroll() < 1) { // 리롤권 0이면 불가
+                throw new CustomException(CustomErrorCode.REROLL_NOT_REMAINING);
+            }
+            if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
+                throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
+            }
+            room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
+            room.setGuestReroll(room.getGuestReroll() - 1);
+            // emitter 로 roomData + diceNumber send
+            sseService.sendEmitter(user, room);
         }
     }
 
@@ -115,7 +197,7 @@ public class MarbleService {
         return isMissionVerified(latitude, longitude, dto.getLatitude(), dto.getLongitude());
     }
 
-    private RoomDTO createRoomDTO(Long roomId, MarbleRoomEntity room) {
+    private RoomDTO createRoomDTO(UserEntity user, Long roomId, MarbleRoomEntity room, boolean isCreator) {
         MarbleEntity marble = room.getMarble();
         List<NodeEntity> nodes = marble.getNodes();
         List<NodeDTO> nodeDTOs = new ArrayList<>();
@@ -125,13 +207,35 @@ public class MarbleService {
             NodeDTO nodeDTO = new NodeDTO(node.getId(), spot.getId(), spot.getSpotName(), thumbnail.getTouristSpotImageUrl(), node.getNodeOrder());
             nodeDTOs.add(nodeDTO);
         }
-        return RoomDTO.builder()
-                .roomId(roomId)
-                .marbleId(marble.getId())
-                .marbleName(marble.getMarbleName())
-                .single(room.isSingle())
-                .nodes(nodeDTOs)
-                .creator(userService.convertToDTO(room.getCreator())).build();
+        if (isCreator) {
+            return RoomDTO.builder()
+                    .roomId(roomId)
+                    .marbleId(marble.getId())
+                    .marbleName(marble.getMarbleName())
+                    .single(room.isSingle())
+                    .nodes(nodeDTOs)
+                    .you(userService.convertToDTO(room.getCreator())).build();
+        } else {
+            return RoomDTO.builder()
+                    .roomId(roomId)
+                    .marbleId(marble.getId())
+                    .marbleName(marble.getMarbleName())
+                    .single(room.isSingle())
+                    .nodes(nodeDTOs)
+                    .you(userService.convertToDTO(room.getGuest())).build();
+        }
+    }
+
+    private boolean isCreator(UserEntity user, MarbleRoomEntity room) {
+        UserEntity guest = room.getGuest();
+        UserEntity creator = room.getCreator();
+        if (user.getEmail().equals(creator.getEmail())) {
+            return true;
+        } else if (user.getEmail().equals(guest.getEmail())) {
+            return false;
+        } else {
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+        }
     }
 
     private String generateInviteCode() {
