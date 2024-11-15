@@ -16,7 +16,9 @@ public class CORSConfig implements WebMvcConfigurer {
             "http://localhost:8080",
             "http://localhost:3000",
             "http://k11b105.p.ssafy.io",
-            "https://k11b105.p.ssafy.io"
+            "https://k11b105.p.ssafy.io",
+            "http://192.168.31.18:3000",
+            "https://192.168.31.18:3000"
     );
 
     @Bean
