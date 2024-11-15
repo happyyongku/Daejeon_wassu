@@ -92,3 +92,42 @@ export interface CourseDetailData {
   bakeries: BakeriesData[];
   course: CourseData;
 }
+
+export interface UserData {
+  email: string;
+  gender: string;
+  birth_year: string;
+  nickname: string;
+  level: string;
+  exp: number;
+  profileImage: string;
+}
+
+export interface ScheduleData {
+  endDate: string;
+  scheduleId: number;
+  spotCount: number;
+  startDate: string;
+  thumbnail: string;
+  title: string;
+}
+
+export interface MyScheduleData {
+  onGoingSchedules: ScheduleData;
+  pastSchedules: ScheduleData[];
+  upcomingSchedules: ScheduleData[];
+}
+
+export interface RecoData {
+  likeCount: number;
+  reviewCount: number;
+  spotAddress: string;
+  spotDescription: string;
+  spotId: string;
+  spotName: string;
+  thumbnail: string;
+}
+
+export interface RecosData {
+  data: RecoData[];
+}
