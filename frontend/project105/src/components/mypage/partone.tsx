@@ -66,14 +66,15 @@ export default function PartOne() {
             </div>
           </div>
         ) : (
-          <div className={style.cardcontainer2}>다가오는 일정이 없습니다</div>
+          <div className={style.cardcontainer2}>진행중인 일정이 없습니다</div>
         )}
       </div>
 
       <div className={style.schedulesbox}>
         <p className={style.boxtitle}>다가오는 일정</p>
 
-        {mySchedule?.upcomingSchedules.length !== 0 ? (
+        {mySchedule?.upcomingSchedules &&
+        mySchedule?.upcomingSchedules.length !== 0 ? (
           <div className={style.cardcontainer}>
             {mySchedule?.upcomingSchedules.map((item, index) => (
               <div key={index}>
@@ -92,7 +93,8 @@ export default function PartOne() {
       </div>
       <div className={style.schedulesbox}>
         <p className={style.boxtitle}>지난 일정</p>
-        {mySchedule?.pastSchedules.length !== 0 ? (
+        {mySchedule?.upcomingSchedules &&
+        mySchedule?.pastSchedules.length !== 0 ? (
           <div className={style.cardcontainer}>
             {mySchedule?.pastSchedules.map((item, index) => (
               <div key={index}>

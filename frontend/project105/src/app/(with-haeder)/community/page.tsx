@@ -12,7 +12,7 @@ export default function Page() {
   const [articles, setArticles] = useState<ArticleData[]>([]);
 
   const getArticles = async () => {
-    const token = localStorage.getItem("authToken");
+    // const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
         `https://k11b105.p.ssafy.io/wassu/posts/filter`,
