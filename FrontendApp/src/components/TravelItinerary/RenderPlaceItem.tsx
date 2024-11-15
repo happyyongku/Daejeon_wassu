@@ -15,7 +15,7 @@ const RenderPlaceItem = ({item, drag, isActive, onDelete}: RenderPlaceItemProps)
         <Text style={styles.addressText}>{item.address || ''}</Text>
       </View>
 
-      <View>
+      <View style={styles.actionsContainer}>
         <TouchableOpacity onPressIn={drag} style={styles.dragHandle}>
           <Image source={require('../../assets/imgs/menu.png')} style={styles.menuIcon} />
         </TouchableOpacity>
@@ -57,6 +57,11 @@ const styles = StyleSheet.create({
     color: '#ff4d4f',
     fontWeight: 'medium',
     fontSize: 10,
+  },
+  actionsContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
