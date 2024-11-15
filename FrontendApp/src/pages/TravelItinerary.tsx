@@ -15,6 +15,8 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import {deleteSchedule, getMySchedules, getScheduleDetails} from '../api/itinerary';
+import {getTokens} from '../utills/tokenStorage';
+import {Alert} from 'react-native';
 
 type TravelItineraryNavigationProp = StackNavigationProp<RootStackParamList>;
 const {width} = Dimensions.get('window');
@@ -33,6 +35,21 @@ const TravelItinerary = () => {
   const [onGoingSchedules, setOnGoingSchedules] = useState<TripItem | null>(null);
   const [upcomingSchedules, setUpcomingSchedules] = useState<TripItem[]>([]);
   const [pastSchedules, setPastSchedules] = useState<TripItem[]>([]);
+
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
 
   const fetchSchedules = async () => {
     const schedules = await getMySchedules();
@@ -175,7 +192,9 @@ const TravelItinerary = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.addButton} onPress={goToCreateSchedule}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => checkLoginAndExecute(goToCreateSchedule)}>
         <Image source={require('../assets/imgs/plus.png')} style={styles.plusIcon} />
         <View style={styles.textContainer}>
           <Text style={styles.addButtonText}>대전 여행 일정 추가하기</Text>

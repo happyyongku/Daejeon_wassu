@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 12,
-    marginLeft: 10,
+
     color: '#999999',
   },
   carouselContainer: {

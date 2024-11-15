@@ -29,6 +29,8 @@ import {getTokens} from '../utills/tokenStorage';
 import {getRecommendedPosts} from '../api/community';
 import {getSpots} from '../api/itinerary';
 import {TouristSpot} from '../types';
+import {getUserProfile} from '../api/mypage';
+import {Alert} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -111,6 +113,8 @@ const MainPage = () => {
   const [searchText, setSearchText] = useState<string>('');
   const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleSearch = async () => {
     if (searchText.trim()) {
@@ -155,6 +159,25 @@ const MainPage = () => {
     };
 
     fetchRecommendedPosts();
+  }, []);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const {accessToken} = await getTokens();
+      setIsLoggedIn(!!accessToken);
+
+      if (accessToken) {
+        // 로그인 상태라면 유저 프로필 가져오기
+        const userProfile = await getUserProfile();
+        if (userProfile) {
+          setProfileImage(
+            userProfile.profileImage !== 'default' ? userProfile.profileImage : null, // 기본 이미지일 경우 null로 설정
+          );
+        }
+      }
+    };
+
+    checkLoginStatus();
   }, []);
 
   const goToRecommend = () => {
@@ -241,6 +264,21 @@ const MainPage = () => {
     navigation.navigate('PostDetail', {articleId});
   };
 
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
+
   return (
     <>
       <View style={styles.header}>
@@ -250,7 +288,11 @@ const MainPage = () => {
         </View>
 
         <TouchableOpacity style={styles.loginButton} onPress={goToLoginOrProfile}>
-          <LoginIcon width={25} height={25} />
+          {isLoggedIn && profileImage ? (
+            <Image source={{uri: profileImage}} style={styles.profileImage} />
+          ) : (
+            <LoginIcon width={25} height={25} />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -405,7 +447,9 @@ const MainPage = () => {
           />
 
           <Text style={styles.monopolyDescription}>2팀의 대결모드도 가능!</Text>
-          <TouchableOpacity style={styles.monopolyButton} onPress={goToMonopolyPage}>
+          <TouchableOpacity
+            style={styles.monopolyButton}
+            onPress={() => checkLoginAndExecute(goToMonopolyPage)}>
             <Text style={styles.monopolyButtonText}>마블와슈 하러가기!</Text>
           </TouchableOpacity>
         </View>
@@ -843,6 +887,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
     fontFamily: 'Pretendard-Medium',
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 
