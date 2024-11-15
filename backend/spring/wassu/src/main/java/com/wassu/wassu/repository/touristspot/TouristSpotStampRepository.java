@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface TouristSpotStampRepository extends JpaRepository<TouristSpotStampEntity, Long> {
-    Optional<TouristSpotStampEntity> findByUserIdAndTouristSpotId(Long userId, Long touristSpotId);
+    Optional<TouristSpotStampEntity> findByUserIdAndElasticSpotId(Long userId, String touristSpotId);
     List<TouristSpotStampEntity> findByUserId(Long userId);
 }

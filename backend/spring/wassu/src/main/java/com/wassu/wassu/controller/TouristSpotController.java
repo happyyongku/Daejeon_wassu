@@ -133,34 +133,36 @@ public class TouristSpotController {
             String userEmail = userUtil.extractUserEmail(accessToken);
             if (userEmail == null){
                 log.error("User not found -- stamp");
-                return ResponseEntity.status(500).body(utilTool.createResponse("status","user not found"));
+                return ResponseEntity.status(500).body(utilTool.createResponse("status","user or spot not found"));
             }
             Long userId = userRepository.findByEmail(userEmail).get().getId();
-            Long touristSpotId = touristSpotStampDTO.getTouristSpotId();
+            log.info("Input User Id: {}", userId);
+            String elasticTouristSpotId = touristSpotStampDTO.getElasticSpotId();
+            System.out.println("elasticTouristSpotId: " + elasticTouristSpotId + " ---------------------");
             Double currentLatitude = touristSpotStampDTO.getCurrentLatitude();
             Double currentLongitude = touristSpotStampDTO.getCurrentLongitude();
             String category = touristSpotStampDTO.getCategory();
-            if (touristSpotStampRepository.findByUserIdAndTouristSpotId(userId, touristSpotId).isPresent()){
+            if (touristSpotStampRepository.findByUserIdAndElasticSpotId(userId, elasticTouristSpotId).isPresent()){
                 log.warn("Already stamped");
                 return ResponseEntity.status(404).body(utilTool.createResponse("status","already stamped"));
             }
-            System.out.println(touristSpotStampDTO.getTouristSpotId());
+            System.out.println(touristSpotStampDTO.getElasticSpotId());
             Boolean isStamped = touristSpotStampService.touristSpotStamp(
-                    touristSpotId,
+                    elasticTouristSpotId,
                     currentLatitude,
                     currentLongitude,
                     userEmail,
                     category
             );
             if (isStamped) {
-                log.info("Stamped touristSpotId: {}", touristSpotId);
+                log.info("Stamped elasticTouristSpotId: {}", elasticTouristSpotId);
                 return ResponseEntity.ok(utilTool.createResponse("status","success"));
             } else {
                 log.warn("Stamp failed");
-                return ResponseEntity.ok(utilTool.createResponse("status","out of range"));
+                return ResponseEntity.status(404).body(utilTool.createResponse("status","out of range"));
             }
         } catch (CustomException ce){
-            return ResponseEntity.status(404).body(utilTool.createResponse("status","user not found"));
+            return ResponseEntity.status(404).body(utilTool.createResponse("status","user or spot not found"));
         } catch (Exception e) {
             log.error("Exception occurred while stamping tourist spot", e);
             return ResponseEntity.status(500).body(utilTool.createResponse("status", e.getMessage()));
