@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalImage: {
-    width: '100%',
-    height: 100,
+    width: 60, // 이미지 너비 고정
+    height: 60, // 이미지 높이 고정
     borderRadius: 8,
     marginBottom: 10,
   },

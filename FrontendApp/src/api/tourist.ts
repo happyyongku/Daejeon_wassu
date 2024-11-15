@@ -19,6 +19,7 @@ export interface TouristSpotDetails {
   favorite: boolean; // 추가
   favoritesCount: number; // 추가
   Liked: boolean;
+  stamped: boolean; // 추가된 필드
 }
 
 export interface TouristSpotLocation {
@@ -323,6 +324,69 @@ export async function getReviewDetails(reviewId: string): Promise<ReviewDetails 
 
     if (response && response.status === 200) {
       return response.data as ReviewDetails;
+    } else {
+      console.error(response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error(err.response);
+    } else {
+      console.error(err);
+    }
+    return null;
+  }
+}
+// 관광지 스탬프 등록
+export async function registerTouristStamp(
+  elasticSpotId: string,
+  currentLatitude: string,
+  currentLongitude: string,
+  category: string,
+): Promise<'success' | 'out of range' | 'already stamped' | null> {
+  try {
+    const response = await Authapi.post('/tourist/stamp', {
+      elasticSpotId,
+      currentLatitude,
+      currentLongitude,
+      category,
+    });
+
+    if (response && response.status === 200) {
+      const {status} = response.data;
+      if (status === 'success' || status === 'out of range' || status === 'already stamped') {
+        return status;
+      } else {
+        console.error('Unexpected status:', status);
+        return null;
+      }
+    } else {
+      console.error(response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response && err.response.status === 404) {
+        const {status} = err.response.data;
+        if (status === 'out of range' || status === 'already stamped') {
+          return status;
+        }
+      }
+      console.error(err.response);
+    } else {
+      console.error(err);
+    }
+    return null;
+  }
+}
+
+// 보유한 스탬프 조회
+export async function getTouristStamps(): Promise<{category: string; spotName: string}[] | null> {
+  try {
+    const response = await Authapi.get('/tourist/stamp/detail');
+
+    if (response && response.status === 200) {
+      return response.data as {category: string; spotName: string}[];
     } else {
       console.error(response.data);
       return null;

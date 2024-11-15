@@ -1,3 +1,5 @@
+/* @typescript-eslint/no-explicit-any: "off" */
+
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
@@ -13,7 +15,6 @@ import {useRoute} from '@react-navigation/native';
 import Header from '../common/Header';
 import MarkerIcon from '../../assets/imgs/markerB.svg';
 import HearthIcon from '../../assets/imgs/hearth.svg';
-
 import CalendarIcon from '../../assets/imgs/calendarplus.svg';
 import StarIcon from '../../assets/imgs/star.svg';
 import StempIcon from '../../assets/imgs/stemp.svg';
@@ -27,7 +28,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
-import {getTouristSpotDetails} from '../../api/tourist';
+import {getTouristSpotDetails, registerTouristStamp} from '../../api/tourist';
 import {favoriteTouristSpot, unfavoriteTouristSpot} from '../../api/tourist';
 import GpsComponent from '../common/GpsComponent'; // GpsComponent 파일 경로
 
@@ -42,6 +43,7 @@ type Coordinates = {
   latitude: number;
   longitude: number;
 };
+
 const scheduleData = [
   {
     id: '1',
@@ -73,19 +75,50 @@ const PlaceDetail = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
   const [stampModalVisible, setStampModalVisible] = useState(false);
+  const [stampModalContent, setStampModalContent] = useState<string>(''); // 모달 내용
+  const [stampImageSource, setStampImageSource] = useState<any>(null); // 도장 이미지
   const [showGpsComponent, setShowGpsComponent] = useState(false); // GPS 컴포넌트 렌더링 제어
   const [_coordinates, setCoordinates] = useState<Coordinates | null>(null); // 타입 명시
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
+  const [stamped, setStamped] = useState<boolean>(false); // 스탬프 상태
+  const [isRequestInProgress, setIsRequestInProgress] = useState(false);
+  type StampImages = {
+    [key: string]: any; // key는 string이고 값은 any 타입
+  };
+  const stampImages: StampImages = {
+    음식: require('../../assets/imgs/stamp/food.png'),
+    자연: require('../../assets/imgs/stamp/nature.png'),
+    역사: require('../../assets/imgs/stamp/history.png'),
+    문화: require('../../assets/imgs/stamp/culture.png'),
+    과학: require('../../assets/imgs/stamp/science.png'),
+    교육: require('../../assets/imgs/stamp/education.png'),
+    가족: require('../../assets/imgs/stamp/family.png'),
+    빵집: require('../../assets/imgs/stamp/bakery.png'),
+    스포츠: require('../../assets/imgs/stamp/sport.png'),
+    랜드마크: require('../../assets/imgs/stamp/landmark.png'),
+    nostamp: {
+      음식: require('../../assets/imgs/nostamp/food.png'),
+      자연: require('../../assets/imgs/nostamp/nature.png'),
+      역사: require('../../assets/imgs/nostamp/history.png'),
+      문화: require('../../assets/imgs/nostamp/culture.png'),
+      과학: require('../../assets/imgs/nostamp/science.png'),
+      교육: require('../../assets/imgs/nostamp/education.png'),
+      가족: require('../../assets/imgs/nostamp/family.png'),
+      빵집: require('../../assets/imgs/nostamp/bakery.png'),
+      스포츠: require('../../assets/imgs/nostamp/sport.png'),
+      랜드마크: require('../../assets/imgs/nostamp/landmark.png'),
+    },
+  };
 
   const fetchSpotDetails = useCallback(async () => {
     try {
       const details = await getTouristSpotDetails(id);
       if (details) {
         setSpotDetails(details);
-        // Synchronize `userLiked` with `favorite` from the API
         setIsFavorite(details.favorite ?? false);
         setFavoritesCount(details.favoritesCount ?? 0);
+        setStamped(details.stamped ?? false);
       }
     } catch (error) {
       console.error('Failed to fetch tourist spot details:', error);
@@ -101,9 +134,11 @@ const PlaceDetail = () => {
       fetchSpotDetails();
     }, [fetchSpotDetails]),
   );
+
   const gotoWrite = () => {
-    navigation.navigate('WriteReview', {spotId: id}); // id를 spotId로 전달
+    navigation.navigate('WriteReview', {spotId: id});
   };
+
   const handleScheduleSelect = (schedule: any) => {
     setSelectedSchedule(schedule);
     setScheduleModalVisible(false);
@@ -117,48 +152,92 @@ const PlaceDetail = () => {
   const handleFavoriteToggle = async () => {
     try {
       let result = null;
-
       if (isFavorite) {
-        // 찜 취소하기
         result = await unfavoriteTouristSpot(id);
       } else {
-        // 찜하기
         result = await favoriteTouristSpot(id);
       }
-
       if (result && typeof result === 'object') {
-        // 응답에서 `userLiked` 값과 좋아요 수 업데이트
         setIsFavorite(result.userLiked);
         setFavoritesCount(result.totalFavorites);
       }
     } catch (error) {
       console.error('Failed to toggle favorite status:', error);
-      // 여기서 서버 상태를 다시 가져와서 동기화
       await fetchSpotDetails();
     }
   };
-  // 스탬프 버튼 클릭 시 처리
+
   const handleStampPress = () => {
-    setShowGpsComponent(true); // GPS 좌표 요청 트리거
+    setShowGpsComponent(true);
   };
-  // GpsComponent로부터 좌표를 수신하는 콜백
-  const onLocationRetrieved = (coords: Coordinates | null) => {
+
+  const onLocationRetrieved = async (coords: Coordinates | null) => {
     if (!coords) {
       Alert.alert('좌표 불러오기 실패', '현재 위치를 가져올 수 없습니다.');
       setShowGpsComponent(false);
       return;
     }
+
+    if (stamped || isRequestInProgress) {
+      // 이미 스탬프가 등록되었거나 요청이 진행 중인 경우, 추가 요청 방지
+      return;
+    }
+
+    setIsRequestInProgress(true);
+
     const {latitude, longitude} = coords;
+    console.log('Retrieved coordinates:', {latitude, longitude});
     setCoordinates(coords);
-    console.log('Received Coordinates:', latitude, longitude);
-    Alert.alert('좌표 불러오기 성공', `위도: ${latitude}, 경도: ${longitude}`);
-    setStampModalVisible(true); // 좌표 수신 성공 후 모달 열기
-    setShowGpsComponent(false); // 좌표 수신 후 GpsComponent 숨기기
+
+    try {
+      if (spotDetails && spotDetails.touristSpotTags.length > 0) {
+        const tag = spotDetails.touristSpotTags[0].tag;
+        const imageSource = stampImages[tag] || null;
+
+        const response = await registerTouristStamp(
+          id,
+          latitude.toString(),
+          longitude.toString(),
+          tag,
+        );
+
+        console.log('Stamp registration response:', response);
+
+        if (response === 'success') {
+          setStampModalContent(`${spotDetails.spotName}에 스탬프 찍기를 성공하였습니다!!`);
+          setStampImageSource(imageSource);
+          setStampModalVisible(true);
+          setStamped(true);
+        } else {
+          setStampModalContent(`${spotDetails.spotName}에 스탬프 찍기를 실패하였습니다.`);
+          setStampImageSource(null);
+          setStampModalVisible(true);
+        }
+      }
+    } catch (error) {
+      console.error('스탬프 요청 실패:', error);
+    } finally {
+      setShowGpsComponent(false);
+      setIsRequestInProgress(false);
+    }
+  };
+
+  const getStampIcon = () => {
+    if (!spotDetails || !spotDetails.touristSpotTags || spotDetails.touristSpotTags.length === 0) {
+      return StempIcon;
+    }
+    const tag = spotDetails.touristSpotTags[0].tag as keyof typeof stampImages;
+    if (stamped) {
+      return stampImages[tag] || StempIcon;
+    } else {
+      return stampImages.nostamp[tag] || StempIcon;
+    }
   };
 
   if (!spotDetails) {
-    return <Text>Loading...</Text>; // 데이터가 로드될 때까지 로딩 메시지를 표시
+    return <Text>Loading...</Text>;
   }
+
   const review = spotDetails.reviews.map(
     (item: {
       reviewId: number;
@@ -181,6 +260,7 @@ const PlaceDetail = () => {
   const goToTravelItinerary = () => {
     navigation.navigate('MyPage');
   };
+
   return (
     <>
       <Header />
@@ -196,7 +276,11 @@ const PlaceDetail = () => {
             <Text style={styles.areaText}>{spotDetails.spotAddress.split(' ')[1]}</Text>
           </View>
           <Image
-            source={{uri: spotDetails.touristSpotImages[0].imageUrl}}
+            source={
+              spotDetails.touristSpotImages && spotDetails.touristSpotImages.length > 0
+                ? {uri: spotDetails.touristSpotImages[0].imageUrl}
+                : require('../../assets/imgs/department.png') // Fallback image when there is no imageUrl
+            }
             style={styles.placeImage}
           />
         </View>
@@ -219,11 +303,11 @@ const PlaceDetail = () => {
             <Text style={styles.iconButtonText}>리뷰쓰기</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={handleStampPress}>
-            <StempIcon width={24} height={24} style={styles.icon} />
+            <Image source={getStampIcon()} style={styles.icon} />
             <Text style={styles.iconButtonText}>스탬프</Text>
           </TouchableOpacity>
         </View>
-        {/* GpsComponent는 좌표를 가져오는 역할만 수행하고 아무것도 화면에 렌더링하지 않습니다. */}
+
         {showGpsComponent && <GpsComponent onLocationRetrieved={onLocationRetrieved} />}
 
         <View style={styles.detailSection}>
@@ -362,9 +446,9 @@ const PlaceDetail = () => {
         <CustomModal
           visible={stampModalVisible}
           onClose={() => setStampModalVisible(false)}
-          title="한밭 수목원"
-          content="한밭 수목원에 스탬프 찍기를 \n성공하였습니다!!"
-          imageSource={require('../../assets/imgs/preview.png')}
+          title={spotDetails.spotName}
+          content={stampModalContent}
+          imageSource={stampImageSource}
           footerButtonText="확인"
         />
       </ScrollView>
