@@ -15,7 +15,7 @@ const ReRenderPlaceItem = ({item, drag, isActive, onDelete}: ReRenderPlaceItemPr
         <Text style={styles.addressText}>{item.address || ''}</Text>
       </View>
 
-      <View>
+      <View style={styles.actionsContainer}>
         <TouchableOpacity onPressIn={drag} style={styles.dragHandle}>
           <Image source={require('../../assets/imgs/menu.png')} style={styles.menuIcon} />
         </TouchableOpacity>
@@ -55,8 +55,13 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     color: '#ff4d4f',
-    fontWeight: 'medium',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 10,
+  },
+  actionsContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
