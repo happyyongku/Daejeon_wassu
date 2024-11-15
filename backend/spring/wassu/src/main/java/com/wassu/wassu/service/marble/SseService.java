@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -120,6 +121,20 @@ public class SseService {
             if (userEmitters.isEmpty()) {
                 emitters.remove(roomId);
             }
+        }
+    }
+
+    public SseEmitter testEmitter(String email, Long roomId) {
+        return createEmitter(email, roomId);
+    }
+    public void testSend(String email, Long roomId) {
+        Random random = new Random();
+        int randomNumber = random.nextInt(100);
+        SseEmitter emitter = getEmitter(roomId, email);
+        try {
+            emitter.send("랜덤숫자 보이나요? " + randomNumber);
+        } catch (IOException e) {
+            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
         }
     }
 
