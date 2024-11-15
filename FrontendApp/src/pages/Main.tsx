@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import SearchBar from '../components/Main/SearchBar';
 import {useNavigation} from '@react-navigation/native';
@@ -30,7 +31,6 @@ import {getRecommendedPosts} from '../api/community';
 import {getSpots} from '../api/itinerary';
 import {TouristSpot} from '../types';
 import {getUserProfile} from '../api/mypage';
-import {Alert} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -113,8 +113,10 @@ const MainPage = () => {
   const [searchText, setSearchText] = useState<string>('');
   const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [userProfile, setUserProfile] = useState<{
+    profileImage: string | null;
+  } | null>(null);
 
   const handleSearch = async () => {
     if (searchText.trim()) {
@@ -164,21 +166,31 @@ const MainPage = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       const {accessToken} = await getTokens();
-      setIsLoggedIn(!!accessToken);
 
       if (accessToken) {
-        // 로그인 상태라면 유저 프로필 가져오기
-        const userProfile = await getUserProfile();
-        if (userProfile) {
-          setProfileImage(
-            userProfile.profileImage !== 'default' ? userProfile.profileImage : null, // 기본 이미지일 경우 null로 설정
-          );
+        const profile = await getUserProfile();
+        if (profile) {
+          setUserProfile({profileImage: profile.profileImage});
+        } else {
+          setUserProfile(null);
         }
+      } else {
+        setUserProfile(null);
       }
     };
 
-    checkLoginStatus();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', checkLoginStatus); // 화면 포커싱 시 확인
+    return unsubscribe;
+  }, [navigation]);
+
+  const goToLoginOrProfile = async () => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      navigation.navigate('MyPage');
+    } else {
+      navigation.navigate('Login');
+    }
+  };
 
   const goToRecommend = () => {
     navigation.navigate('RecommendedPlace', {category: ''});
@@ -206,15 +218,6 @@ const MainPage = () => {
 
   const goToMap = () => {
     navigation.navigate('Map');
-  };
-
-  const goToLoginOrProfile = async () => {
-    const {accessToken} = await getTokens();
-    if (accessToken) {
-      navigation.navigate('MyPage');
-    } else {
-      navigation.navigate('Login');
-    }
   };
 
   const goToPlaceDetail = (id: string) => {
@@ -288,8 +291,8 @@ const MainPage = () => {
         </View>
 
         <TouchableOpacity style={styles.loginButton} onPress={goToLoginOrProfile}>
-          {isLoggedIn && profileImage ? (
-            <Image source={{uri: profileImage}} style={styles.profileImage} />
+          {userProfile && userProfile.profileImage ? (
+            <Image source={{uri: userProfile.profileImage}} style={styles.profileImage} />
           ) : (
             <LoginIcon width={25} height={25} />
           )}
