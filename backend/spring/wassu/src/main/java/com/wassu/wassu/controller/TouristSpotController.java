@@ -138,6 +138,7 @@ public class TouristSpotController {
             Long userId = userRepository.findByEmail(userEmail).get().getId();
             log.info("Input User Id: {}", userId);
             String elasticTouristSpotId = touristSpotStampDTO.getElasticSpotId();
+            System.out.println("elasticTouristSpotId: " + elasticTouristSpotId + " ---------------------");
             Double currentLatitude = touristSpotStampDTO.getCurrentLatitude();
             Double currentLongitude = touristSpotStampDTO.getCurrentLongitude();
             String category = touristSpotStampDTO.getCategory();
