@@ -24,7 +24,7 @@ public class SseService {
     private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter createEmitter(String email, Long roomId) {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(300_000L);
 
         // roomId에 해당하는 사용자 맵 가져오기, 없으면 새로 생성
         emitters.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>())
