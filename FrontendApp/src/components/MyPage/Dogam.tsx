@@ -1,34 +1,48 @@
-import React from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Dimensions, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import MonIcon from '../../assets/imgs/mon1.svg';
-import MononeIcon from '../../assets/imgs/mon2.svg';
-import MontwoIcon from '../../assets/imgs/mon3.svg';
+import {getUserWassumon} from '../../api/recommended';
+
 const {width} = Dimensions.get('window');
 
+interface Wassumon {
+  spot_id: number;
+  wassumon_name: string;
+  wassumon_image: string;
+}
+
 const Dogam = () => {
+  const [wassumons, setWassumons] = useState<Wassumon[]>([]);
+
+  useEffect(() => {
+    const fetchWassumons = async () => {
+      const data = await getUserWassumon();
+      if (data) {
+        setWassumons(data.collected_wassumons);
+      }
+    };
+    fetchWassumons();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>내 도감</Text>
       <View style={styles.divider} />
       <LinearGradient
-        colors={['#rgba(200, 222, 203, 0.5)', '#rgba(65, 134, 99, 0.5)']}
+        colors={['#C8DECB', '#418663']}
         style={styles.gradientContainer}
         start={{x: 0, y: 0}}
         end={{x: 0, y: 1}}>
-        {/* 왓슈몬 캐릭터들이 들어갈 영역 */}
-        <View style={styles.monItem}>
-          <MonIcon width={75} height={75} />
-          <Text style={styles.monText}>단팥몬</Text>
-        </View>
-        <View style={styles.monItem}>
-          <MononeIcon width={75} height={75} />
-          <Text style={styles.monText}>소보루몬</Text>
-        </View>
-        <View style={styles.monItem}>
-          <MontwoIcon width={75} height={75} />
-          <Text style={styles.monText}>바게트몬</Text>
-        </View>
+        {wassumons.map((wassumon, index) => (
+          <View key={wassumon.spot_id} style={styles.monItem}>
+            <Image
+              source={{uri: wassumon.wassumon_image}}
+              style={styles.monIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.monText}>{wassumon.wassumon_name}</Text>
+          </View>
+        ))}
       </LinearGradient>
     </View>
   );
@@ -52,21 +66,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#418663',
   },
   gradientContainer: {
-    flex: 1,
+    flex: 1, // 부모 뷰 전체 높이를 차지하도록 설정
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginBottom: 20,
     paddingVertical: width * 0.1,
   },
   monItem: {
     alignItems: 'center',
+    width: '30%', // 한 줄에 3개씩 표시되도록 설정
+    marginBottom: 20,
+  },
+  monIcon: {
+    width: 75,
+    height: 75,
   },
   monText: {
     fontSize: 16,
     color: '#418663',
     fontFamily: 'Pretendard-Bold',
+    textAlign: 'center',
+    marginTop: 5,
   },
 });
 
