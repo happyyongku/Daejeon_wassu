@@ -28,4 +28,7 @@ public interface MarbleRoomRepository extends JpaRepository<MarbleRoomEntity, Lo
     @Query("select mr.single from MarbleRoomEntity mr where mr.id=:roomId")
     boolean isSingleRoom(Long roomId);
 
+    @Query("select mr from MarbleRoomEntity mr where mr.guest.email=:email or mr.creator.email=:email")
+    MarbleRoomEntity findMyRoom(String email);
+
 }

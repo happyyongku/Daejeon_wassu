@@ -109,4 +109,13 @@ public class MarbleController {
         return ResponseEntity.ok(Map.of("verified", result));
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyMarble(@AuthenticationPrincipal String userEmail) {
+        Long result = marbleService.getMyMarble(userEmail);
+        if (result != null) {
+            return ResponseEntity.ok(Map.of("onGoingRoomId", result));
+        }
+        return ResponseEntity.ok(Map.of("message", "no room"));
+    }
+
 }
