@@ -46,6 +46,7 @@ public class SseService {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+                log.info("emitter sent ping: {} {}", roomId, email);
             } catch (IOException e) {
                 removeEmitter(roomId, email);
                 throw new RuntimeException(e); // 스케줄러 종료를 위해 예외 발생
