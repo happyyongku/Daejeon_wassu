@@ -116,6 +116,12 @@ public class MarbleService {
     public void rollDice(String email, Long roomId) {
         MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 유저 두명이 다 있지 않으면 게임진행 불가
+        if (!isGameReady(room)) {
+            throw new CustomException(CustomErrorCode.GAME_IS_NOT_READY);
+        }
+
         int dice1 = (int) (Math.random() * 6) + 1;
         int dice2 = (int) (Math.random() * 6);
 
@@ -124,21 +130,28 @@ public class MarbleService {
                 throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
             }
             room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
-            // emitter 로 roomData + diceNumber send
-            sseService.sendEmitter(user, room, dice1, dice2);
         } else {
             if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
                 throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
             }
             room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
-            // emitter 로 roomData + diceNumber send
-            sseService.sendEmitter(user, room, dice1, dice2);
+        }
+        // 두 유저 모두에게 sse 전송
+        sseService.sendEmitter(room.getCreator(), room, dice1, dice2);
+        if (!room.isSingle()) {
+            sseService.sendEmitter(room.getGuest(), room, dice1, dice2);
         }
     }
 
     public void usePass(String email, Long roomId) {
         MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 유저 두명이 다 있지 않으면 게임진행 불가
+        if (!isGameReady(room)) {
+            throw new CustomException(CustomErrorCode.GAME_IS_NOT_READY);
+        }
+
         // 해당 사용자 장소인증 처리 + 패스권 차감
         if (isCreator(user, room)) {
             if (room.getCreatorPass() < 1) { // 패스권 0이면 불가
@@ -146,22 +159,29 @@ public class MarbleService {
             }
             room.setCreatorVerified(true);
             room.setCreatorPass(room.getCreatorPass() - 1);
-            // emitter 로 roomData send
-            sseService.sendEmitter(user, room);
         } else {
             if (room.getGuestPass() < 1) { // 패스권 0이면 불가
                 throw new CustomException(CustomErrorCode.PASS_NOT_REMAINING);
             }
             room.setGuestVerified(true);
             room.setGuestPass(room.getGuestPass() - 1);
-            // emitter 로 roomData send
-            sseService.sendEmitter(user, room);
+        }
+        // 두 유저 모두에게 sse 전송
+        sseService.sendEmitter(room.getCreator(), room);
+        if (!room.isSingle()) {
+            sseService.sendEmitter(room.getGuest(), room);
         }
     }
 
     public void useReroll(String email, Long roomId) {
         MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        // 유저 두명이 다 있지 않으면 게임진행 불가
+        if (!isGameReady(room)) {
+            throw new CustomException(CustomErrorCode.GAME_IS_NOT_READY);
+        }
+
         int dice1 = (int) (Math.random() * 6) + 1;
         int dice2 = (int) (Math.random() * 6);
 
@@ -175,8 +195,6 @@ public class MarbleService {
             }
             room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
             room.setCreatorReroll(room.getCreatorReroll() - 1);
-            // emitter 로 roomData + diceNumber send
-            sseService.sendEmitter(user, room);
         } else {
             if (room.getGuestReroll() < 1) { // 리롤권 0이면 불가
                 throw new CustomException(CustomErrorCode.REROLL_NOT_REMAINING);
@@ -186,8 +204,11 @@ public class MarbleService {
             }
             room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
             room.setGuestReroll(room.getGuestReroll() - 1);
-            // emitter 로 roomData + diceNumber send
-            sseService.sendEmitter(user, room);
+        }
+        // 두 유저 모두에게 sse 전송
+        sseService.sendEmitter(room.getCreator(), room);
+        if (!room.isSingle()) {
+            sseService.sendEmitter(room.getGuest(), room);
         }
     }
 
@@ -260,6 +281,12 @@ public class MarbleService {
         double distance = EARTH_RADIUS * c;
 
         return distance <= 100;
+    }
+
+    private boolean isGameReady(MarbleRoomEntity room) {
+        UserEntity creator = room.getCreator();
+        UserEntity guest = room.getGuest();
+        return creator != null && guest != null;
     }
 
 }
