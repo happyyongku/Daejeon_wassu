@@ -100,10 +100,12 @@ public class MarbleController {
     }
 
     // 장소 인증
-    @PostMapping("/mission/{nodeId}/verify")
-    public ResponseEntity<?> verifyMission(@PathVariable Long nodeId,
+    @PostMapping("/room/{roomId}/mission/{nodeId}/verify")
+    public ResponseEntity<?> verifyMission(@AuthenticationPrincipal String userEmail,
+                                           @PathVariable Long roomId,
+                                           @PathVariable Long nodeId,
                                            @RequestBody MissionVerifyDTO dto) {
-        boolean result = marbleService.verifyMission(nodeId, dto);
+        boolean result = marbleService.verifyMission(userEmail, roomId, nodeId, dto);
         return ResponseEntity.ok(Map.of("verified", result));
     }
 
