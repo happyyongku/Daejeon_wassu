@@ -40,11 +40,10 @@ public class TestController {
         // 새로운 Thread로 실행
         new Thread(() -> {
             try {
-                for (int i = 0; i < 3; i++) {
+                while (true) {
                     emitter.send(SseEmitter.event().data("Hello " + System.currentTimeMillis()));
-                    Thread.sleep(1000);  // 1초 대기
+                    Thread.sleep(3000);  // 1초 대기
                 }
-                emitter.complete();
             } catch (IOException | InterruptedException e) {
                 emitter.completeWithError(e);
             }
