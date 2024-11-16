@@ -49,7 +49,7 @@ public class SseService {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 SecurityContextHolder.setContext(context);
-                emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+                emitter.send(SseEmitter.event().name("message").data("keep-alive"));
                 log.info("emitter sent ping: {} {}", roomId, email);
             } catch (IOException e) {
                 removeEmitter(roomId, email);
@@ -171,7 +171,7 @@ public class SseService {
                 String userEmail = entry.getKey();
                 SseEmitter emitter = entry.getValue();
                 try {
-                    emitter.send(SseEmitter.event().name("room-data").data(testRoom));
+                    emitter.send(SseEmitter.event().name("message").data(testRoom));
                 } catch (IOException e) {
                     emitter.completeWithError(e);
                 }
