@@ -19,6 +19,7 @@ public class ArticleResponseDTO {
     private String profileImage;
     private String title;
     private String content;
+    private String place;
     private List<ArticleEntity.Tag> tags;
     private List<ArticleEntity.Image> images;
     private Integer viewCount;

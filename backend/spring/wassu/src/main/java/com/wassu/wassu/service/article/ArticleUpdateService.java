@@ -33,7 +33,7 @@ public class ArticleUpdateService {
             articleEntity.setTitle(articleDTO.getTitle());
             articleEntity.setContent(articleDTO.getContent());
             articleEntity.setUpdatedAt(LocalDateTime.now());
-
+            articleEntity.setPlace(articleDTO.getPlace());
             // 태그 업데이트
             if (articleDTO.getTags() != null && !articleDTO.getTags().isEmpty()) {
                 List<ArticleEntity.Tag> tagEntities = articleDTO.getTags().stream()

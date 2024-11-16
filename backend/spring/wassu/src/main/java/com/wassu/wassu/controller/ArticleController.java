@@ -104,6 +104,7 @@ public class ArticleController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(utilTool.createResponse("status","User Not Authorized to update article"));
             }
             ObjectMapper objectMapper = new ObjectMapper();
+            System.out.println("--------------------");
             ArticleDTO articleDTO = objectMapper.readValue(articleDTOJson, ArticleDTO.class);
 
             articleUpdateService.updateArticle(articleEntity, articleDTO, files);

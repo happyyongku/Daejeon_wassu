@@ -40,6 +40,7 @@ public class ArticleCreateService {
                 articleEntity.setUser(userId);
                 articleEntity.setTitle(articleDTO.getTitle());
                 articleEntity.setContent(articleDTO.getContent());
+                articleEntity.setPlace(articleDTO.getPlace());
                 if (articleDTO.getTags() != null && !articleDTO.getTags().isEmpty()) {
                     List<ArticleEntity.Tag> tagEntities = articleDTO.getTags().stream()
                             .map(ArticleEntity.Tag::new)

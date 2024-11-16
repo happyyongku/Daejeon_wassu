@@ -160,6 +160,7 @@ public class ArticleReadService {
                 .title(article.getTitle())
                 .content(article.getContent())
                 .tags(article.getTags())
+                .place(article.getPlace())
                 .images(article.getImages())
                 .viewCount(article.getViewCount())
                 .liked(article.getLiked())

@@ -29,6 +29,9 @@ public class ArticleEntity {
     @Field(type= FieldType.Text, analyzer = "nori_analyzer")
     private String content;
 
+    @Field(type = FieldType.Text)
+    private String place = null;
+
     @Field(type = FieldType.Nested)
     private List<Tag> tags = new ArrayList<>();
 
