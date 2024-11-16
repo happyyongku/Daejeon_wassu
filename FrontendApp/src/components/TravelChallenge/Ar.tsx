@@ -1,3 +1,5 @@
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View, Text, Modal, Image, TouchableOpacity} from 'react-native';
 import {
   ViroARScene,
   ViroARSceneNavigator,
@@ -9,9 +11,9 @@ import {
   ViroSpotLight,
   ViroAnimations,
 } from '@reactvision/react-viro';
-import React, {useState, useEffect} from 'react';
-import {StyleSheet} from 'react-native';
-
+interface HelloWorldSceneARProps {
+  onAnimationEnd: () => void; // prop에 대한 타입을 명시
+}
 // 이미지 타겟 등록
 ViroARTrackingTargets.createTargets({
   myImageTarget: {
@@ -25,25 +27,31 @@ ViroARTrackingTargets.createTargets({
 ViroAnimations.registerAnimations({
   throwBall: {
     properties: {
-      positionX: 0, // 목표 위치의 x축
-      positionY: -1, // 목표 위치의 y축
-      positionZ: 0, // 목표 위치의 z축
-      rotateY: '+=360', // Y축을 기준으로 회전
+      positionX: 0,
+      positionY: -1,
+      positionZ: 0,
+      rotateY: '+=360', // Y축 회전
     },
     duration: 1000,
     easing: 'easeInEaseOut',
   },
-  fadeOut: {
+  monsterFlyAway: {
     properties: {
-      opacity: 0,
+      positionY: '+=0.8', // 몬스터가 위로 이동
+      scaleX: 0,
+      scaleY: 0,
+      scaleZ: 0,
+      opacity: 0, // 투명해짐
     },
-    duration: 500,
+    duration: 800,
+    easing: 'easeIn',
   },
 });
 
-const HelloWorldSceneAR = () => {
+const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps> = ({onAnimationEnd}) => {
   const [text, setText] = useState('Initializing AR...');
-  const [throwAnim, setThrowAnim] = useState(false); // 공 던지기 애니메이션 상태
+  const [throwAnim, setThrowAnim] = useState(false);
+  const [monsterAnim, setMonsterAnim] = useState(false);
   const [modelPosition, setModelPosition] = useState<[number, number, number]>([0, -0.2, 0.5]);
   const [isPositionSet, setIsPositionSet] = useState(false);
 
@@ -52,40 +60,42 @@ const HelloWorldSceneAR = () => {
   }, []);
 
   const handleThrowBall = () => {
-    setThrowAnim(true); // 터치 시 공 던지기 애니메이션 실행
+    setThrowAnim(true); // 공 던지기 애니메이션 실행
+    setTimeout(() => {
+      setMonsterAnim(true);
+      setTimeout(() => {
+        onAnimationEnd(); // 애니메이션 종료 시 콜백 호출
+      }, 800); // 몬스터 애니메이션이 끝난 후
+    }, 1000);
   };
 
   return (
     <ViroARScene>
       <ViroAmbientLight color="#FFFFFF" intensity={200} />
-
-      {/* 빛 효과 추가 */}
       <ViroSpotLight
-        position={[0, 4, 1]} // 빛의 위치를 조정
-        color="#ffffff"
-        direction={[0, -1, -0.2]}
-        intensity={500} // 빛의 강도 값 설정
-        attenuationStartDistance={2}
-        attenuationEndDistance={5}
+        position={[0, 2, 0]}
+        color="#ffcc00"
+        direction={[0, -1, 0]}
+        intensity={800}
+        attenuationStartDistance={1}
+        attenuationEndDistance={4}
         castsShadow={true}
       />
-
       <ViroARImageMarker
         target={'myImageTarget'}
         onAnchorFound={() => {
           if (!isPositionSet) {
-            setModelPosition([0, -0.2, 0]); // 위치를 한 번만 설정
+            setModelPosition([0, -0.2, 0]);
             setIsPositionSet(true);
             setText('image ready!');
           }
         }}
-        pauseUpdates={isPositionSet} // 인식이 한 번 완료되면 업데이트 중지
-      >
-        {isPositionSet && ( // 위치가 설정된 경우에만 렌더링
+        pauseUpdates={isPositionSet}>
+        {isPositionSet && (
           <Viro3DObject
             source={require('../../assets/ar/3d-models/soccer.glb')}
             position={modelPosition}
-            scale={[0.05, 0.05, 0.05]} // 공 크기 조정
+            scale={[0.05, 0.05, 0.05]}
             type="GLB"
             onClick={handleThrowBall}
             animation={{
@@ -96,17 +106,20 @@ const HelloWorldSceneAR = () => {
           />
         )}
 
-        {/* 목표 3D 모델 */}
         {isPositionSet && (
           <Viro3DObject
             source={require('../../assets/ar/3d-models/model.glb')}
             position={[0, -2, 0]}
             scale={[0.3, 0.3, 0.3]}
             type="GLB"
+            animation={{
+              name: 'monsterFlyAway',
+              run: monsterAnim,
+              loop: false,
+            }}
           />
         )}
       </ViroARImageMarker>
-
       <ViroText
         text={text}
         scale={[0.5, 0.5, 0.5]}
@@ -117,17 +130,54 @@ const HelloWorldSceneAR = () => {
   );
 };
 
-export default () => {
+const ARModalExample = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleAnimationEnd = () => {
+    setModalVisible(true); // 모달 표시
+  };
+
   return (
-    <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: HelloWorldSceneAR,
-      }}
-      style={styles.f1}
-    />
+    <View style={{flex: 1}}>
+      <ViroARSceneNavigator
+        autofocus={true}
+        initialScene={{
+          scene: () => <HelloWorldSceneAR onAnimationEnd={handleAnimationEnd} />,
+        }}
+        style={styles.f1}
+      />
+
+      {/* 모달 */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Image source={require('../../assets/imgs/bbangmon.png')} style={styles.monsterImage} />
+            <Text style={styles.monsterName}>단팥몬</Text>
+            <Text style={styles.monsterRegion}>출몰지역: 성심당</Text>
+            <View style={styles.monsterStats}>
+              <Text>0.4m</Text>
+              <Text>빵 타입</Text>
+              <Text>3.2kg</Text>
+            </View>
+            <Text style={styles.monsterDescription}>
+              단팥몬은 대전 성심당에서만 볼 수 있는 희귀 몬스터입니다. 단팥빵에서 태어나 성심당을
+              돌아다니며 빵을 사랑하는 사람들을 지켜봅니다.
+            </Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
+
+export default ARModalExample;
 
 const styles = StyleSheet.create({
   f1: {flex: 1},
@@ -137,5 +187,54 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlignVertical: 'center',
     textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  monsterImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+  },
+  monsterName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  monsterRegion: {
+    fontSize: 16,
+    color: '#418663',
+    marginBottom: 10,
+  },
+  monsterStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+  },
+  monsterDescription: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: '#418663',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
