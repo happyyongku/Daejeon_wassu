@@ -181,3 +181,26 @@ export async function deleteTouristSpotFromCourse(coursesId: string, touristId: 
     }
   }
 }
+// 챗봇
+export async function getChatbotResponse(userInput: string) {
+  try {
+    // `POST` 요청을 쿼리 매개변수와 함께 보냅니다.
+    const response = await Authfastapi.post(`/chat?user_input=${encodeURIComponent(userInput)}`);
+
+    if (response && response.data) {
+      console.log('Chatbot response retrieved successfully:', response.data);
+      return response.data.response; // 응답에서 `response` 필드 가져오기
+    } else {
+      console.error('Failed to retrieve chatbot response.');
+      return '죄송합니다. 요청을 처리할 수 없습니다.';
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Chatbot response error (Axios):', err.response);
+      return '죄송합니다. 에러가 발생했습니다.';
+    } else {
+      console.error('Unexpected error during chatbot response retrieval:', err);
+      return '죄송합니다. 에러가 발생했습니다.';
+    }
+  }
+}

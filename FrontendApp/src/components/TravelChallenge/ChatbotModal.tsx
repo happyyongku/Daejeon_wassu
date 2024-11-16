@@ -26,6 +26,13 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
     setChatResponse(response || '죄송합니다. 응답을 받을 수 없습니다.');
   };
 
+  // 모달을 닫을 때 상태 초기화
+  const handleModalClose = () => {
+    setUserInput('');
+    setChatResponse('');
+    onClose(); // 부모 컴포넌트의 상태를 변경하는 함수 호출
+  };
+
   return (
     <Modal transparent visible={visible} animationType="slide">
       <View style={styles.overlay}>
@@ -44,7 +51,7 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
             <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
               <Text style={styles.sendButtonText}>보내기</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={handleModalClose}>
               <Text style={styles.closeButtonText}>닫기</Text>
             </TouchableOpacity>
           </View>
