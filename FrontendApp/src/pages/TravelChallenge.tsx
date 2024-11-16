@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import GolfIcon from '../assets/imgs/golf.svg';
@@ -34,16 +34,24 @@ const TravelChallenge = () => {
   const navigation = useNavigation<TravelChallengeNavigationProp>();
   const [courses, setCourses] = useState<Course[]>([]); // Course 타입 지정
   const [isChatbotModalVisible, setChatbotModalVisible] = useState(false); // 모달 상태
-  // API 호출 및 데이터 설정
-  useEffect(() => {
-    const fetchCourses = async () => {
+  // API 요청 함수
+  const fetchCourses = useCallback(async () => {
+    try {
       const data = await getCoursePresets();
       if (data) {
         setCourses(data);
       }
-    };
-    fetchCourses();
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
   }, []);
+
+  // 페이지 포커스 시 데이터 다시 가져오기
+  useFocusEffect(
+    useCallback(() => {
+      fetchCourses();
+    }, [fetchCourses]),
+  );
 
   const goToOngoingChallenge = () => {
     navigation.navigate('OngoingChallenge');
