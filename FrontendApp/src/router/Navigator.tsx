@@ -36,6 +36,11 @@ import Itinerary from '../components/TravelItinerary/Itinerary';
 import DetailedInquiry from '../components/TravelItinerary/DetailedInquiry';
 import ReItinerary from '../components/TravelItinerary/ReItinerary';
 import {Day} from '../types';
+import Choice from '../components/Monopoly/Choice';
+import GameOne from '../components/Monopoly/GameOne';
+import GameTwo from '../components/Monopoly/GameTwo';
+import Invitation from '../components/Monopoly/Invitation';
+import MainRoom from '../components/Monopoly/MainRoom';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -113,6 +118,11 @@ export type RootStackParamList = {
     };
     dayId?: string;
   };
+  Choice: undefined;
+  GameOne: undefined;
+  GameTwo: undefined;
+  Invitation: undefined;
+  MainRoom: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -199,6 +209,12 @@ function Navigator() {
         component={CommunitySearch}
         options={{headerShown: false}}
       />
+
+      <Stack.Screen name="Choice" component={Choice} options={{headerShown: false}} />
+      <Stack.Screen name="GameOne" component={GameOne} options={{headerShown: false}} />
+      <Stack.Screen name="GameTwo" component={GameTwo} options={{headerShown: false}} />
+      <Stack.Screen name="Invitation" component={Invitation} options={{headerShown: false}} />
+      <Stack.Screen name="MainRoom" component={MainRoom} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }

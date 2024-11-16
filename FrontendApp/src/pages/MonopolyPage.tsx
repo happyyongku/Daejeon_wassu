@@ -1,37 +1,90 @@
-import React from 'react';
-import {View, Text, Button, StyleSheet, Dimensions} from 'react-native';
+import React, {useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+  useWindowDimensions,
+} from 'react-native';
+import Orientation from 'react-native-orientation-locker';
+import {useNavigation} from '@react-navigation/native';
+import type {StackNavigationProp} from '@react-navigation/stack';
+import type {RootStackParamList} from '../router/Navigator';
 
-const {width} = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    paddingHorizontal: width * 0.06,
-    flex: 1,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-});
+type MonopolyNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const MonopolyPage = () => {
+  const navigation = useNavigation<MonopolyNavigationProp>();
+  const {width, height} = useWindowDimensions();
+
+  useEffect(() => {
+    Orientation.lockToLandscape();
+    return () => {
+      Orientation.unlockAllOrientations();
+    };
+  }, []);
+
+  const goToChoice = () => {
+    navigation.navigate('Choice');
+  };
+
+  const goToInvitation = () => {
+    navigation.navigate('Invitation');
+  };
+
+  const styles = StyleSheet.create({
+    background: {
+      flex: 1,
+      width: width,
+      height: height,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      width: '70%',
+    },
+    button: {
+      backgroundColor: '#E0F2E0',
+      borderWidth: 15,
+      borderColor: '#ffffff',
+      width: width * 0.15,
+      height: height * 0.5,
+      borderRadius: 15,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 4},
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    buttonText: {
+      fontSize: 20,
+      color: '#333',
+      fontWeight: 'bold',
+      fontFamily: 'Pretendard-Bold',
+    },
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>부루마블로 즐기는 대전 여행 🎲</Text>
-      <Text style={styles.description}>2팀의 대결 모드도 가능!</Text>
-      <Button title="마블와슈 하러가기!" color="#4CAF50" />
-    </View>
+    <ImageBackground
+      source={require('../assets/imgs/mono/DBack.jpg')}
+      style={styles.background}
+      resizeMode="cover">
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={goToChoice}>
+          <Text style={styles.buttonText}>혼자</Text>
+          <Text style={styles.buttonText}>왓슈</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={goToInvitation}>
+          <Text style={styles.buttonText}>대결</Text>
+          <Text style={styles.buttonText}>왓슈</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 };
 
