@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -25,6 +28,7 @@ public class SseService {
 
     private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
     private final Map<Long, TestRoom> testRepository = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
     public SseEmitter createEmitter(String email, Long roomId) {
         SseEmitter emitter = new SseEmitter(300_000L);
@@ -37,6 +41,17 @@ public class SseService {
         emitter.onCompletion(() -> removeEmitter(roomId, email));
         emitter.onTimeout(() -> removeEmitter(roomId, email));
         emitter.onError(e -> removeEmitter(roomId, email));
+
+        // 스케줄러를 사용하여 주기적으로 핑 전송
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
+            } catch (IOException e) {
+                removeEmitter(roomId, email);
+                throw new RuntimeException(e); // 스케줄러 종료를 위해 예외 발생
+            }
+        }, 0, 30, TimeUnit.SECONDS);
+
         return emitter;
     }
 
@@ -151,7 +166,7 @@ public class SseService {
                 String userEmail = entry.getKey();
                 SseEmitter emitter = entry.getValue();
                 try {
-                    emitter.send(testRoom);
+                    emitter.send(SseEmitter.event().name("room-data").data(testRoom));
                 } catch (IOException e) {
                     emitter.completeWithError(e);
                 }
