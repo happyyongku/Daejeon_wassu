@@ -130,11 +130,13 @@ public class MarbleService {
                 throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
             }
             room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
+            room.setCreatorVerified(false);
         } else {
             if (!room.isGuestVerified()) { // 장소인증 안했으면 주사위굴리기 불가
                 throw new CustomException(CustomErrorCode.MISSION_NOT_VERIFIED);
             }
             room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
+            room.setGuestVerified(false);
         }
         // 두 유저 모두에게 sse 전송
         sseService.sendEmitter(room.getCreator(), room, dice1, dice2);
@@ -195,6 +197,7 @@ public class MarbleService {
             }
             room.setCreatorPosition(room.getCreatorPosition() + dice1 + dice2);
             room.setCreatorReroll(room.getCreatorReroll() - 1);
+            room.setCreatorVerified(false);
         } else {
             if (room.getGuestReroll() < 1) { // 리롤권 0이면 불가
                 throw new CustomException(CustomErrorCode.REROLL_NOT_REMAINING);
@@ -204,6 +207,7 @@ public class MarbleService {
             }
             room.setGuestPosition(room.getGuestPosition() + dice1 + dice2);
             room.setGuestReroll(room.getGuestReroll() - 1);
+            room.setGuestVerified(false);
         }
         // 두 유저 모두에게 sse 전송
         sseService.sendEmitter(room.getCreator(), room);
@@ -212,12 +216,27 @@ public class MarbleService {
         }
     }
 
-    public boolean verifyMission(Long nodeId, MissionVerifyDTO dto) {
+    public boolean verifyMission(String email, Long roomId, Long nodeId, MissionVerifyDTO dto) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
         NodeEntity node = nodeRepository.findByIdWithSpot(nodeId).orElseThrow(() -> new CustomException(CustomErrorCode.NODE_NOT_FOUND));
         TouristSpotEntity spot = node.getTouristSpot();
         Double longitude = spot.getLongitude();
         Double latitude = spot.getLatitude();
-        return isMissionVerified(latitude, longitude, dto.getLatitude(), dto.getLongitude());
+        boolean missionVerified = isMissionVerified(latitude, longitude, dto.getLatitude(), dto.getLongitude());
+        if (missionVerified) {
+            if (isCreator(user, room)) {
+                room.setCreatorVerified(true);
+            } else {
+                room.setGuestVerified(true);
+            }
+        }
+        // 두 유저 모두에게 sse 전송
+        sseService.sendEmitter(room.getCreator(), room);
+        if (!room.isSingle()) {
+            sseService.sendEmitter(room.getGuest(), room);
+        }
+        return missionVerified;
     }
 
     private RoomDTO createRoomDTO(UserEntity user, Long roomId, MarbleRoomEntity room, boolean isCreator) {
