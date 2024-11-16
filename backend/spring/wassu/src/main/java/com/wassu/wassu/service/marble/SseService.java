@@ -153,7 +153,9 @@ public class SseService {
             newRoom.setUser1Email(email);
             testRepository.put(roomId, newRoom);
         } else {
-            existRoom.setUser2Email(email);
+            if (!existRoom.getUser1Email().equals(email)) {
+                existRoom.setUser2Email(email);
+            }
         }
         return createEmitter(email, roomId);
     }
