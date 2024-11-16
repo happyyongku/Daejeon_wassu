@@ -166,6 +166,7 @@ const MainPage = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       const {accessToken} = await getTokens();
+      console.log(accessToken);
 
       if (accessToken) {
         const profile = await getUserProfile();
