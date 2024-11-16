@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -30,6 +31,25 @@ public class TestController {
     public ResponseEntity<?> send(@AuthenticationPrincipal String userEmail, @PathVariable Long roomId) {
         sseService.testSend(userEmail, roomId);
         return ResponseEntity.ok(Map.of("status", "ok"));
+    }
+
+    @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamSseMvc() throws Exception {
+        SseEmitter emitter = new SseEmitter();
+
+        // 새로운 Thread로 실행
+        new Thread(() -> {
+            try {
+                while (true) {
+                    emitter.send(SseEmitter.event().data("Hello " + System.currentTimeMillis()));
+                    Thread.sleep(3000);  // 1초 대기
+                }
+            } catch (IOException | InterruptedException e) {
+                emitter.completeWithError(e);
+            }
+        }).start();
+
+        return emitter;
     }
 
 }
