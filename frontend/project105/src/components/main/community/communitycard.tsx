@@ -82,7 +82,7 @@ export default function CommunityCard({
   };
 
   return (
-    <div className={style.card_container}>
+    <div className={style.card_container} onClick={toDetail}>
       <div className={style.piccontainer}>{renderImage()}</div>
       {/* <div >프사</div> */}
       {profileImage !== "default" ? (
@@ -91,7 +91,7 @@ export default function CommunityCard({
         <img className={style.profilepic} src="/images/default.png" alt="" />
       )}
 
-      <div onClick={toDetail}>
+      <div>
         <div className={style.username}>{nickName}</div>
         <div className={style.placename}>{title}</div>
         <div className={style.placedesc}>{content}</div>

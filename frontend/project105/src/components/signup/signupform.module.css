@@ -47,11 +47,11 @@
 }
 
 .input_box:focus {
-  border-bottom: 1px solid #418663;
+  border-bottom: 2px solid #418663;
 }
 
 .email_input:focus {
-  border-bottom: 1px solid #418663;
+  border-bottom: 2px solid #418663;
 }
 
 .email_error {

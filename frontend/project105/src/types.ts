@@ -25,6 +25,7 @@ export interface ArticleData {
   nickName: string;
   userLiked: boolean;
   matched: boolean;
+  place: string;
 }
 export interface ReviewImageData {
   reviewImageId: number;

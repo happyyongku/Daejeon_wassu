@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LocationData } from "@/types";
+import useDropdownStore from "@/store/dropdownStore";
 import axios from "axios";
 import style from "./page.module.css";
 import Comment from "@/components/location/comment";
@@ -14,6 +15,12 @@ export default function Page() {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [forLoading, setForLoading] = useState(false);
+  const { closeDropdown } = useDropdownStore();
+
+  const [number, setNumber] = useState(4);
+  const plusNumber = () => {
+    setNumber(number + 4);
+  };
 
   // 장소 디테일 호출 axios 함수
   const getDetail = async () => {
@@ -83,6 +90,7 @@ export default function Page() {
 
   useEffect(() => {
     getDetail();
+    closeDropdown();
   }, []);
 
   // 모달 열기 함수
@@ -248,10 +256,12 @@ export default function Page() {
             <div className={style.detailtext}>방문후기</div>
           </div>
           <div className={style.commentcontainer}>
-            {location?.reviews.map((review, index) => (
+            {location?.reviews.slice(0, number).map((review, index) => (
               <Comment key={review.reviewId} {...review} />
             ))}
-            <button className={style.more}>더보기</button>
+            <button className={style.more} onClick={plusNumber}>
+              더보기
+            </button>
           </div>
         </div>
       </div>

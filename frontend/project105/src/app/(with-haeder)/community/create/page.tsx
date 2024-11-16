@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import style from "./page.module.css";
 import axios from "axios";
+import useDropdownStore from "@/store/dropdownStore";
 
 interface ArticleDTO {
   title: string;
@@ -12,6 +14,7 @@ interface ArticleDTO {
 
 export default function Page() {
   const router = useRouter();
+  const { closeDropdown } = useDropdownStore();
 
   // 제목 상태 관리
   const [title, setTitle] = useState<string>("");
@@ -106,11 +109,22 @@ export default function Page() {
     }
   };
 
+  useEffect(() => {
+    closeDropdown();
+  }, []);
+
   return (
     <div>
       <div>
         <div>
-          <label>이미지 추가</label>
+          <p className={style.title}>커뮤니티</p>
+          <div className={style.descbox}>
+            <p className={style.desc}>자신이 다녀온 관광지에 관한 경험을</p>
+            <p className={style.desc}>다른 유저와 함께 공유해보세요</p>
+          </div>
+        </div>
+        <div>
+          <label className={style.addimg}>이미지 추가</label>
           <input
             type="file"
             accept="image/*"
@@ -119,46 +133,49 @@ export default function Page() {
           />
         </div>
 
-        <div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "spacebetween",
+            flexWrap: "wrap",
+            width: "100%",
+            height: "240px",
+          }}
+        >
           {imagePreviews.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "spacebetween",
+                flexWrap: "wrap",
+                width: "100%",
+                height: "100%",
+              }}
+            >
               {imagePreviews.map((preview, index) => (
                 <div
                   key={index}
                   style={{ margin: "10px", position: "relative" }}
                 >
                   <img
+                    onClick={() => handleImageRemove(index)}
                     src={preview}
                     alt="preview"
                     style={{
-                      width: "100px",
-                      height: "100px",
-                      marginRight: "10px",
+                      width: "220px",
+                      height: "220px",
                     }}
                   />
-                  <button
-                    onClick={() => handleImageRemove(index)}
-                    style={{
-                      position: "absolute",
-                      top: "0",
-                      right: "0",
-                      background: "rgba(0, 0, 0, 0.5)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                    }}
-                  >
-                    ❌
-                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div>
-          <label htmlFor="category">카테고리</label>
+        <div className={style.catebox}>
+          <label className={style.cate} htmlFor="category">
+            카테고리
+          </label>
           <select id="category" onChange={handleCategory} required>
             <option value="">카테고리 선택</option>
             <option value="맛집">맛집</option>
@@ -173,15 +190,19 @@ export default function Page() {
         </div>
 
         <div>
-          <label htmlFor="">제목</label>
+          <label className={style.articletitle} htmlFor="">
+            제목
+          </label>
           <input type="text" onChange={handleTitle} />
         </div>
         <div>
-          <label htmlFor="">내용</label>
+          <label className={style.content} htmlFor="">
+            내용
+          </label>
           <textarea onChange={handleContent} />
         </div>
         <div>
-          <button onClick={submit}>임시</button>
+          <button onClick={submit}>등록</button>
         </div>
       </div>
     </div>

@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import CommunityCard from "@/components/main/community/communitycard";
 import style from "./page.module.css";
+import useDropdownStore from "@/store/dropdownStore";
 
 export default function Page() {
   const router = useRouter();
   const [articles, setArticles] = useState<ArticleData[]>([]);
+  const { closeDropdown } = useDropdownStore();
 
   const getArticles = async () => {
     // const token = localStorage.getItem("authToken");
@@ -33,6 +35,7 @@ export default function Page() {
 
   useEffect(() => {
     getArticles();
+    closeDropdown();
   }, []);
 
   return (

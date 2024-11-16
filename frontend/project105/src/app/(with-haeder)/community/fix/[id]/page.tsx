@@ -166,6 +166,11 @@ export default function Page() {
 
   return (
     <div>
+      <div>
+        <p>커뮤니티</p>
+        <p>자신이 다녀온 관광지에 관한 경험을</p>
+        <p>다른 유저와 함께 공유해보세요</p>
+      </div>
       {/* 카테고리 선택 */}
       <div>
         <label htmlFor="category">카테고리</label>

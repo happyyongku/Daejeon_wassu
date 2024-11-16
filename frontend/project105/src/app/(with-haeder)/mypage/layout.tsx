@@ -4,12 +4,13 @@ import { ReactNode, useState } from "react";
 import { useEffect } from "react";
 import { UserData } from "@/types";
 import { useRouter } from "next/navigation";
+import useDropdownStore from "@/store/dropdownStore";
 import axios from "axios";
 import style from "./layout.module.css";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
-
+  const { closeDropdown } = useDropdownStore();
   // 로그아웃 요청 axios
   const logout = async () => {
     const token = localStorage.getItem("authToken");
@@ -78,6 +79,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     getMyData();
+    closeDropdown();
   }, []);
 
   return (
