@@ -7,7 +7,7 @@ import RecommendedPlace from '../pages/RecommendedPlace';
 import TravelChallenge from '../pages/TravelChallenge';
 import MonopolyPage from '../pages/MonopolyPage';
 import Community from '../pages/Community';
-import Ar from '../pages/Ar';
+import Ar from '../components/TravelChallenge/Ar';
 import Gps from '../pages/Gps';
 import FindPassword from '../pages/FindPassword';
 import MyPage from '../pages/MyPage';

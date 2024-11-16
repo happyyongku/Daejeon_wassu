@@ -55,6 +55,10 @@ const ChallengeDetail = () => {
     navigation.navigate('PlaceDetail', {id: placeId});
   };
 
+  const goToARPage = () => {
+    navigation.navigate('Ar'); // AR 페이지로 이동
+  };
+
   return (
     <>
       <Header />
@@ -115,6 +119,11 @@ const ChallengeDetail = () => {
           <TouchableOpacity style={styles.challengeButton}>
             <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
             <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
+          </TouchableOpacity>
+
+          {/* AR 페이지로 이동하는 버튼 */}
+          <TouchableOpacity style={styles.arButton} onPress={goToARPage}>
+            <Text style={styles.arButtonText}>AR 시작하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -231,6 +240,20 @@ const styles = StyleSheet.create({
   },
   challengeButtonText: {
     color: '#418663',
+    fontSize: 16,
+    fontFamily: 'Pretendard-Bold',
+    fontWeight: 'bold',
+  },
+  arButton: {
+    backgroundColor: '#418663',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  arButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',

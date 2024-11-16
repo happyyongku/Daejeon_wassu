@@ -17,6 +17,7 @@ import CheckIcon from '../assets/imgs/Check.svg';
 import MedalIcon from '../assets/imgs/monster.svg';
 import ChatbotIcon from '../assets/imgs/chatbot.svg';
 import {getCoursePresets} from '../api/recommended'; // API 함수 가져오기
+import ChatbotModal from '../components/TravelChallenge/ChatbotModal'; // ChatbotModal 추가
 
 const {width} = Dimensions.get('window');
 
@@ -26,12 +27,13 @@ interface Course {
   course_name: string;
   description: string;
   image_url: string;
+  completed_all: boolean; // completed_all 추가
 }
 
 const TravelChallenge = () => {
   const navigation = useNavigation<TravelChallengeNavigationProp>();
   const [courses, setCourses] = useState<Course[]>([]); // Course 타입 지정
-
+  const [isChatbotModalVisible, setChatbotModalVisible] = useState(false); // 모달 상태
   // API 호출 및 데이터 설정
   useEffect(() => {
     const fetchCourses = async () => {
@@ -58,7 +60,13 @@ const TravelChallenge = () => {
   const goToChallengeDetail = (courseId: number) => {
     navigation.navigate('ChallengeDetail', {id: courseId});
   };
+  const openChatbotModal = () => {
+    setChatbotModalVisible(true);
+  };
 
+  const closeChatbotModal = () => {
+    setChatbotModalVisible(false);
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -111,6 +119,10 @@ const TravelChallenge = () => {
             <Text style={styles.cardTitle}>{course.course_name}</Text>
             <Text style={styles.cardDescription}>{course.description}</Text>
           </View>
+          {/* completed_all이 true일 때 complete 도장을 표시 */}
+          {course.completed_all && (
+            <Image source={require('../assets/imgs/complete.png')} style={styles.completeIcon} />
+          )}
         </TouchableOpacity>
       ))}
 
@@ -126,9 +138,11 @@ const TravelChallenge = () => {
       <Text style={styles.chatText}>원하는 코스가 없으시면 챗봇과 한 번 대화해보세요.</Text>
       <Text style={styles.chatText}>아쉽게도 챌린지는 제공되지 않습니다.</Text>
 
-      <TouchableOpacity style={styles.chatbotButton}>
+      <TouchableOpacity style={styles.chatbotButton} onPress={openChatbotModal}>
         <Text style={styles.chatbotButtonText}>챗봇에게 코스 물어보기!</Text>
       </TouchableOpacity>
+
+      <ChatbotModal visible={isChatbotModalVisible} onClose={closeChatbotModal} />
     </ScrollView>
   );
 };
@@ -303,6 +317,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
+  },
+  completeIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 50,
+    height: 50,
+    zIndex: 1,
   },
 });
 

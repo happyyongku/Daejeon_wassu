@@ -1,84 +1,239 @@
-import React, {useState} from 'react';
+// import React, {useEffect, useState} from 'react';
+// import {View, Text, StyleSheet, Button} from 'react-native';
+// import {getTokens} from '../utills/tokenStorage';
+// import SSE from 'react-native-sse'; // react-native-sse 사용
+// import axios from 'axios';
+
+// interface EventData {
+//   user1Email: string;
+//   user1Data: number;
+//   user2Email: string;
+//   user2Data: number;
+// }
+
+// const RoomScreen = () => {
+//   const [event, setEvent] = useState<EventData | null>(null);
+//   const [error, setError] = useState<string | null>(null); // 오류 상태 추가
+
+//   useEffect(() => {
+//     // 마운트 시작
+//     console.log('마운트 시작');
+
+//     const fetchTokenAndConnect = async () => {
+//       try {
+//         const {accessToken} = await getTokens();
+//         // console.log('AccessToken:', accessToken);
+//         // AccessToken 출력
+
+//         // 확인: accessToken이 없으면 오류 처리
+//         if (!accessToken) {
+//           setError('No access token found');
+//           return;
+//         }
+
+//         // SSE 연결 설정
+//         const sse = new SSE('https://k11b105.p.ssafy.io/wassu/tourist/test/1', {
+//           headers: {
+//             Authorization: `Bearer ${accessToken}`,
+//           },
+//         });
+
+//         // 연결 성공 시
+//         sse.addEventListener('open', () => {
+//           console.log('연결 성공');
+//         });
+
+//         // `ping` 이벤트 수신
+//         sse.addEventListener('ping', (event: any) => {
+//           console.log('Received ping event:', event.data); // `ping` 이벤트 처리
+//           setEvent(event.data); // 데이터를 상태로 설정
+//         });
+
+//         sse.addEventListener('message', (event: any) => {
+//           console.log('SSE 데이터 수신:', event.data);
+//           // const data: EventData = JSON.parse(event.data);
+//           setEvent(event.data);
+//         });
+
+//         sse.addEventListener('error', (error: any) => {
+//           console.error('SSE 연결 에러:', error);
+//           setError('SSE 연결 실패');
+//         });
+
+//         // SSE 연결 종료 시
+//         return () => {
+//           sse.close();
+//           console.log('연결 종료');
+//         };
+//       } catch (error) {
+//         console.error('SSE 연결 중 오류 발생:', error);
+//         setError('SSE 연결 중 오류 발생');
+//       }
+//     };
+
+//     fetchTokenAndConnect();
+//   }, []);
+
+//   // 데이터 전송 핸들러
+//   const sendMessage = async () => {
+//     const {accessToken} = await getTokens(); // 토큰 가져오기
+//     try {
+//       const response = await axios.get(`https://k11b105.p.ssafy.io/wassu/tourist/send/1`, {
+//         headers: {
+//           Authorization: `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+//         },
+//       });
+//       console.log('Message sent:', response.data);
+//     } catch (error) {
+//       console.error('Failed to send message:', error);
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.title}>Room ID: 1</Text>
+//       <Text style={styles.title}>user 1: {event?.user1Email || 'No Data'}</Text>
+//       <Text style={styles.title}>user 2: {event?.user2Email || 'No Data'}</Text>
+//       <Text style={styles.subtitle}>Events: {event?.user1Data ?? 'No Data'}</Text>
+//       <Text style={styles.subtitle}>Events: {event?.user2Data ?? 'No Data'}</Text>
+
+//       {/* 연결 오류 메시지 출력 */}
+//       {error && <Text style={styles.error}>{error}</Text>}
+
+//       <Button title="데이터 보내자." onPress={sendMessage} />
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 20,
+//     backgroundColor: '#f9f9f9',
+//   },
+//   title: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     marginBottom: 10,
+//   },
+//   subtitle: {
+//     fontSize: 18,
+//     fontWeight: '600',
+//     marginTop: 20,
+//     marginBottom: 10,
+//   },
+//   error: {
+//     color: 'red',
+//     marginTop: 20,
+//     fontSize: 16,
+//   },
+// });
+
+// export default RoomScreen;
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Button} from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
-import {GOOGLE_MAPS_API_KEY} from '@env';
+import {getTokens} from '../utills/tokenStorage';
+import SSE from 'react-native-sse'; // react-native-sse 사용
+import axios from 'axios';
 
-const origin = {
-  latitude: 36.33229969,
-  longitude: 127.4341122,
-};
+interface EventData {
+  user1Email: string;
+  user1Data: number;
+  user2Email: string;
+  user2Data: number;
+}
 
-const destination = {
-  latitude: 36.367771,
-  longitude: 127.3886019,
-};
+const RoomScreen = () => {
+  const [event1, setEvent] = useState<EventData | null>(null);
+  const [error, setError] = useState<string | null>(null); // 오류 상태 추가
+  // const [pingStatus, setPingStatus] = useState<string>(''); // ping 상태 추가
 
-// 중간 지점 계산
-const midPoint = {
-  latitude: (origin.latitude + destination.latitude) / 2,
-  longitude: (origin.longitude + destination.longitude) / 2,
-};
+  useEffect(() => {
+    // 마운트 시작
+    console.log('마운트 시작');
 
-// 지도 줌 수준 계산
-const latitudeDelta = Math.abs(origin.latitude - destination.latitude) * 1.5; // 1.5배로 여유 공간을 확보
-const longitudeDelta = Math.abs(origin.longitude - destination.longitude) * 1.5;
+    const fetchTokenAndConnect = async () => {
+      try {
+        const {accessToken} = await getTokens();
 
-const Map: React.FC = () => {
-  const [travelInfo, setTravelInfo] = useState<{duration: number; distance: number} | null>(null);
-  const [showDirections, setShowDirections] = useState(false);
+        // 확인: accessToken이 없으면 오류 처리
+        if (!accessToken) {
+          setError('No access token found');
+          return;
+        }
 
-  const handleShowDirections = () => {
-    setShowDirections(true);
+        // SSE 연결 설정
+        const sse = new SSE('https://k11b105.p.ssafy.io/wassu/tourist/test/1', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        // 연결 성공 시
+        sse.addEventListener('open', () => {
+          console.log('연결 성공');
+        });
+
+        // `message` 이벤트 처리 (기존 메시지 이벤트)
+        sse.addEventListener('message', (event: any) => {
+          console.log('SSE message event data received:', event.data);
+          if (event.data !== 'keep-alive') {
+            const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            setEvent(parsedData);
+            console.log(parsedData.user1Data);
+          }
+        });
+
+        sse.addEventListener('error', (error: any) => {
+          console.error('SSE 연결 에러:', error);
+          setError('SSE 연결 실패');
+        });
+
+        // SSE 연결 종료
+        return () => {
+          sse.close();
+          console.log('연결 종료');
+        };
+      } catch (error) {
+        console.error('SSE 연결 중 오류 발생:', error);
+        setError('SSE 연결 중 오류 발생');
+      }
+    };
+
+    fetchTokenAndConnect();
+  }, []);
+
+  // 데이터 전송 핸들러
+  const sendMessage = async () => {
+    const {accessToken} = await getTokens(); // 토큰 가져오기
+    try {
+      const response = await axios.get(`https://k11b105.p.ssafy.io/wassu/tourist/send/1`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // 헤더에 accessToken 추가
+        },
+      });
+      console.log('Message sent:', response.data);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={{
-          latitude: midPoint.latitude,
-          longitude: midPoint.longitude,
-          latitudeDelta: latitudeDelta,
-          longitudeDelta: longitudeDelta,
-        }}>
-        <Marker coordinate={origin} title="Origin" />
-        <Marker coordinate={destination} title="Destination" />
+      <Text style={styles.title}>Room ID: 1</Text>
+      {/* <Text style={styles.title}>{event1}</Text> */}
+      <Text style={styles.title}>user 1: {event1?.user1Email || 'No Data'}</Text>
+      <Text style={styles.title}>user 2: {event1?.user2Email || 'No Data'}</Text>
+      <Text style={styles.subtitle}>Events: {event1?.user1Data ?? 'No Data'}</Text>
+      <Text style={styles.subtitle}>Events: {event1?.user2Data ?? 'No Data'}</Text>
 
-        {showDirections && (
-          <MapViewDirections
-            origin={origin}
-            destination={destination}
-            apikey={GOOGLE_MAPS_API_KEY}
-            mode="TRANSIT"
-            strokeWidth={4}
-            strokeColor="blue"
-            onReady={result => {
-              setTravelInfo({
-                duration: result.duration,
-                distance: result.distance,
-              });
+      {/* 연결 오류 메시지 출력 */}
+      {error && <Text style={styles.error}>{error}</Text>}
 
-              console.log(`예상 시간: ${result.duration}분`);
-              console.log(`거리: ${result.distance} km`);
-            }}
-            onError={errorMessage => {
-              console.log('Directions API Error:', errorMessage);
-            }}
-          />
-        )}
-      </MapView>
+      {/* ping 이벤트 상태 표시 */}
+      {/* {pingStatus && <Text style={styles.pingStatus}>Ping Status: {pingStatus}</Text>} */}
 
-      <View style={styles.infoContainer}>
-        <Button title="Show Directions" onPress={handleShowDirections} />
-        {travelInfo && (
-          <Text style={styles.infoText}>
-            예상 시간: {Math.round(travelInfo.duration)}분, 거리: {travelInfo.distance.toFixed(2)}{' '}
-            km
-          </Text>
-        )}
-      </View>
+      <Button title="데이터 보내자." onPress={sendMessage} />
     </View>
   );
 };
@@ -86,24 +241,30 @@ const Map: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
+    backgroundColor: '#f9f9f9',
   },
-  map: {
-    width: '100%',
-    height: '100%',
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  infoContainer: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    right: 10,
-    padding: 10,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 10,
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 20,
+    marginBottom: 10,
   },
-  infoText: {
-    marginTop: 10,
+  error: {
+    color: 'red',
+    marginTop: 20,
+    fontSize: 16,
+  },
+  pingStatus: {
+    color: 'green',
+    marginTop: 20,
     fontSize: 16,
   },
 });
 
-export default Map;
+export default RoomScreen;
