@@ -13,4 +13,9 @@ public interface TouristSpotImageRepository extends JpaRepository<TouristSpotIma
             "where ts.elasticId=:touristId")
     List<TouristSpotImageEntity> findByTouristId(String touristId);
 
+    @Query("select tsi from TouristSpotImageEntity tsi " +
+            "join fetch tsi.touristSpot ts " +
+            "where ts.id = :touristId")
+    List<TouristSpotImageEntity> findByTouristSpotId(Long touristId);
+
 }
