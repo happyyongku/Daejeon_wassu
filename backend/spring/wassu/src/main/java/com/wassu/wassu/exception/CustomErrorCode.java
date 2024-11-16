@@ -17,6 +17,7 @@ public enum CustomErrorCode {
     MISSION_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "Mission Not Verified"),
     PASS_NOT_REMAINING(HttpStatus.BAD_REQUEST, "Pass Not Remaining"),
     REROLL_NOT_REMAINING(HttpStatus.BAD_REQUEST, "Reroll Not Remaining"),
+    GAME_IS_NOT_READY(HttpStatus.BAD_REQUEST, "Game Is Not Ready"),
 
     USER_NOT_AUTHORIZED_CONTROL_ARTICLE(HttpStatus.FORBIDDEN, "User Not Authorized To Control Article"),
     USER_NOT_AUTHORIZED_CONTROL_REVIEW(HttpStatus.FORBIDDEN, "User Not Authorized To Control Review"),

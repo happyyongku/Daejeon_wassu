@@ -66,14 +66,14 @@ public class SseService {
 
     public void sendEmitter(UserEntity user, MarbleRoomEntity room, int dice1, int dice2) {
         SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
-        SseDTO sseDTO = null;
+        SseDTO sseDTO;
         if (user.equals(room.getCreator())) {
             sseDTO = SseDTO.builder()
                     .yourPosition(room.getCreatorPosition())
                     .yourVerified(room.isCreatorVerified())
                     .yourReroll(room.getCreatorReroll())
                     .yourPass(room.getCreatorPass())
-                    .opponentPosition(room.getCreatorPosition())
+                    .opponentPosition(room.getGuestPosition())
                     .opponentVerified(room.isGuestVerified())
                     .opponentReroll(room.getGuestReroll())
                     .opponentPass(room.getGuestPass())
@@ -95,7 +95,7 @@ public class SseService {
                     .build();
         }
         try {
-            emitter.send(sseDTO);
+            emitter.send(SseEmitter.event().name("message").data(sseDTO));
         } catch (IOException e) {
             throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
         }
@@ -103,14 +103,14 @@ public class SseService {
 
     public void sendEmitter(UserEntity user, MarbleRoomEntity room) {
         SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
-        SseDTO sseDTO = null;
+        SseDTO sseDTO;
         if (user.equals(room.getCreator())) {
             sseDTO = SseDTO.builder()
                     .yourPosition(room.getCreatorPosition())
                     .yourVerified(room.isCreatorVerified())
                     .yourReroll(room.getCreatorReroll())
                     .yourPass(room.getCreatorPass())
-                    .opponentPosition(room.getCreatorPosition())
+                    .opponentPosition(room.getGuestPosition())
                     .opponentVerified(room.isGuestVerified())
                     .opponentReroll(room.getGuestReroll())
                     .opponentPass(room.getGuestPass())
@@ -128,7 +128,7 @@ public class SseService {
                     .build();
         }
         try {
-            emitter.send(sseDTO);
+            emitter.send(SseEmitter.event().name("message").data(sseDTO));
         } catch (IOException e) {
             throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
         }
