@@ -9,19 +9,19 @@ import java.util.Optional;
 public interface MarbleRoomRepository extends JpaRepository<MarbleRoomEntity, Long> {
 
     @Query("select mr from MarbleRoomEntity mr " +
-            "join fetch mr.marble m " +
-            "join fetch m.nodes n " +
-            "join fetch n.touristSpot ts " +
-            "join fetch mr.creator c " +
+            "left join fetch mr.marble m " +
+            "left join fetch m.nodes n " +
+            "left join fetch n.touristSpot ts " +
+            "left join fetch mr.creator c " +
             "where mr.id=:roomId order by n.nodeOrder asc")
     Optional<MarbleRoomEntity> findSingleRoomDetails(Long roomId);
 
     @Query("select mr from MarbleRoomEntity mr " +
-            "join fetch mr.marble m " +
-            "join fetch m.nodes n " +
-            "join fetch n.touristSpot ts " +
-            "join fetch mr.creator c " +
-            "join fetch mr.guest g " +
+            "left join fetch mr.marble m " +
+            "left join fetch m.nodes n " +
+            "left join fetch n.touristSpot ts " +
+            "left join fetch mr.creator c " +
+            "left join fetch mr.guest g " +
             "where mr.id=:roomId order by n.nodeOrder asc")
     Optional<MarbleRoomEntity> findMultiRoomDetails(Long roomId);
 
