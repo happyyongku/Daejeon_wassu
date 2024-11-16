@@ -1,6 +1,7 @@
 package com.wassu.wassu.entity.touristspot;
 
 import com.wassu.wassu.entity.VisitedSpotEntity;
+import com.wassu.wassu.entity.course.TourCourseDetailEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.schedule.DailyPlanEntity;
 import jakarta.persistence.*;
@@ -57,6 +58,9 @@ public class TouristSpotEntity {
 
     @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotStampEntity> touristSpotStamps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "touristSpot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TourCourseDetailEntity> tourCourseDetails = new ArrayList<>();
 
     public int getStampCount() {
         return touristSpotStamps.size();
