@@ -1,5 +1,7 @@
 package com.wassu.wassu.entity;
 
+import com.wassu.wassu.entity.course.CatchedWassuMonEntity;
+import com.wassu.wassu.entity.course.UserCourseProgressEntity;
 import com.wassu.wassu.entity.review.ReviewEntity;
 import com.wassu.wassu.entity.schedule.ScheduleEntity;
 import com.wassu.wassu.entity.touristspot.TouristSpotFavorites;
@@ -85,6 +87,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TouristSpotStampEntity> touristSpotStamp = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCourseProgressEntity> userCourseProgress = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CatchedWassuMonEntity> catchedWassuMons = new ArrayList<>();
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

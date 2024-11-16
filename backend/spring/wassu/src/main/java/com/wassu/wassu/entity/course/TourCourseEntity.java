@@ -31,4 +31,7 @@ public class TourCourseEntity {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TourCourseDetailEntity> tourCourseDetails = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCourseProgressEntity> userCourseProgress = new ArrayList<>();
 }
