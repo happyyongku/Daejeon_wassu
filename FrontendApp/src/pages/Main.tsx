@@ -224,7 +224,6 @@ const MainPage = () => {
     console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
     navigation.navigate('PlaceDetail', {id});
   };
-
   const insertLineBreak = (text: string, maxChars: number) => {
     const words = text.split(' ');
     let line = '';
@@ -891,6 +890,21 @@ const styles = StyleSheet.create({
     color: '#888',
     fontFamily: 'Pretendard-Medium',
   },
+  arButton: {
+    backgroundColor: '#418663',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  arButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Pretendard-Bold',
+    fontWeight: 'bold',
+  },
+
   profileImage: {
     width: 40,
     height: 40,

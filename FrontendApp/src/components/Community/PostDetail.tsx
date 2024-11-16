@@ -76,7 +76,7 @@ const PostDetail = () => {
     try {
       await deletePost(articleId);
       Alert.alert('삭제 성공', '게시글이 삭제되었습니다.');
-      navigation.navigate('Community');
+      navigation.goBack();
     } catch (error) {
       Alert.alert('삭제 실패', '게시글 삭제 중 오류가 발생했습니다.');
     }
