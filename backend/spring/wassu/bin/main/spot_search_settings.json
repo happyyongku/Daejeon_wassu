@@ -20,6 +20,7 @@
       }
     },
     "analyzer": {
+<<<<<<< HEAD
       "nori_analyzer_index": {
         "type": "custom",
         "tokenizer": "nori_tokenizer",
@@ -30,6 +31,9 @@
         ]
       },
       "nori_analyzer_search": {
+=======
+      "nori_analyzer": {
+>>>>>>> feature/be/tourist
         "type": "custom",
         "tokenizer": "nori_tokenizer",
         "filter": [
