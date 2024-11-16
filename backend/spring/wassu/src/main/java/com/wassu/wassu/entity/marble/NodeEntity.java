@@ -15,8 +15,8 @@ public class NodeEntity {
     private int nodeOrder; // 관광지 번수 (순서)
 
     @ManyToOne
-    @JoinColumn(name = "board_entity_id")
-    private MarbleEntity board;
+    @JoinColumn(name = "marble_entity_id")
+    private MarbleEntity marble;
 
     @ManyToOne
     @JoinColumn(name = "tourist_spot_entity_id")
