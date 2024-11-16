@@ -64,6 +64,7 @@ public class SecurityConfig {
                                         "/wassu/tourist/filter/**",
                                         "/wassu/tourist/details/**",
                                         "/wassu/tourist/recommend",
+                                        "/wassu/tourist/test/**",
                                         "/wassu/posts/read/**",
                                         "/error",
                                         // swagger
