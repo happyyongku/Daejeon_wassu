@@ -2,6 +2,8 @@ package com.wassu.wassu.service.article;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -29,12 +31,9 @@ public class ArticleCategoryFilterService {
         try {
             log.info("Start to search article with tag");
 
-            Query query;
-
-            if (tag == null || tag.trim().isEmpty()) {
-                query = Query.of(q -> q.matchAll(ma -> ma));
-            } else {
-                query = Query.of(q -> q
+            Query query = (tag == null || tag.trim().isEmpty())
+                    ? Query.of(q -> q.matchAll(ma -> ma))
+                    : Query.of(q -> q
                         .nested(n -> n
                                 .path("tags")
                                 .query(nq -> nq
@@ -44,14 +43,20 @@ public class ArticleCategoryFilterService {
                                         )
                                 )
                         )
-                );
-            }
+                    );
+            SortOptions sortOptions = SortOptions.of(so -> so
+                    .field(f -> f
+                            .field("updatedAt")
+                            .order(SortOrder.Desc)
+                    )
+            );
 
             log.info("Query for filtering: {}", query);
 
             SearchRequest request = new SearchRequest.Builder()
                     .index("article")
                     .query(query)
+                    .sort(sortOptions)
                     .from((int) pageable.getOffset())
                     .size(pageable.getPageSize())
                     .build();

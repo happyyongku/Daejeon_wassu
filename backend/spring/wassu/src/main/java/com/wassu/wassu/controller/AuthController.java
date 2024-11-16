@@ -84,7 +84,7 @@ public class AuthController {
     
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String refreshToken) {
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization") String refreshToken) {
         try{
             String token  = refreshToken.replace("Bearer ", "");
             authService.logout(token);
@@ -97,7 +97,7 @@ public class AuthController {
 
     // 리프레쉬 토큰 갱신
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String refreshToken){
+    public ResponseEntity<?> refresh(@RequestHeader(value = "Authorization") String refreshToken){
         try {
             String token = refreshToken.replace("Bearer ", "");
             if (jwtUtil.validateToken(token)) {
@@ -117,7 +117,7 @@ public class AuthController {
 
     // 회원탈퇴
     @DeleteMapping("/delete-account")
-    private ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String accessToken) {
+    private ResponseEntity<?> deleteAccount(@RequestHeader(value = "Authorization") String accessToken) {
         try {
             String token = accessToken.replace("Bearer ", "");
             if (jwtUtil.validateToken(token)) {

@@ -21,10 +21,10 @@ public class ElasticTouristSpotEntity {
     @Id
     private String id;
 
-    @Field(type= FieldType.Text, analyzer = "nori_analyzer_index", searchAnalyzer = "nori_analyzer_search")
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer", searchAnalyzer = "nori_analyzer")
     private String spotName;
 
-    @Field(type= FieldType.Text, analyzer = "nori_analyzer_index", searchAnalyzer = "nori_analyzer_search")
+    @Field(type= FieldType.Text, analyzer = "nori_analyzer", searchAnalyzer = "nori_analyzer")
     private String spotAddress;
 
     @Field(type = FieldType.Integer)
