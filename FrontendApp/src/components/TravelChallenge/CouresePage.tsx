@@ -22,6 +22,7 @@ interface CourseData {
   course_name: string;
   description: string;
   image_url: string;
+  completed_all: boolean; // completed_all 추가
 }
 
 const CoursePage = () => {
@@ -61,6 +62,10 @@ const CoursePage = () => {
             <Text style={styles.cardTitle}>{course.course_name}</Text>
             <Text style={styles.cardDescription}>{course.description}</Text>
           </View>
+          {/* completed_all이 true일 때 complete 도장을 표시 */}
+          {course.completed_all && (
+            <Image source={require('../../assets/imgs/complete.png')} style={styles.completeIcon} />
+          )}
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -125,6 +130,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
+    width: 50,
+    height: 50,
     zIndex: 1,
   },
 });

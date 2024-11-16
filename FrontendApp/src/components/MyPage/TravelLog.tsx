@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions} from 'react-native';
 import {getUserArticles} from '../../api/mypage';
 import type {UserArticle} from '../../api/mypage';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 
@@ -26,18 +26,20 @@ const TravelLog = () => {
   const [loading, setLoading] = useState(false);
   const [currentPages, setCurrentPages] = useState<{[key: string]: number}>({});
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      const fetchedArticles = await getUserArticles();
-      if (fetchedArticles) {
-        setArticles(fetchedArticles);
-      }
-      setLoading(false);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchArticles = async () => {
+        setLoading(true);
+        const fetchedArticles = await getUserArticles();
+        if (fetchedArticles) {
+          setArticles(fetchedArticles);
+        }
+        setLoading(false);
+      };
 
-    fetchArticles();
-  }, []);
+      fetchArticles();
+    }, []),
+  );
 
   const handleNextImage = (articleId: string, imagesLength: number) => {
     setCurrentPages(prevPages => {
