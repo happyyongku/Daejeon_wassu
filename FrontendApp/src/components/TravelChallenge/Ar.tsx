@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import {useRoute, useNavigation} from '@react-navigation/native'; // useNavigation 가져오기
+import type {RouteProp} from '@react-navigation/native'; // RouteProp 가져오기
 import {StyleSheet, View, Text, Modal, Image, TouchableOpacity} from 'react-native';
 import {
   ViroARScene,
@@ -11,6 +13,8 @@ import {
   ViroSpotLight,
   ViroAnimations,
 } from '@reactvision/react-viro';
+import {markSpotAsVisited} from '../../api/recommended';
+
 interface HelloWorldSceneARProps {
   onAnimationEnd: () => void; // prop에 대한 타입을 명시
 }
@@ -129,14 +133,38 @@ const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps> = ({onAnimationEnd}) =
     </ViroARScene>
   );
 };
+import type {RootStackParamList} from '../../router/Navigator';
+
+type ARRouteProp = RouteProp<RootStackParamList, 'Ar'>; // 'Ar' 경로의 타입 명시
 
 const ARModalExample = () => {
   const [modalVisible, setModalVisible] = useState(false);
-
-  const handleAnimationEnd = () => {
+  const route = useRoute<ARRouteProp>(); // useRoute에 타입 적용
+  const {courseId, spotId} = route.params; // route에서 courseId와 spotId 가져오기
+  const navigation = useNavigation(); // useNavigation 사용
+  const handleAnimationEnd = async () => {
     setModalVisible(true); // 모달 표시
-  };
 
+    try {
+      // API 요청 전 값 확인
+      console.log('API 요청 전 courseId:', courseId);
+      console.log('API 요청 전 spotId:', spotId);
+
+      // 장소 방문 완료 POST 요청
+      const result = await markSpotAsVisited(courseId, spotId);
+      if (result) {
+        console.log('장소 방문 인증 성공:', result);
+      } else {
+        console.error('장소 방문 인증 실패.');
+      }
+    } catch (error) {
+      console.error('장소 방문 인증 에러:', error);
+    }
+  };
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    navigation.goBack(); // 이전 페이지로 돌아가기
+  };
   return (
     <View style={{flex: 1}}>
       <ViroARSceneNavigator
@@ -152,7 +180,7 @@ const ARModalExample = () => {
         visible={modalVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={handleCloseModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Image source={require('../../assets/imgs/bbangmon.png')} style={styles.monsterImage} />
@@ -167,7 +195,7 @@ const ARModalExample = () => {
               단팥몬은 대전 성심당에서만 볼 수 있는 희귀 몬스터입니다. 단팥빵에서 태어나 성심당을
               돌아다니며 빵을 사랑하는 사람들을 지켜봅니다.
             </Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+            <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>닫기</Text>
             </TouchableOpacity>
           </View>
