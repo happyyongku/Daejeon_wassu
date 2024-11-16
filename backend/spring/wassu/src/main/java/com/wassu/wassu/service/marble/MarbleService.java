@@ -239,6 +239,14 @@ public class MarbleService {
         return missionVerified;
     }
 
+    public Long getMyMarble(String email) {
+        MarbleRoomEntity myRoom = roomRepository.findMyRoom(email);
+        if (myRoom != null) {
+            return myRoom.getId();
+        }
+        return null;
+    }
+
     private RoomDTO createRoomDTO(UserEntity user, Long roomId, MarbleRoomEntity room, boolean isCreator) {
         MarbleEntity marble = room.getMarble();
         List<NodeEntity> nodes = marble.getNodes();
