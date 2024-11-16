@@ -32,4 +32,16 @@ public class DataController {
         }
     }
 
+    @PutMapping("/update_image")
+    public ResponseEntity<?> updateImage() {
+        try {
+            dataService.updateElasticImage(1000);
+            return ResponseEntity.ok(utilTool.createResponse("status", "success"));
+        } catch (Exception e) {
+            log.error("Error while updating image file: ", e);
+            return ResponseEntity.status(500).body(utilTool.createResponse("status", "update failed"));
+        }
+    }
+
+
 }
