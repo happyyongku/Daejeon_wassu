@@ -103,7 +103,9 @@ public class MarbleService {
             boolean isCreator = isCreator(user, room);
             RoomDTO roomDTO = createRoomDTO(user, roomId, room, isCreator);
             if (isCreator) {
-                roomDTO.setOpponent(userService.convertToDTO(room.getGuest()));
+                if (room.getGuest() != null) {
+                    roomDTO.setOpponent(userService.convertToDTO(room.getGuest()));
+                }
             } else {
                 roomDTO.setOpponent(userService.convertToDTO(room.getCreator()));
             }
@@ -229,7 +231,7 @@ public class MarbleService {
     private boolean isCreator(UserEntity user, MarbleRoomEntity room) {
         UserEntity guest = room.getGuest();
         UserEntity creator = room.getCreator();
-        if (user.getEmail().equals(creator.getEmail())) {
+        if (guest == null || user.getEmail().equals(creator.getEmail())) {
             return true;
         } else if (user.getEmail().equals(guest.getEmail())) {
             return false;
