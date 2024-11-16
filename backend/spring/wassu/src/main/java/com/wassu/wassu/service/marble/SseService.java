@@ -8,6 +8,8 @@ import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.test.TestRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -32,6 +34,7 @@ public class SseService {
 
     public SseEmitter createEmitter(String email, Long roomId) {
         SseEmitter emitter = new SseEmitter(300_000L);
+        SecurityContext context = SecurityContextHolder.getContext();
 
         // roomId에 해당하는 사용자 맵 가져오기, 없으면 새로 생성
         emitters.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>())
@@ -45,6 +48,7 @@ public class SseService {
         // 스케줄러를 사용하여 주기적으로 핑 전송
         scheduler.scheduleAtFixedRate(() -> {
             try {
+                SecurityContextHolder.setContext(context);
                 emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
                 log.info("emitter sent ping: {} {}", roomId, email);
             } catch (IOException e) {
