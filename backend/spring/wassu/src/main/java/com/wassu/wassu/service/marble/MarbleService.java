@@ -284,6 +284,9 @@ public class MarbleService {
     }
 
     private boolean isGameReady(MarbleRoomEntity room) {
+        if (room.isSingle()) {
+            return true;
+        }
         UserEntity creator = room.getCreator();
         UserEntity guest = room.getGuest();
         return creator != null && guest != null;
