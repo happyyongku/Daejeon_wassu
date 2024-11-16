@@ -14,7 +14,7 @@ public class MarbleEntity {
     private Long id;
     private String marbleName;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "marble", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NodeEntity> nodes;
 
 }
