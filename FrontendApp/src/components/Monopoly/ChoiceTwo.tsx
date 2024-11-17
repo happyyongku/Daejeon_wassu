@@ -14,16 +14,16 @@ import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import SearchIcon from '../../assets/imgs/search.svg';
-import {postMarble} from '../../api/mono';
+import {postMarbles} from '../../api/mono';
 
-type ChoiceNavigationProp = StackNavigationProp<RootStackParamList>;
-type ChoiceRouteProp = RouteProp<RootStackParamList, 'Choice'>;
+type ChoiceTwoNavigationProp = StackNavigationProp<RootStackParamList>;
+type ChoiceTwoRouteProp = RouteProp<RootStackParamList, 'ChoiceTwo'>;
 
-const Choice = () => {
-  const route = useRoute<ChoiceRouteProp>();
+const ChoiceTwo = () => {
+  const route = useRoute<ChoiceTwoRouteProp>();
   const {single} = route.params || {};
   console.log('Choice에서 받은 single 값:', single);
-  const navigation = useNavigation<ChoiceNavigationProp>();
+  const navigation = useNavigation<ChoiceTwoNavigationProp>();
   const {width, height} = useWindowDimensions();
 
   useEffect(() => {
@@ -39,18 +39,23 @@ const Choice = () => {
 
   const handleThemeBoardSelection = async (marbled: number) => {
     try {
-      const response = await postMarble(marbled.toString(), single);
+      const response = (await postMarbles(marbled.toString(), single)) as {
+        roomId: number;
+        inviteCode?: string;
+      };
       if (response && response.roomId) {
-        const roomId = response.roomId;
-        Alert.alert('성공', '보드 생성에 성공했습니다!', [
-          {text: '확인', onPress: () => navigation.navigate('GameOne', {roomId})},
-        ]);
+        const {roomId, inviteCode} = response;
+        console.log('보드 생성 성공:', {roomId, inviteCode});
+
+        navigation.navigate('GameTwo', {
+          roomId,
+          inviteCode: inviteCode || undefined,
+        });
       } else {
-        Alert.alert('실패', '보드 생성에 실패했습니다.');
+        console.log('보드 생성 실패: 응답이 유효하지 않음');
       }
     } catch (error) {
       console.error('보드 생성 중 에러:', error);
-      Alert.alert('오류', '보드 생성 중 문제가 발생했습니다.');
     }
   };
 
@@ -202,4 +207,4 @@ const Choice = () => {
   );
 };
 
-export default Choice;
+export default ChoiceTwo;

@@ -62,6 +62,23 @@ export async function postMarble(
   }
 }
 
+export async function postMarbles(
+  marbled: string,
+  single: boolean,
+): Promise<{roomId: number; inviteCode?: string}> {
+  try {
+    const response = await Authapi.post(`/marble/${marbled}`, {single});
+    if (response.status === 200) {
+      return response.data; // roomId와 inviteCode 반환
+    } else {
+      return {roomId: 0}; // 실패 시 기본값 반환
+    }
+  } catch (error) {
+    console.error('postMarbles 에러:', error);
+    throw error;
+  }
+}
+
 // 조회
 export async function getRoomDetails(roomId: number): Promise<RoomDetails> {
   try {
@@ -176,6 +193,56 @@ export async function endGame(roomId: number): Promise<{status: string}> {
     } else {
       console.error('게임 종료 요청 에러:', err);
       throw new Error('게임 종료 중 에러 발생');
+    }
+  }
+}
+
+// 초대코드 재생성
+export async function regenerateInviteCode(roomId: number): Promise<{inviteCode: string}> {
+  try {
+    // 서버로 POST 요청
+    const response = await Authapi.post(`/marble/room/${roomId}/code`);
+
+    if (response.status === 200) {
+      console.log('초대코드 재생성 성공:', response.data);
+      return response.data; // inviteCode 반환
+    } else {
+      console.error('초대코드 재생성 실패:', response.data);
+      throw new Error(response.data.message || '초대코드 재생성 실패');
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('초대코드 재생성 요청 에러:', err.response);
+      throw new Error(err.response?.data?.message || '알 수 없는 오류');
+    } else {
+      console.error('초대코드 재생성 요청 에러:', err);
+      throw new Error('초대코드 재생성 중 에러 발생');
+    }
+  }
+}
+
+// 방 입장하기
+export async function joinRoom(inviteCode: string): Promise<{roomId: number}> {
+  try {
+    // 서버로 POST 요청
+    const response = await Authapi.post(`/marble/room/join`, {
+      inviteCode,
+    });
+
+    if (response.status === 200) {
+      console.log('방 입장 성공:', response.data);
+      return response.data; // roomId 반환
+    } else {
+      console.error('방 입장 실패:', response.data);
+      throw new Error(response.data.message || '방 입장 실패');
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('방 입장 요청 에러:', err.response);
+      throw new Error(err.response?.data?.message || '알 수 없는 오류');
+    } else {
+      console.error('방 입장 요청 에러:', err);
+      throw new Error('방 입장 중 에러 발생');
     }
   }
 }
