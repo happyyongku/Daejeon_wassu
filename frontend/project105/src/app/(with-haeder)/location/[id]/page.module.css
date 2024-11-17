@@ -210,3 +210,14 @@
   display: flex;
   justify-content: center;
 }
+
+.noreview {
+  font-weight: bold;
+  color: #333333;
+  opacity: 70%;
+  margin-bottom: 20px;
+}
+
+.noreviewtext {
+  color: #418663;
+}

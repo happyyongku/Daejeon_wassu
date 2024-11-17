@@ -3,15 +3,17 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LocationData } from "@/types";
+import { Map, MapMarker } from "react-kakao-maps-sdk";
 import useDropdownStore from "@/store/dropdownStore";
 import axios from "axios";
 import style from "./page.module.css";
 import Comment from "@/components/location/comment";
 import UseApp from "@/components/useapp";
 import Carousel from "@/components/location/carousel";
-import KakaoMap from "@/components/kakao/kakaomap";
+import useKakaoLoader from "@/components/kakao/kakaomap";
 
 export default function Page() {
+  useKakaoLoader();
   const { id } = useParams();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -197,7 +199,6 @@ export default function Page() {
 
       {isModalOpen && <UseApp onClose={closeModal} />}
 
-      {/* 상세 정보 영역 */}
       <div>
         <div className={style.ssss}>
           <div className={style.detailcontainer}>
@@ -244,9 +245,75 @@ export default function Page() {
                 <img className={style.cateicon} src="/images/loca.png" alt="" />
                 <p className={style.catetext}>위치</p>
               </div>
-              <KakaoMap />
               <div className={style.catedesc}>
                 <p className={style.catedesctext}>{location?.spotAddress}</p>
+                {location?.latitude !== undefined &&
+                  location?.longitude !== undefined && (
+                    <Map
+                      id="map"
+                      center={{
+                        lat: location.latitude,
+                        lng: location.longitude,
+                      }}
+                      style={{
+                        width: "95%",
+                        height: "280px",
+                        borderRadius: "20px",
+                        marginTop: "15px",
+                      }}
+                      level={3}
+                    >
+                      <MapMarker
+                        position={{
+                          lat: location.latitude,
+                          lng: location.longitude,
+                        }}
+                        image={{
+                          src: "/images/marker.png",
+                          size: {
+                            width: 55,
+                            height: 40,
+                          },
+                          options: {
+                            offset: {
+                              x: 18,
+                              y: 36,
+                            },
+                          },
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "180px",
+                            height: "10px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "-1px",
+                              top: "-1px",
+
+                              width: "200px",
+                              height: "35px",
+                              borderRadius: "3px",
+                              padding: "3px 5px",
+                              color: "#418663",
+                              textAlign: "center",
+                              background: "none",
+                              backgroundColor: "#ffffff",
+                              border: "2px solid #418663",
+                              fontSize: "13px",
+                              lineHeight: "25px",
+                            }}
+                          >
+                            {location?.spotName}
+                          </div>
+                        </div>
+                      </MapMarker>
+                    </Map>
+                  )}
               </div>
             </div>
           </div>
@@ -264,15 +331,26 @@ export default function Page() {
             <div>
               <div className={style.detailtext}>방문후기</div>
             </div>
+
             <div className={style.commentcontainer}>
+              {/* 만약 방문후기가 없으면 없습니다. 있으면 아래 띄우면 된다. */}
+
               <div className={style.commentcardbox}>
                 {location?.reviews.slice(0, number).map((review, index) => (
                   <Comment key={review.reviewId} {...review} />
                 ))}
               </div>
-              <button className={style.more} onClick={plusNumber}>
-                더보기
-              </button>
+
+              {location?.reviewCount === 0 ? (
+                <div className={style.noreview}>
+                  <span className={style.noreviewtext}>방문후기</span>가
+                  없습니다
+                </div>
+              ) : (
+                <button className={style.more} onClick={plusNumber}>
+                  더보기
+                </button>
+              )}
             </div>
           </div>
         </div>
