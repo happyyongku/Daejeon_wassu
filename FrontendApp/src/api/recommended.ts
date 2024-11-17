@@ -292,3 +292,23 @@ export async function startCourse(courseId: number) {
     }
   }
 }
+export async function getWassumonDetails(spotId: number) {
+  try {
+    const response = await Authfastapi.get(`/wassumons/${spotId}`);
+    if (response && response.data) {
+      console.log('Wassumon details retrieved successfully:', response.data);
+      return response.data.wassumon_details;
+    } else {
+      console.error('Failed to retrieve Wassumon details.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Get Wassumon details error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during Wassumon details retrieval:', err);
+      return null;
+    }
+  }
+}
