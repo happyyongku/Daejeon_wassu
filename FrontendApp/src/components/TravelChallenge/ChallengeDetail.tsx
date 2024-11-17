@@ -21,6 +21,7 @@ import CompleteIcon from '../../assets/imgs/complete.png';
 import FlameIcon from '../../assets/imgs/flame.svg';
 import {getCourseDetail, startCourse} from '../../api/recommended'; // startCourse API 추가
 import GpsComponent from '../common/GpsComponent'; // GPS 컴포넌트 가져오기
+import Toast from 'react-native-toast-message';
 
 const {width} = Dimensions.get('window');
 
@@ -58,6 +59,8 @@ const ChallengeDetail = () => {
   const Progress1Icon = require('../../assets/imgs/progress1.png');
   const [showGpsComponent, setShowGpsComponent] = useState(false);
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false); // 버튼 비활성화 상태 추가
 
   // 데이터 가져오는 함수
   const fetchCourseDetail = useCallback(async () => {
@@ -85,6 +88,28 @@ const ChallengeDetail = () => {
       fetchCourseDetail();
     }, [fetchCourseDetail]),
   );
+  useEffect(() => {
+    if (showGpsComponent) {
+      setModalVisible(true);
+
+      // 1초 후에 모달을 닫기
+      const timer = setTimeout(() => {
+        setModalVisible(false);
+        setShowGpsComponent(false); // showGpsComponent도 false로 설정
+      }, 1000);
+
+      // 컴포넌트 언마운트 시 타이머 정리
+      return () => clearTimeout(timer);
+    }
+  }, [showGpsComponent]);
+  const handleBakeryButtonClick = (bakery: Bakery) => {
+    if (buttonDisabled) return; // 버튼이 비활성화된 경우 클릭 무시
+
+    setSelectedBakery(bakery);
+    setShowGpsComponent(true);
+    setButtonDisabled(true); // GPS 위치 불러오는 동안 버튼 비활성화
+  };
+
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const toRadians = (degree: number) => (degree * Math.PI) / 180;
     const R = 6378137; // Earth radius in meters
@@ -105,6 +130,7 @@ const ChallengeDetail = () => {
     if (!coords || !selectedBakery) {
       Alert.alert('위치 확인 실패', '현재 위치를 가져올 수 없습니다.');
       setShowGpsComponent(false);
+      setButtonDisabled(false); // 위치 실패 시 버튼 다시 활성화
       return;
     }
 
@@ -116,11 +142,13 @@ const ChallengeDetail = () => {
     );
 
     if (distance <= 500) {
-      navigation.navigate('Ar', {courseId, spotId: selectedBakery.spot_id});
+      setShowGpsComponent(false); // GPS 확인 후 Alert 닫기
+      goToARPage(selectedBakery.spot_id); // goToARPage 함수 호출로 변경
     } else {
       Alert.alert('위치가 너무 멀어요', '해당 장소에서 500미터 이내에 있어야 합니다.');
+      setShowGpsComponent(false);
     }
-    setShowGpsComponent(false);
+    setButtonDisabled(false); // 위치 확인 후 버튼 다시 활성화
   };
   const handleStartChallenge = async () => {
     try {
@@ -200,10 +228,9 @@ const ChallengeDetail = () => {
                 ) : (
                   // '왓슈볼' 버튼을 눌렀을 때만 AR 페이지로 이동
                   <TouchableOpacity
-                    onPress={() => {
-                      setSelectedBakery(bakery);
-                      setShowGpsComponent(true);
-                    }}>
+                    onPress={() => handleBakeryButtonClick(bakery)}
+                    disabled={buttonDisabled} // 버튼 비활성화
+                  >
                     <Image source={require('../../assets/imgs/watsuball.png')} />
                   </TouchableOpacity>
                 )}
@@ -419,6 +446,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
+  },
+  gpsLoadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  gpsLoadingText: {
+    fontSize: 16,
+    color: '#418663',
+    fontFamily: 'Pretendard-Bold',
   },
 });
 
