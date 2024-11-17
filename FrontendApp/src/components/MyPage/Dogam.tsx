@@ -18,7 +18,7 @@ const Dogam = () => {
     const fetchWassumons = async () => {
       const data = await getUserWassumon();
       if (data) {
-        setWassumons(data.collected_wassumons);
+        setWassumons(data.collected_wassumons || []); // 빈 배열로 설정
       }
     };
     fetchWassumons();
