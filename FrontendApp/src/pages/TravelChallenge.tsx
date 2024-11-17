@@ -16,7 +16,7 @@ import FlagIcon from '../assets/imgs/flag.svg';
 import CheckIcon from '../assets/imgs/Check.svg';
 import MedalIcon from '../assets/imgs/monster.svg';
 import ChatbotIcon from '../assets/imgs/chatbot.svg';
-import {getCoursePresets} from '../api/recommended'; // API 함수 가져오기
+import {getCoursePresets, getUserWassumon} from '../api/recommended'; // API 함수 가져오기
 import ChatbotModal from '../components/TravelChallenge/ChatbotModal'; // ChatbotModal 추가
 
 const {width} = Dimensions.get('window');
@@ -33,16 +33,41 @@ interface Course {
 const TravelChallenge = () => {
   const navigation = useNavigation<TravelChallengeNavigationProp>();
   const [courses, setCourses] = useState<Course[]>([]); // Course 타입 지정
+  const [inProgressCount, setInProgressCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [wassumonCount, setWassumonCount] = useState(0); // 잡은 왓슈몬 수 상태 추가
   const [isChatbotModalVisible, setChatbotModalVisible] = useState(false); // 모달 상태
   // API 요청 함수
   const fetchCourses = useCallback(async () => {
     try {
       const data = await getCoursePresets();
-      if (data) {
+      if (data && Array.isArray(data)) {
+        // 데이터를 가져온 후 상태에 설정
         setCourses(data);
+
+        // in_progress 및 completed 배열 개수를 직접 카운트
+        const inProgressCourses = data.filter(course => !course.completed_all).length;
+        const completedCourses = data.filter(course => course.completed_all).length;
+
+        setInProgressCount(inProgressCourses);
+        setCompletedCount(completedCourses);
+      } else {
+        console.error('Invalid course data structure:', data);
       }
     } catch (error) {
       console.error('Error fetching courses:', error);
+    }
+  }, []);
+
+  // 왓슈몬 데이터 가져오기
+  const fetchWassumons = useCallback(async () => {
+    try {
+      const data = await getUserWassumon();
+      if (data) {
+        setWassumonCount(data.collected_wassumons?.length || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching user Wassumon:', error);
     }
   }, []);
 
@@ -50,13 +75,19 @@ const TravelChallenge = () => {
   useFocusEffect(
     useCallback(() => {
       fetchCourses();
-    }, [fetchCourses]),
+      fetchWassumons();
+    }, [fetchCourses, fetchWassumons]),
   );
 
   const goToOngoingChallenge = () => {
     navigation.navigate('OngoingChallenge');
   };
-
+  const goToCompletedChallenge = () => {
+    navigation.navigate('CompletedChallenge');
+  };
+  const goToDogam = () => {
+    navigation.navigate('Dogam');
+  };
   const goToCourse = () => {
     navigation.navigate('Course');
   };
@@ -87,25 +118,27 @@ const TravelChallenge = () => {
           <View style={styles.statItem}>
             <FlagIcon width={16} height={16} />
             <Text style={styles.statLabel}>참가중</Text>
-            <Text style={styles.statValue}>1</Text>
+            <Text style={styles.statValue}>{inProgressCount}</Text>
           </View>
-          <TouchableOpacity onPress={goToOngoingChallenge}>
-            <Text style={styles.challengeText}>나의 챌린지 &gt;</Text>
-          </TouchableOpacity>
+          {inProgressCount > 0 && (
+            <TouchableOpacity onPress={goToOngoingChallenge}>
+              <Text style={styles.challengeText}>나의 챌린지 &gt;</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.bottomRow}>
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={goToCompletedChallenge} style={styles.statItem}>
             <CheckIcon width={16} height={16} />
             <Text style={styles.statLabel}>완료</Text>
-            <Text style={styles.statValue}>-</Text>
-          </View>
+            <Text style={styles.statValue}>{completedCount}</Text>
+          </TouchableOpacity>
           <View style={styles.separator} />
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={goToDogam} style={styles.statItem}>
             <MedalIcon width={16} height={16} />
             <Text style={styles.statLabel}>잡은 왓슈몬</Text>
-            <Text style={styles.statValue}>10</Text>
-          </View>
+            <Text style={styles.statValue}>{wassumonCount}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
