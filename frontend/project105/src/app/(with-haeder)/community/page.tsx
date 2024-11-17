@@ -39,7 +39,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div>
+    <div className={style.backgroundcolor}>
       <div className={style.header}>
         <div className={style.title}>
           <div className={style.titletext1}>다양한 관광지에 대한 소감,</div>

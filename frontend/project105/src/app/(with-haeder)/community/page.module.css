@@ -1,6 +1,11 @@
+.backgroundcolor {
+  background-color: white;
+}
+
 .header {
   margin-top: 30px;
   margin-bottom: 30px;
+  margin-left: 22px;
 }
 
 .title {

@@ -116,14 +116,14 @@ export default function Page() {
   return (
     <div>
       <div>
-        <div>
-          <p className={style.title}>커뮤니티</p>
+        <div className={style.marginleft}>
+          <p className={style.title}>글쓰기 </p>
           <div className={style.descbox}>
             <p className={style.desc}>자신이 다녀온 관광지에 관한 경험을</p>
             <p className={style.desc}>다른 유저와 함께 공유해보세요</p>
           </div>
         </div>
-        <div>
+        <div className={style.addimgbox}>
           <label className={style.addimg}>이미지 추가</label>
           <input
             type="file"
@@ -139,14 +139,14 @@ export default function Page() {
             justifyContent: "spacebetween",
             flexWrap: "wrap",
             width: "100%",
-            height: "240px",
+            // height: "240px",
           }}
         >
           {imagePreviews.length > 0 && (
             <div
               style={{
                 display: "flex",
-                justifyContent: "spacebetween",
+                justifyContent: "space-between",
                 flexWrap: "wrap",
                 width: "100%",
                 height: "100%",
@@ -190,19 +190,25 @@ export default function Page() {
         </div>
 
         <div>
-          <label className={style.articletitle} htmlFor="">
-            제목
-          </label>
-          <input type="text" onChange={handleTitle} />
+          <input
+            className={style.titleinput}
+            type="text"
+            onChange={handleTitle}
+            placeholder="제목"
+          />
         </div>
+        <div className={style.hr}></div>
         <div>
-          <label className={style.content} htmlFor="">
-            내용
-          </label>
-          <textarea onChange={handleContent} />
+          <textarea
+            className={style.textareainput}
+            onChange={handleContent}
+            placeholder="본문을 작성하세요"
+          />
         </div>
-        <div>
-          <button onClick={submit}>등록</button>
+        <div className={style.buttonbox}>
+          <button className={style.button} onClick={submit}>
+            등록
+          </button>
         </div>
       </div>
     </div>
