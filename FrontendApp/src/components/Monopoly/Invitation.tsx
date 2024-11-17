@@ -10,13 +10,17 @@ import {
   Image,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 
 type InvitationNavigationProp = StackNavigationProp<RootStackParamList>;
+type InvitationRouteProp = RouteProp<RootStackParamList, 'Invitation'>;
 
 const Invitation = () => {
+  const route = useRoute<InvitationRouteProp>();
+  const {single} = route.params || {};
+  console.log('Invitation에서 받은 single 값:', single);
   const navigation = useNavigation<InvitationNavigationProp>();
   const {width, height} = useWindowDimensions();
 
@@ -32,7 +36,7 @@ const Invitation = () => {
   };
 
   const goToChoice = () => {
-    navigation.navigate('Choice');
+    navigation.navigate('Choice', {single}); // 동일한 single 값을 전달
   };
 
   const styles = StyleSheet.create({

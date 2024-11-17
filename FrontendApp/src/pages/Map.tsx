@@ -1,139 +1,13 @@
-// import React, {useEffect, useState} from 'react';
-// import {View, Text, StyleSheet, Button} from 'react-native';
-// import {getTokens} from '../utills/tokenStorage';
-// import SSE from 'react-native-sse'; // react-native-sse 사용
-// import axios from 'axios';
+// 현수야 안녕 ?
+// 1. 입장하면 자동으로 연결됨.
+// 2. axios 요청을 보내면 해당 요청으로 인한 response 값은 sse.addEventListener('message') 해당 코드에서 출력된다.
+//    위 코드 단락에서 상태를 갱신하는 방향으로 활용하면 된다.
+// 3. 받게 될 데이터에 대한 타입설정해서 유연하게 활용하자.
 
-// interface EventData {
-//   user1Email: string;
-//   user1Data: number;
-//   user2Email: string;
-//   user2Data: number;
-// }
-
-// const RoomScreen = () => {
-//   const [event, setEvent] = useState<EventData | null>(null);
-//   const [error, setError] = useState<string | null>(null); // 오류 상태 추가
-
-//   useEffect(() => {
-//     // 마운트 시작
-//     console.log('마운트 시작');
-
-//     const fetchTokenAndConnect = async () => {
-//       try {
-//         const {accessToken} = await getTokens();
-//         // console.log('AccessToken:', accessToken);
-//         // AccessToken 출력
-
-//         // 확인: accessToken이 없으면 오류 처리
-//         if (!accessToken) {
-//           setError('No access token found');
-//           return;
-//         }
-
-//         // SSE 연결 설정
-//         const sse = new SSE('https://k11b105.p.ssafy.io/wassu/tourist/test/1', {
-//           headers: {
-//             Authorization: `Bearer ${accessToken}`,
-//           },
-//         });
-
-//         // 연결 성공 시
-//         sse.addEventListener('open', () => {
-//           console.log('연결 성공');
-//         });
-
-//         // `ping` 이벤트 수신
-//         sse.addEventListener('ping', (event: any) => {
-//           console.log('Received ping event:', event.data); // `ping` 이벤트 처리
-//           setEvent(event.data); // 데이터를 상태로 설정
-//         });
-
-//         sse.addEventListener('message', (event: any) => {
-//           console.log('SSE 데이터 수신:', event.data);
-//           // const data: EventData = JSON.parse(event.data);
-//           setEvent(event.data);
-//         });
-
-//         sse.addEventListener('error', (error: any) => {
-//           console.error('SSE 연결 에러:', error);
-//           setError('SSE 연결 실패');
-//         });
-
-//         // SSE 연결 종료 시
-//         return () => {
-//           sse.close();
-//           console.log('연결 종료');
-//         };
-//       } catch (error) {
-//         console.error('SSE 연결 중 오류 발생:', error);
-//         setError('SSE 연결 중 오류 발생');
-//       }
-//     };
-
-//     fetchTokenAndConnect();
-//   }, []);
-
-//   // 데이터 전송 핸들러
-//   const sendMessage = async () => {
-//     const {accessToken} = await getTokens(); // 토큰 가져오기
-//     try {
-//       const response = await axios.get(`https://k11b105.p.ssafy.io/wassu/tourist/send/1`, {
-//         headers: {
-//           Authorization: `Bearer ${accessToken}`, // 헤더에 accessToken 추가
-//         },
-//       });
-//       console.log('Message sent:', response.data);
-//     } catch (error) {
-//       console.error('Failed to send message:', error);
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.title}>Room ID: 1</Text>
-//       <Text style={styles.title}>user 1: {event?.user1Email || 'No Data'}</Text>
-//       <Text style={styles.title}>user 2: {event?.user2Email || 'No Data'}</Text>
-//       <Text style={styles.subtitle}>Events: {event?.user1Data ?? 'No Data'}</Text>
-//       <Text style={styles.subtitle}>Events: {event?.user2Data ?? 'No Data'}</Text>
-
-//       {/* 연결 오류 메시지 출력 */}
-//       {error && <Text style={styles.error}>{error}</Text>}
-
-//       <Button title="데이터 보내자." onPress={sendMessage} />
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 20,
-//     backgroundColor: '#f9f9f9',
-//   },
-//   title: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//     marginBottom: 10,
-//   },
-//   subtitle: {
-//     fontSize: 18,
-//     fontWeight: '600',
-//     marginTop: 20,
-//     marginBottom: 10,
-//   },
-//   error: {
-//     color: 'red',
-//     marginTop: 20,
-//     fontSize: 16,
-//   },
-// });
-
-// export default RoomScreen;
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Button} from 'react-native';
 import {getTokens} from '../utills/tokenStorage';
-import SSE from 'react-native-sse'; // react-native-sse 사용
+import SSE from 'react-native-sse';
 import axios from 'axios';
 
 interface EventData {
@@ -144,41 +18,38 @@ interface EventData {
 }
 
 const RoomScreen = () => {
+  // 내가 어떤 요청을 보냈을 때, eventlistner로 값을 갱신해줄 상태
+  // 필요한건 만들면서 사용하자.
   const [event1, setEvent] = useState<EventData | null>(null);
-  const [error, setError] = useState<string | null>(null); // 오류 상태 추가
-  // const [pingStatus, setPingStatus] = useState<string>(''); // ping 상태 추가
 
+  // 마운트 됐을 때 연결을 시작한다
   useEffect(() => {
-    // 마운트 시작
     console.log('마운트 시작');
-
     const fetchTokenAndConnect = async () => {
       try {
         const {accessToken} = await getTokens();
-
-        // 확인: accessToken이 없으면 오류 처리
         if (!accessToken) {
-          setError('No access token found');
+          console.log('No access token found');
           return;
         }
-
-        // SSE 연결 설정
+        // SSE 연결
         const sse = new SSE('https://k11b105.p.ssafy.io/wassu/tourist/test/1', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-
         // 연결 성공 시
         sse.addEventListener('open', () => {
           console.log('연결 성공');
         });
-
-        // `message` 이벤트 처리 (기존 메시지 이벤트)
+        // 본인, 혹은 타인에 의해 변화가 발생하면 실시간으로 값을 반환하는 코드
+        // 예를 들어서, 상대방이 주사위를 굴리면 해당 값을 event1.data로 받아올 수 있다.
         sse.addEventListener('message', (event: any) => {
           console.log('SSE message event data received:', event.data);
           if (event.data !== 'keep-alive') {
+            // 데이터를 json 형식으로 바꿔주고
             const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            // 위에서 만든 상태를 해당 값으로 갱신해준다.
             setEvent(parsedData);
             console.log(parsedData.user1Data);
           }
@@ -186,24 +57,20 @@ const RoomScreen = () => {
 
         sse.addEventListener('error', (error: any) => {
           console.error('SSE 연결 에러:', error);
-          setError('SSE 연결 실패');
         });
 
-        // SSE 연결 종료
         return () => {
           sse.close();
           console.log('연결 종료');
         };
       } catch (error) {
         console.error('SSE 연결 중 오류 발생:', error);
-        setError('SSE 연결 중 오류 발생');
       }
     };
-
     fetchTokenAndConnect();
   }, []);
 
-  // 데이터 전송 핸들러
+  // 데이터 전송 핸들러 (예. 주사위 굴리기 axios)
   const sendMessage = async () => {
     const {accessToken} = await getTokens(); // 토큰 가져오기
     try {
@@ -219,20 +86,13 @@ const RoomScreen = () => {
   };
 
   return (
+    // 여기서는 그냥 코드 작성하면 된다.
     <View style={styles.container}>
       <Text style={styles.title}>Room ID: 1</Text>
-      {/* <Text style={styles.title}>{event1}</Text> */}
       <Text style={styles.title}>user 1: {event1?.user1Email || 'No Data'}</Text>
       <Text style={styles.title}>user 2: {event1?.user2Email || 'No Data'}</Text>
       <Text style={styles.subtitle}>Events: {event1?.user1Data ?? 'No Data'}</Text>
       <Text style={styles.subtitle}>Events: {event1?.user2Data ?? 'No Data'}</Text>
-
-      {/* 연결 오류 메시지 출력 */}
-      {error && <Text style={styles.error}>{error}</Text>}
-
-      {/* ping 이벤트 상태 표시 */}
-      {/* {pingStatus && <Text style={styles.pingStatus}>Ping Status: {pingStatus}</Text>} */}
-
       <Button title="데이터 보내자." onPress={sendMessage} />
     </View>
   );

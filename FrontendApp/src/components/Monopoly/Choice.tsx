@@ -7,16 +7,22 @@ import {
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import SearchIcon from '../../assets/imgs/search.svg';
+import {postMarble} from '../../api/mono';
 
 type ChoiceNavigationProp = StackNavigationProp<RootStackParamList>;
+type ChoiceRouteProp = RouteProp<RootStackParamList, 'Choice'>;
 
 const Choice = () => {
+  const route = useRoute<ChoiceRouteProp>();
+  const {single} = route.params || {};
+  console.log('Choice에서 받은 single 값:', single);
   const navigation = useNavigation<ChoiceNavigationProp>();
   const {width, height} = useWindowDimensions();
 
@@ -27,12 +33,25 @@ const Choice = () => {
     };
   }, []);
 
-  const goToGameOne = () => {
-    navigation.navigate('GameOne');
-  };
-
   const goToGameTwo = () => {
     navigation.navigate('GameTwo');
+  };
+
+  const handleThemeBoardSelection = async (marbled: number) => {
+    try {
+      const response = await postMarble(marbled.toString(), single);
+      if (response && response.roomId) {
+        const roomId = response.roomId;
+        Alert.alert('성공', '보드 생성에 성공했습니다!', [
+          {text: '확인', onPress: () => navigation.navigate('GameOne', {roomId})},
+        ]);
+      } else {
+        Alert.alert('실패', '보드 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('보드 생성 중 에러:', error);
+      Alert.alert('오류', '보드 생성 중 문제가 발생했습니다.');
+    }
   };
 
   const styles = StyleSheet.create({
@@ -144,13 +163,13 @@ const Choice = () => {
       <View style={styles.container}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>테마 보드</Text>
-          <TouchableOpacity style={styles.button} onPress={goToGameOne}>
+          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(1)}>
             <Text style={styles.buttonText}>지하철</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={goToGameOne}>
+          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(2)}>
             <Text style={styles.buttonText}>맛집</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={goToGameOne}>
+          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(3)}>
             <Text style={styles.buttonText}>과학</Text>
           </TouchableOpacity>
         </View>

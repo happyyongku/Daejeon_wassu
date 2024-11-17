@@ -118,10 +118,10 @@ export type RootStackParamList = {
     };
     dayId?: string;
   };
-  Choice: undefined;
-  GameOne: undefined;
+  Choice: {single: boolean};
+  GameOne: {roomId: number};
   GameTwo: undefined;
-  Invitation: undefined;
+  Invitation: {single: boolean};
   MainRoom: undefined;
 };
 
