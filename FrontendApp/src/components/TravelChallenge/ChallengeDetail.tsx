@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute, useFocusEffect} from '@react-navigation/native';
 import type {RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
@@ -19,6 +20,7 @@ import ProgressIcon from '../../assets/imgs/progress.png';
 import CompleteIcon from '../../assets/imgs/complete.png';
 import FlameIcon from '../../assets/imgs/flame.svg';
 import {getCourseDetail, startCourse} from '../../api/recommended'; // startCourse API 추가
+import GpsComponent from '../common/GpsComponent'; // GPS 컴포넌트 가져오기
 
 const {width} = Dimensions.get('window');
 
@@ -39,6 +41,8 @@ interface Bakery {
   wassumon_image_url: string | null;
   wassumon_name: string;
   hashtags: string[];
+  latitude: number;
+  longitude: number; // Add longitude
 }
 
 const ChallengeDetail = () => {
@@ -52,20 +56,72 @@ const ChallengeDetail = () => {
   const [course_datail, setcourse_datail] = useState<Bakery[]>([]);
   const [completedAll, setCompletedAll] = useState('yet');
   const Progress1Icon = require('../../assets/imgs/progress1.png');
+  const [showGpsComponent, setShowGpsComponent] = useState(false);
+  const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
 
-  useEffect(() => {
-    const fetchCourseDetail = async () => {
+  // 데이터 가져오는 함수
+  const fetchCourseDetail = useCallback(async () => {
+    try {
       const data = await getCourseDetail(id);
       if (data) {
         setCourseName(data.course.course_name);
         setImages([data.course.image_url]);
         setcourse_datail(data.course_details);
-        setCompletedAll(data.completed_all); // 상태 설정
-        setHashtags(data.course.hashtags); // course의 hashtags 설정
+        setCompletedAll(data.completed_all);
+        setHashtags(data.course.hashtags);
       }
-    };
-    fetchCourseDetail();
+    } catch (error) {
+      console.error('Error fetching course details:', error);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchCourseDetail();
+  }, [fetchCourseDetail]);
+
+  // 페이지가 포커스될 때마다 데이터 다시 가져오기
+  useFocusEffect(
+    useCallback(() => {
+      fetchCourseDetail();
+    }, [fetchCourseDetail]),
+  );
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const toRadians = (degree: number) => (degree * Math.PI) / 180;
+    const R = 6378137; // Earth radius in meters
+
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+  const onLocationRetrieved = (coords: {latitude: number; longitude: number} | null) => {
+    if (!coords || !selectedBakery) {
+      Alert.alert('위치 확인 실패', '현재 위치를 가져올 수 없습니다.');
+      setShowGpsComponent(false);
+      return;
+    }
+
+    const distance = calculateDistance(
+      coords.latitude,
+      coords.longitude,
+      selectedBakery.latitude,
+      selectedBakery.longitude,
+    );
+
+    if (distance <= 500) {
+      navigation.navigate('Ar', {courseId, spotId: selectedBakery.spot_id});
+    } else {
+      Alert.alert('위치가 너무 멀어요', '해당 장소에서 500미터 이내에 있어야 합니다.');
+    }
+    setShowGpsComponent(false);
+  };
   const handleStartChallenge = async () => {
     try {
       const response = await startCourse(courseId); // startCourse API 호출
@@ -110,7 +166,7 @@ const ChallengeDetail = () => {
             </Text>
             <Text style={styles.subtitle}>왓슈볼을 눌러 도전하세요! 왓슈몬을 잡으세요.</Text>
           </View>
-          {/* Hashtag Container 수정 */}
+
           <View style={styles.hashtagContainer}>
             {hashtags.map((hashtag, index) => (
               <TouchableOpacity key={index}>
@@ -142,10 +198,12 @@ const ChallengeDetail = () => {
                     style={styles.courseIcon}
                   />
                 ) : (
+                  // '왓슈볼' 버튼을 눌렀을 때만 AR 페이지로 이동
                   <TouchableOpacity
-                    key={bakery.elastic_id}
-                    onPress={() => goToARPage(bakery.spot_id)} // bakery.spot_id 전달
-                  >
+                    onPress={() => {
+                      setSelectedBakery(bakery);
+                      setShowGpsComponent(true);
+                    }}>
                     <Image source={require('../../assets/imgs/watsuball.png')} />
                   </TouchableOpacity>
                 )}
@@ -163,7 +221,6 @@ const ChallengeDetail = () => {
             ))}
           </View>
 
-          {/* 챌린지 버튼 */}
           {completedAll === 'yet' ? (
             <TouchableOpacity style={styles.challengeButton} onPress={handleStartChallenge}>
               <PlayIcon width={20} height={20} style={styles.buttonIcon} />
@@ -182,11 +239,12 @@ const ChallengeDetail = () => {
             </View>
           )}
         </View>
+
+        {showGpsComponent && <GpsComponent onLocationRetrieved={onLocationRetrieved} />}
       </ScrollView>
     </>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
