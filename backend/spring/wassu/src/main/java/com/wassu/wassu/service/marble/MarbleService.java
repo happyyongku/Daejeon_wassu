@@ -247,6 +247,11 @@ public class MarbleService {
         return null;
     }
 
+    public void completeMarble(Long roomId) {
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+        roomRepository.delete(room);
+    }
+
     private RoomDTO createRoomDTO(UserEntity user, Long roomId, MarbleRoomEntity room, boolean isCreator) {
         MarbleEntity marble = room.getMarble();
         List<NodeEntity> nodes = marble.getNodes();

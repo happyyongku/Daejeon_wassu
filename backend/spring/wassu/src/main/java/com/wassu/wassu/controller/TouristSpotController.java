@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -182,11 +183,12 @@ public class TouristSpotController {
             return ResponseEntity.status(500).body(utilTool.createResponse("status","user not found"));
         }
         try {
-
             List<TouristSpotStampResponseDTO> response = touristSpotStampService.findStampList(userEmail, category);
-            log.info("Read stamp detail successfully");
-            return ResponseEntity.ok(response);
-
+            if (response != null) {
+                log.info("Read stamp detail successfully");
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.ok(new ArrayList<>());
         } catch (Exception e) {
             log.error("Exception occurred while read stamp list: {}", e.getMessage());
             return ResponseEntity.status(500).body(utilTool.createResponse("status","failed"));
