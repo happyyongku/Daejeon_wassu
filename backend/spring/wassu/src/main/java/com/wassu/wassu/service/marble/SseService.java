@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -48,7 +49,10 @@ public class SseService {
         emitter.onError(e -> removeEmitter(roomId, email));
 
         // 비동기로 초기 데이터 전송
-        CompletableFuture.runAsync(() -> sendEmitter(user, room));
+        CompletableFuture.runAsync(() -> {
+            sendEmitter(user, room);
+            sendUserInfo(user, room); 
+        });
         // 스케줄러를 사용하여 주기적으로 핑 전송
         schedulePing(email, roomId, context, emitter);
         return emitter;
@@ -130,6 +134,34 @@ public class SseService {
         } catch (IOException e) {
             throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
         }
+    }
+
+    private void sendUserInfo(UserEntity user, MarbleRoomEntity room) {
+        SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
+        UserEntity creator = room.getCreator();
+        Map<String, String> userInfo = getUserInfo(user, room, creator);
+        try {
+            emitter.send(SseEmitter.event().name("userInfo").data(userInfo));
+        } catch (IOException e) {
+            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+        }
+    }
+
+    private static Map<String, String> getUserInfo(UserEntity user, MarbleRoomEntity room, UserEntity creator) {
+        Map<String, String> userInfo = new HashMap<>();
+        UserEntity guest = room.getGuest();
+        if (guest != null) {
+            if (user.equals(creator)) {
+                userInfo.put("you", creator.getEmail());
+                userInfo.put("opponent", guest.getEmail());
+            } else {
+                userInfo.put("you", guest.getEmail());
+                userInfo.put("opponent", creator.getEmail());
+            }
+        } else {
+            userInfo.put("you", creator.getEmail());
+        }
+        return userInfo;
     }
 
     private void removeEmitter(Long roomId, String email) {
