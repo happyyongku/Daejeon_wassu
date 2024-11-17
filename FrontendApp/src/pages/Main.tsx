@@ -260,7 +260,9 @@ const MainPage = () => {
   const handlePress = (categoryName: string) => {
     navigation.navigate('RecommendedPlace', {category: categoryName});
   };
-
+  const goToChallengeDetail = (id: number) => {
+    navigation.navigate('ChallengeDetail', {id});
+  };
   const categoryRows = chunkArray<Category>(categories, 5);
 
   const handlePostPress = (articleId: string) => {
@@ -393,23 +395,27 @@ const MainPage = () => {
             showsHorizontalScrollIndicator={false}
             style={styles.imageContainer}>
             <View style={styles.imageWrapper}>
-              <ImageBackground source={require('../assets/imgs/hotLong.png')} style={styles.image}>
-                <View style={styles.overlay}>
-                  <Text style={styles.overlayTitle}>대전 핫스팟 투어</Text>
-                  <Text style={styles.overlayDescription}>사람들이 많이 찾는 대전 핫플레이스</Text>
-                </View>
-              </ImageBackground>
+              <TouchableOpacity onPress={() => goToChallengeDetail(8)}>
+                <ImageBackground source={require('../assets/imgs/noodle.jpg')} style={styles.image}>
+                  <View style={styles.overlay}>
+                    <Text style={styles.overlayTitle}>누들대전</Text>
+                    <Text style={styles.overlayDescription}>
+                      2024 누들대전 우수가게들을 만나보세요.
+                    </Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.imageWrapper}>
-              <ImageBackground
-                source={require('../assets/imgs/breadLong.png')}
-                style={styles.image}>
-                <View style={styles.overlay}>
-                  <Text style={styles.overlayTitle}>대전 빵지순례</Text>
-                  <Text style={styles.overlayDescription}>대전의 다양한 빵집을 소개합니다</Text>
-                </View>
-              </ImageBackground>
+              <TouchableOpacity onPress={() => goToChallengeDetail(2)} style={styles.imageWrapper}>
+                <ImageBackground source={require('../assets/imgs/bread.png')} style={styles.image}>
+                  <View style={styles.overlay}>
+                    <Text style={styles.overlayTitle}>대전 빵지순례</Text>
+                    <Text style={styles.overlayDescription}>대전의 다양한 빵집을 소개합니다</Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
             </View>
           </ScrollView>
 

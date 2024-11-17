@@ -74,6 +74,12 @@ const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps & {wassumonName: string
         return require('../../assets/ar/3d-models/쌀국수몬.glb');
       case '칼국수몬':
         return require('../../assets/ar/3d-models/칼국수몬.glb');
+      case '식빵몬':
+        return require('../../assets/ar/3d-models/식빵몬.glb');
+      case '카스테라몬':
+        return require('../../assets/ar/3d-models/카스테라몬.glb');
+      case '소금빵몬':
+        return require('../../assets/ar/3d-models/소금빵몬.glb');
       default:
         console.log('Default model used'); // 기본 모델이 선택된 경우
         return require('../../assets/ar/3d-models/model.glb');
