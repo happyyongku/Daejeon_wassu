@@ -69,8 +69,8 @@ const styles = StyleSheet.create({
     flex: 1, // 부모 뷰 전체 높이를 차지하도록 설정
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    justifyContent: 'space-between', // 아이템 간의 간격을 균등하게 설정
+    alignItems: 'flex-start',
     paddingVertical: width * 0.1,
   },
   monItem: {
