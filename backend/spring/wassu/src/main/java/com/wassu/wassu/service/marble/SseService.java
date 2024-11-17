@@ -62,104 +62,110 @@ public class SseService {
 
     public void sendEmitter(UserEntity user, MarbleRoomEntity room, int dice1, int dice2) {
         SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
-        SseDTO sseDTO;
-        if (user.equals(room.getCreator())) {
-            sseDTO = SseDTO.builder()
-                    .ready(room.isReady())
-                    .yourPosition(room.getCreatorPosition())
-                    .yourVerified(room.isCreatorVerified())
-                    .yourReroll(room.getCreatorReroll())
-                    .yourPass(room.getCreatorPass())
-                    .opponentPosition(room.getGuestPosition())
-                    .opponentVerified(room.isGuestVerified())
-                    .opponentReroll(room.getGuestReroll())
-                    .opponentPass(room.getGuestPass())
-                    .dice1(dice1)
-                    .dice2(dice2)
-                    .build();
-        } else {
-            sseDTO = SseDTO.builder()
-                    .ready(room.isReady())
-                    .yourPosition(room.getGuestPosition())
-                    .yourVerified(room.isGuestVerified())
-                    .yourReroll(room.getGuestReroll())
-                    .yourPass(room.getGuestPass())
-                    .opponentPosition(room.getCreatorPosition())
-                    .opponentVerified(room.isCreatorVerified())
-                    .opponentReroll(room.getCreatorReroll())
-                    .opponentPass(room.getCreatorPass())
-                    .dice1(dice1)
-                    .dice2(dice2)
-                    .build();
-        }
-        try {
-            emitter.send(SseEmitter.event().name("message").data(sseDTO));
-        } catch (IOException e) {
-            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+        if (emitter != null) {
+            SseDTO sseDTO;
+            if (user.equals(room.getCreator())) {
+                sseDTO = SseDTO.builder()
+                        .ready(room.isReady())
+                        .yourPosition(room.getCreatorPosition())
+                        .yourVerified(room.isCreatorVerified())
+                        .yourReroll(room.getCreatorReroll())
+                        .yourPass(room.getCreatorPass())
+                        .opponentPosition(room.getGuestPosition())
+                        .opponentVerified(room.isGuestVerified())
+                        .opponentReroll(room.getGuestReroll())
+                        .opponentPass(room.getGuestPass())
+                        .dice1(dice1)
+                        .dice2(dice2)
+                        .build();
+            } else {
+                sseDTO = SseDTO.builder()
+                        .ready(room.isReady())
+                        .yourPosition(room.getGuestPosition())
+                        .yourVerified(room.isGuestVerified())
+                        .yourReroll(room.getGuestReroll())
+                        .yourPass(room.getGuestPass())
+                        .opponentPosition(room.getCreatorPosition())
+                        .opponentVerified(room.isCreatorVerified())
+                        .opponentReroll(room.getCreatorReroll())
+                        .opponentPass(room.getCreatorPass())
+                        .dice1(dice1)
+                        .dice2(dice2)
+                        .build();
+            }
+            try {
+                emitter.send(SseEmitter.event().name("message").data(sseDTO));
+            } catch (IOException e) {
+                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+            }
         }
     }
 
     public void sendEmitter(UserEntity user, MarbleRoomEntity room) {
         SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
-        SseDTO sseDTO;
-        if (user.equals(room.getCreator())) {
-            sseDTO = SseDTO.builder()
-                    .ready(room.isReady())
-                    .yourPosition(room.getCreatorPosition())
-                    .yourVerified(room.isCreatorVerified())
-                    .yourReroll(room.getCreatorReroll())
-                    .yourPass(room.getCreatorPass())
-                    .opponentPosition(room.getGuestPosition())
-                    .opponentVerified(room.isGuestVerified())
-                    .opponentReroll(room.getGuestReroll())
-                    .opponentPass(room.getGuestPass())
-                    .build();
-        } else {
-            sseDTO = SseDTO.builder()
-                    .ready(room.isReady())
-                    .yourPosition(room.getGuestPosition())
-                    .yourVerified(room.isGuestVerified())
-                    .yourReroll(room.getGuestReroll())
-                    .yourPass(room.getGuestPass())
-                    .opponentPosition(room.getCreatorPosition())
-                    .opponentVerified(room.isCreatorVerified())
-                    .opponentReroll(room.getCreatorReroll())
-                    .opponentPass(room.getCreatorPass())
-                    .build();
-        }
-        try {
-            emitter.send(SseEmitter.event().name("message").data(sseDTO));
-        } catch (IOException e) {
-            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+        if (emitter != null) {
+            SseDTO sseDTO;
+            if (user.equals(room.getCreator())) {
+                sseDTO = SseDTO.builder()
+                        .ready(room.isReady())
+                        .yourPosition(room.getCreatorPosition())
+                        .yourVerified(room.isCreatorVerified())
+                        .yourReroll(room.getCreatorReroll())
+                        .yourPass(room.getCreatorPass())
+                        .opponentPosition(room.getGuestPosition())
+                        .opponentVerified(room.isGuestVerified())
+                        .opponentReroll(room.getGuestReroll())
+                        .opponentPass(room.getGuestPass())
+                        .build();
+            } else {
+                sseDTO = SseDTO.builder()
+                        .ready(room.isReady())
+                        .yourPosition(room.getGuestPosition())
+                        .yourVerified(room.isGuestVerified())
+                        .yourReroll(room.getGuestReroll())
+                        .yourPass(room.getGuestPass())
+                        .opponentPosition(room.getCreatorPosition())
+                        .opponentVerified(room.isCreatorVerified())
+                        .opponentReroll(room.getCreatorReroll())
+                        .opponentPass(room.getCreatorPass())
+                        .build();
+            }
+            try {
+                emitter.send(SseEmitter.event().name("message").data(sseDTO));
+            } catch (IOException e) {
+                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+            }
         }
     }
 
     private void sendUserInfo(UserEntity user, MarbleRoomEntity room) {
-        SseEmitter emitter = getEmitter(room.getId(), user.getEmail());
-        UserEntity creator = room.getCreator();
-        Map<String, String> userInfo = getUserInfo(user, room, creator);
-        try {
-            emitter.send(SseEmitter.event().name("userInfo").data(userInfo));
-        } catch (IOException e) {
-            throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
-        }
-    }
-
-    private static Map<String, String> getUserInfo(UserEntity user, MarbleRoomEntity room, UserEntity creator) {
         Map<String, String> userInfo = new HashMap<>();
+        UserEntity creator = room.getCreator();
         UserEntity guest = room.getGuest();
+        SseEmitter creatorEmitter = getEmitter(room.getId(), creator.getEmail());
         if (guest != null) {
+            SseEmitter guestEmitter = getEmitter(room.getId(), guest.getEmail());
             if (user.equals(creator)) {
-                userInfo.put("you", creator.getEmail());
-                userInfo.put("opponent", guest.getEmail());
+                userInfo.put("you", creator.getProfileImage());
+                userInfo.put("opponent", guest.getProfileImage());
             } else {
-                userInfo.put("you", guest.getEmail());
-                userInfo.put("opponent", creator.getEmail());
+                userInfo.put("you", guest.getProfileImage());
+                userInfo.put("opponent", creator.getProfileImage());
+            }
+            try {
+                creatorEmitter.send(SseEmitter.event().name("userInfo").data(userInfo));
+                guestEmitter.send((SseEmitter.event().name("userInfo").data(userInfo)));
+            } catch (IOException e) {
+                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
             }
         } else {
-            userInfo.put("you", creator.getEmail());
+            userInfo.put("you", creator.getProfileImage());
+            try {
+                creatorEmitter.send(SseEmitter.event().name("userInfo").data(userInfo));
+            } catch (IOException e) {
+                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+            }
         }
-        return userInfo;
     }
 
     private void removeEmitter(Long roomId, String email) {
