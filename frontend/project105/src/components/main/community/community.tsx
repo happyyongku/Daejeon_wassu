@@ -37,10 +37,12 @@ export default function Community() {
         </p>
         <p className={style.text}>다양한 방법으로 관광지를 즐겨보세요.</p>
       </div>
-      <div className={style.card_container}>
-        {articles.slice(0, 4).map((article) => (
-          <CommunityCard key={article.id} {...article} />
-        ))}
+      <div className={style.containerbox}>
+        <div className={style.card_container}>
+          {articles.slice(0, 4).map((article) => (
+            <CommunityCard key={article.id} {...article} />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -30,9 +30,16 @@
   opacity: 70%;
 }
 
-.cardcontainer {
+.containerbox {
+  width: 100%;
   display: flex;
   justify-content: center;
+}
+
+.cardcontainer {
+  width: 710px;
+  display: flex;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 20px;
   margin-top: 30px;

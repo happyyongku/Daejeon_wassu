@@ -9,6 +9,7 @@ import style from "./page.module.css";
 import Comment from "@/components/location/comment";
 import UseApp from "@/components/useapp";
 import Carousel from "@/components/location/carousel";
+import KakaoMap from "@/components/kakao/kakaomap";
 
 export default function Page() {
   const { id } = useParams();
@@ -198,48 +199,55 @@ export default function Page() {
 
       {/* 상세 정보 영역 */}
       <div>
-        <div className={style.detailcontainer}>
-          <div className={style.detailtext}>상세정보</div>
-          <div>
-            <div className={style.catetitle}>
-              <img className={style.cateicon} src="/images/clock.png" alt="" />
-              <p className={style.catetext}>영업시간</p>
+        <div className={style.ssss}>
+          <div className={style.detailcontainer}>
+            <div className={style.detailtext}>상세정보</div>
+            <div>
+              <div className={style.catetitle}>
+                <img
+                  className={style.cateicon}
+                  src="/images/clock.png"
+                  alt=""
+                />
+                <p className={style.catetext}>영업시간</p>
+              </div>
+              <div className={style.catedesc}>
+                {location?.businessHours !== "정보 없음" ? (
+                  <div>
+                    {" "}
+                    {location?.businessHours.split("|").map((day, index) => (
+                      <p key={index} className={style.catedesctext}>
+                        {day}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={style.catedesctext}>정보 없음</div>
+                )}
+              </div>
             </div>
-            <div className={style.catedesc}>
-              {location?.businessHours !== "정보 없음" ? (
-                <div>
-                  {" "}
-                  {location?.businessHours.split("|").map((day, index) => (
-                    <p key={index} className={style.catedesctext}>
-                      {day}
-                    </p>
-                  ))}
-                </div>
-              ) : (
-                <div className={style.catedesctext}>정보 없음</div>
-              )}
+            <div>
+              <div className={style.catetitle}>
+                <img className={style.cateicon} src="/images/tele.png" alt="" />
+                <p className={style.catetext}>전화번호</p>
+              </div>
+              <div className={style.catedesc}>
+                {location?.phone !== "정보 없음" ? (
+                  <p className={style.catedesctext}>{location?.phone}</p>
+                ) : (
+                  <p className={style.catedesctext}>정보 없음</p>
+                )}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className={style.catetitle}>
-              <img className={style.cateicon} src="/images/tele.png" alt="" />
-              <p className={style.catetext}>전화번호</p>
-            </div>
-            <div className={style.catedesc}>
-              {location?.phone !== "정보 없음" ? (
-                <p className={style.catedesctext}>{location?.phone}</p>
-              ) : (
-                <p className={style.catedesctext}>정보 없음</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className={style.catetitle}>
-              <img className={style.cateicon} src="/images/loca.png" alt="" />
-              <p className={style.catetext}>위치</p>
-            </div>
-            <div className={style.catedesc}>
-              <p className={style.catedesctext}>{location?.spotAddress}</p>
+            <div>
+              <div className={style.catetitle}>
+                <img className={style.cateicon} src="/images/loca.png" alt="" />
+                <p className={style.catetext}>위치</p>
+              </div>
+              <KakaoMap />
+              <div className={style.catedesc}>
+                <p className={style.catedesctext}>{location?.spotAddress}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -251,17 +259,21 @@ export default function Page() {
         <p className={style.catedesctext1}>{location?.spotDescription}</p>
       </div>
       <div>
-        <div className={style.detailcontainer}>
-          <div>
-            <div className={style.detailtext}>방문후기</div>
-          </div>
-          <div className={style.commentcontainer}>
-            {location?.reviews.slice(0, number).map((review, index) => (
-              <Comment key={review.reviewId} {...review} />
-            ))}
-            <button className={style.more} onClick={plusNumber}>
-              더보기
-            </button>
+        <div className={style.ssss}>
+          <div className={style.detailcontainer}>
+            <div>
+              <div className={style.detailtext}>방문후기</div>
+            </div>
+            <div className={style.commentcontainer}>
+              <div className={style.commentcardbox}>
+                {location?.reviews.slice(0, number).map((review, index) => (
+                  <Comment key={review.reviewId} {...review} />
+                ))}
+              </div>
+              <button className={style.more} onClick={plusNumber}>
+                더보기
+              </button>
+            </div>
           </div>
         </div>
       </div>

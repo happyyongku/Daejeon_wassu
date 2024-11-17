@@ -54,7 +54,7 @@
 }
 
 .detailcontainer {
-  width: 100%;
+  width: 90%;
   background-color: #ffffff;
   border-radius: 12px;
   padding: 25px 25px;
@@ -147,11 +147,21 @@
 }
 
 .commentcontainer {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
   gap: 10px;
+}
+
+.commentcardbox {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 10px;
+  /* justify-content: center; */
 }
 
 .more {
@@ -193,4 +203,10 @@
   to {
     stroke-dashoffset: 250%;
   }
+}
+
+.ssss {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }

@@ -36,7 +36,7 @@ export default function SearchResultCard({ result }: SearchResultCardProps) {
           <p className={style.placedesc}>{result.spotDescription}</p>
           <div className={style.iconbox}>
             <img className={style.icon} src="/images/pencil.png" alt="" />
-            <div className={style.iconnumber}>105</div>
+            <div className={style.iconnumber}>{result.reviewCount}</div>
             <img className={style.icon} src="/images/heart.png" alt="" />
             <div className={style.iconnumber}>{result.liked}</div>
           </div>
