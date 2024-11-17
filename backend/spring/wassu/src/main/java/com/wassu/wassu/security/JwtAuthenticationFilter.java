@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/wassu/tourist/details/**",
             "/wassu/tourist/recommend",
             "/wassu/marble/**",
+            "/wassu/marble",
             "/wassu/posts/read/**",
             "/swagger/**"
     );
