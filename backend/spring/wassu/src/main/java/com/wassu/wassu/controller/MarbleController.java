@@ -150,9 +150,9 @@ public class MarbleController {
             String token = accessToken.replace("Bearer ", "");
             userEmail = jwtUtil.extractUserEmail(token);
         }
-        Long result = marbleService.getMyMarble(userEmail);
+        MyMarbleDTO result = marbleService.getMyMarble(userEmail);
         if (result != null) {
-            return ResponseEntity.ok(Map.of("onGoingRoomId", result));
+            return ResponseEntity.ok(result);
         }
         return ResponseEntity.ok(Map.of("message", "no room"));
     }

@@ -242,10 +242,10 @@ public class MarbleService {
         return missionVerified;
     }
 
-    public Long getMyMarble(String email) {
+    public MyMarbleDTO getMyMarble(String email) {
         MarbleRoomEntity myRoom = roomRepository.findMyRoom(email);
         if (myRoom != null) {
-            return myRoom.getId();
+            return new MyMarbleDTO(myRoom.getId(), myRoom.isSingle());
         }
         return null;
     }
