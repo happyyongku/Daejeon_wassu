@@ -1,16 +1,38 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import BreadIcon from '../../assets/imgs/bread.svg';
+import {getUserChallenges} from '../../api/recommended';
 
 type ChallengeCourseNavigationProp = StackNavigationProp<RootStackParamList>;
 const {width} = Dimensions.get('window');
+interface Course {
+  id: number;
+  course_name: string;
+  description: string;
+  image_url: string;
+}
 
+interface Challenge {
+  course: Course;
+  course_details: any[]; // 필요한 경우, 더 구체적인 타입으로 설정 가능
+}
 const ChallengeCourse = () => {
   const navigation = useNavigation<ChallengeCourseNavigationProp>();
-
+  const [inProgressChallenges, setInProgressChallenges] = useState<Challenge[]>([]);
+  const [completedChallenges, setCompletedChallenges] = useState<Challenge[]>([]);
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      const data = await getUserChallenges();
+      if (data) {
+        setInProgressChallenges(data.in_progress);
+        setCompletedChallenges(data.completed);
+      }
+    };
+    fetchChallenges();
+  }, []);
   const handleNavigateToChallenge = () => {
     navigation.navigate('TravelChallenge');
   };
@@ -21,8 +43,8 @@ const ChallengeCourse = () => {
   const handleNavigateToCompletedChallenge = () => {
     navigation.navigate('CompletedChallenge');
   };
-  const goToChallengeDetail = () => {
-    navigation.navigate('ChallengeDetail');
+  const goToChallengeDetail = (courseId: number) => {
+    navigation.navigate('ChallengeDetail', {id: courseId});
   };
   return (
     <View style={styles.container}>
@@ -42,15 +64,19 @@ const ChallengeCourse = () => {
           <Text style={styles.viewAllButton}>전체 보기 &gt;</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
+
+      {inProgressChallenges.map(challenge => (
+        <TouchableOpacity
+          key={challenge.course.id}
+          style={styles.card}
+          onPress={() => goToChallengeDetail(challenge.course.id)}>
+          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
       {/* 완료한 챌린지 타이틀과 전체 보기 */}
       <View style={styles.titleContainer}>
         <Text style={styles.mainTitle}>완료한 챌린지</Text>
@@ -58,15 +84,19 @@ const ChallengeCourse = () => {
           <Text style={styles.viewAllButton}>전체 보기 &gt;</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
+
+      {completedChallenges.map(challenge => (
+        <TouchableOpacity
+          key={challenge.course.id}
+          style={styles.card}
+          onPress={() => goToChallengeDetail(challenge.course.id)}>
+          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };

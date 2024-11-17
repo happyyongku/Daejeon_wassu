@@ -1,46 +1,43 @@
 import React, {useState, useEffect} from 'react';
+import {useRoute, useNavigation} from '@react-navigation/native';
+import type {RouteProp} from '@react-navigation/native';
 import {StyleSheet, View, Text, Modal, Image, TouchableOpacity} from 'react-native';
 import {
   ViroARScene,
   ViroARSceneNavigator,
   ViroText,
   Viro3DObject,
-  ViroARImageMarker,
-  ViroARTrackingTargets,
   ViroAmbientLight,
   ViroSpotLight,
   ViroAnimations,
 } from '@reactvision/react-viro';
+import {markSpotAsVisited, getWassumonDetails, getCourseDetail} from '../../api/recommended';
+
 interface HelloWorldSceneARProps {
-  onAnimationEnd: () => void; // prop에 대한 타입을 명시
+  onAnimationEnd: () => void;
 }
-// 이미지 타겟 등록
-ViroARTrackingTargets.createTargets({
-  myImageTarget: {
-    source: require('../../assets/ar/ssafy.jpg'),
-    orientation: 'Up',
-    physicalWidth: 0.1, // 이미지의 실제 크기(m 단위)
-  },
-});
 
 // 애니메이션 등록
 ViroAnimations.registerAnimations({
+  // 공 던지기 애니메이션
   throwBall: {
     properties: {
-      positionX: 0,
-      positionY: -1,
-      positionZ: 0,
+      positionX: 0.1, // X축: 그대로
+      positionY: 0.1, // Y축: 아래로 이동
+      positionZ: -0.75, // Z축: 더 멀리 날아가도록 조정
       rotateY: '+=360', // Y축 회전
     },
     duration: 1000,
     easing: 'easeInEaseOut',
   },
+  // 몬스터 날아가는 애니메이션
   monsterFlyAway: {
     properties: {
-      positionY: '+=0.8', // 몬스터가 위로 이동
-      scaleX: 0,
-      scaleY: 0,
-      scaleZ: 0,
+      positionX: '0.1', // X축: 공 쪽으로 이동 (왼쪽에서 약간만 이동)
+      positionZ: '+=0.75', // Z축: 공 쪽으로 이동 (더 가까워지도록 조정)
+      scaleX: 0, // 점점 작아짐
+      scaleY: 0, // 점점 작아짐
+      scaleZ: 0, // 점점 작아짐
       opacity: 0, // 투명해짐
     },
     duration: 800,
@@ -48,126 +45,193 @@ ViroAnimations.registerAnimations({
   },
 });
 
-const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps> = ({onAnimationEnd}) => {
+const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps & {wassumonName: string | null}> = ({
+  onAnimationEnd,
+  wassumonName,
+}) => {
   const [text, setText] = useState('Initializing AR...');
   const [throwAnim, setThrowAnim] = useState(false);
   const [monsterAnim, setMonsterAnim] = useState(false);
-  const [modelPosition, setModelPosition] = useState<[number, number, number]>([0, -0.2, 0.5]);
-  const [isPositionSet, setIsPositionSet] = useState(false);
-
   useEffect(() => {
-    setText('image plz...');
+    setText('Click Ball!');
   }, []);
 
   const handleThrowBall = () => {
-    setThrowAnim(true); // 공 던지기 애니메이션 실행
+    setThrowAnim(true);
     setTimeout(() => {
       setMonsterAnim(true);
       setTimeout(() => {
-        onAnimationEnd(); // 애니메이션 종료 시 콜백 호출
-      }, 800); // 몬스터 애니메이션이 끝난 후
+        onAnimationEnd();
+      }, 800);
     }, 1000);
   };
-
+  const getModelSource = () => {
+    console.log('Getting model source for:', wassumonName); // 현재 wassumonName 값 확인
+    switch (wassumonName) {
+      case '밀면몬':
+        return require('../../assets/ar/3d-models/밀면몬.glb');
+      case '쌀국수몬':
+        return require('../../assets/ar/3d-models/쌀국수몬.glb');
+      case '칼국수몬':
+        return require('../../assets/ar/3d-models/칼국수몬.glb');
+      default:
+        console.log('Default model used'); // 기본 모델이 선택된 경우
+        return require('../../assets/ar/3d-models/model.glb');
+    }
+  };
   return (
     <ViroARScene>
       <ViroAmbientLight color="#FFFFFF" intensity={200} />
       <ViroSpotLight
         position={[0, 2, 0]}
-        color="#ffcc00"
         direction={[0, -1, 0]}
-        intensity={800}
         attenuationStartDistance={1}
         attenuationEndDistance={4}
         castsShadow={true}
       />
-      <ViroARImageMarker
-        target={'myImageTarget'}
-        onAnchorFound={() => {
-          if (!isPositionSet) {
-            setModelPosition([0, -0.2, 0]);
-            setIsPositionSet(true);
-            setText('image ready!');
-          }
+      {/* soccer.glb 모델 - 고정된 위치 */}
+      <Viro3DObject
+        source={require('../../assets/ar/3d-models/bread_ball.glb')}
+        position={[0, -0.1, -0.2]} // X: 0 (가운데), Y: -0.5 (적절한 높이), Z: -1 (정면에 위치)
+        scale={[0.03, 0.03, 0.03]}
+        type="GLB"
+        onClick={handleThrowBall}
+        animation={{
+          name: 'throwBall',
+          run: throwAnim,
+          loop: false,
         }}
-        pauseUpdates={isPositionSet}>
-        {isPositionSet && (
-          <Viro3DObject
-            source={require('../../assets/ar/3d-models/soccer.glb')}
-            position={modelPosition}
-            scale={[0.05, 0.05, 0.05]}
-            type="GLB"
-            onClick={handleThrowBall}
-            animation={{
-              name: 'throwBall',
-              run: throwAnim,
-              loop: false,
-            }}
-          />
-        )}
-
-        {isPositionSet && (
-          <Viro3DObject
-            source={require('../../assets/ar/3d-models/model.glb')}
-            position={[0, -2, 0]}
-            scale={[0.3, 0.3, 0.3]}
-            type="GLB"
-            animation={{
-              name: 'monsterFlyAway',
-              run: monsterAnim,
-              loop: false,
-            }}
-          />
-        )}
-      </ViroARImageMarker>
+      />
+      <Viro3DObject
+        source={getModelSource()}
+        position={[0, 0, -1.5]}
+        scale={[0.6, 0.6, 0.6]}
+        rotation={[0, 0, 0]}
+        type="GLB"
+        animation={{
+          name: 'monsterFlyAway',
+          run: monsterAnim,
+          loop: false,
+        }}
+      />
       <ViroText
         text={text}
         scale={[0.5, 0.5, 0.5]}
-        position={[0, 0.5, -1]}
+        position={[0, 1, -2]}
         style={styles.helloWorldTextStyle}
       />
     </ViroARScene>
   );
 };
 
+import type {RootStackParamList} from '../../router/Navigator';
+
+type ARRouteProp = RouteProp<RootStackParamList, 'Ar'>;
+
 const ARModalExample = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [wassumonDetails, setWassumonDetails] = useState<any>(null); // 상태 추가
+  const [wassumonName, setWassumonName] = useState<string | null>(null);
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const route = useRoute<ARRouteProp>();
+  const {courseId, spotId} = route.params;
+  const navigation = useNavigation();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Wassumon 세부 정보 가져오기
+        const wassumonDetails = await getWassumonDetails(spotId);
+        if (wassumonDetails) {
+          setWassumonDetails(wassumonDetails);
+          setWassumonName(wassumonDetails.wassumon_name);
+          console.log('Wassumon details:', wassumonDetails); // Wassumon 세부 정보 로그
+          console.log('Wassumon name set to:', wassumonDetails.wassumon_name); // Wassumon name 로그
+        } else {
+          console.log('Wassumon details not found for spotId:', spotId); // 추가 로그
+        }
 
-  const handleAnimationEnd = () => {
-    setModalVisible(true); // 모달 표시
+        // 코스 세부 정보 가져오기 및 해당 spotId에 맞는 모델 URL 찾기
+        const courseDetails = await getCourseDetail(courseId);
+        if (courseDetails && courseDetails.course_details) {
+          const spotDetail = courseDetails.course_details.find(
+            (detail: any) => detail.spot_id === spotId,
+          );
+          if (spotDetail && spotDetail.wassumon_model) {
+            setModelUrl(spotDetail.wassumon_model);
+          }
+          console.log('Course details:', courseDetails); // 코스 세부 정보 로그
+        }
+      } catch (error) {
+        console.error('데이터 가져오기 오류:', error);
+      }
+    };
+
+    fetchData();
+  }, [courseId, spotId]);
+  // 모달 열릴 때 post 요청 수행
+  useEffect(() => {
+    if (modalVisible && wassumonDetails) {
+      const markVisited = async () => {
+        try {
+          // courseId와 spotId를 함께 전달
+          const response = await markSpotAsVisited(courseId, spotId);
+          console.log('Spot marked as visited:', response);
+        } catch (error) {
+          console.error('Error marking spot as visited:', error);
+        }
+      };
+
+      markVisited();
+    }
+  }, [modalVisible, wassumonDetails, courseId, spotId]);
+
+  const handleAnimationEnd = async () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    navigation.goBack();
   };
 
   return (
     <View style={{flex: 1}}>
-      <ViroARSceneNavigator
-        autofocus={true}
-        initialScene={{
-          scene: () => <HelloWorldSceneAR onAnimationEnd={handleAnimationEnd} />,
-        }}
-        style={styles.f1}
-      />
-
-      {/* 모달 */}
+      {wassumonName ? ( // wassumonName이 null이 아닐 때만 ViroARSceneNavigator 렌더링
+        <ViroARSceneNavigator
+          autofocus={true}
+          initialScene={{
+            scene: () => (
+              <HelloWorldSceneAR onAnimationEnd={handleAnimationEnd} wassumonName={wassumonName} />
+            ),
+          }}
+          style={styles.f1}
+        />
+      ) : (
+        <Text>Loading AR scene...</Text> // 로딩 중 메시지 추가
+      )}
       <Modal
         visible={modalVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={handleCloseModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Image source={require('../../assets/imgs/bbangmon.png')} style={styles.monsterImage} />
-            <Text style={styles.monsterName}>단팥몬</Text>
-            <Text style={styles.monsterRegion}>출몰지역: 성심당</Text>
-            <View style={styles.monsterStats}>
-              <Text>0.4m</Text>
-              <Text>빵 타입</Text>
-              <Text>3.2kg</Text>
-            </View>
-            <Text style={styles.monsterDescription}>
-              단팥몬은 대전 성심당에서만 볼 수 있는 희귀 몬스터입니다. 단팥빵에서 태어나 성심당을
-              돌아다니며 빵을 사랑하는 사람들을 지켜봅니다.
-            </Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+            {wassumonDetails && (
+              <>
+                <Image source={{uri: wassumonDetails.wassumon_image}} style={styles.monsterImage} />
+                <Text style={styles.monsterName}>{wassumonDetails.wassumon_name}</Text>
+                <Text style={styles.monsterRegion}>출몰지역: {wassumonDetails.spot_name}</Text>
+                <View style={styles.monsterStats}>
+                  <Text>{wassumonDetails.wassumon_height}m</Text>
+                  <Text>{wassumonDetails.wassumon_type} 타입</Text>
+                  <Text>{wassumonDetails.wassumon_weight}kg</Text>
+                </View>
+                <Text style={styles.monsterDescription}>
+                  {wassumonDetails.wassumon_description}
+                </Text>
+              </>
+            )}
+            <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>닫기</Text>
             </TouchableOpacity>
           </View>
@@ -183,8 +247,8 @@ const styles = StyleSheet.create({
   f1: {flex: 1},
   helloWorldTextStyle: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 30,
-    color: '#ffffff',
+    fontSize: 20,
+    color: '#040404',
     textAlignVertical: 'center',
     textAlign: 'center',
   },

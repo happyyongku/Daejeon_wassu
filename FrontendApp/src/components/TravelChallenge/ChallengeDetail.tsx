@@ -7,20 +7,21 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import type {RouteProp} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import Header from '../common/Header';
-import MonIcon from '../../assets/imgs/mon1.svg';
-import MononeIcon from '../../assets/imgs/mon2.svg';
-import MontwoIcon from '../../assets/imgs/mon3.svg';
 import PlayIcon from '../../assets/imgs/play.svg';
-import CalendarIcon from '../../assets/imgs/calendar.svg';
-import {getCourseDetail} from '../../api/recommended';
+import ProgressIcon from '../../assets/imgs/progress.png';
+import CompleteIcon from '../../assets/imgs/complete.png';
+import FlameIcon from '../../assets/imgs/flame.svg';
+import {getCourseDetail, startCourse} from '../../api/recommended'; // startCourse API 추가
 
 const {width} = Dimensions.get('window');
+
 type ChallengeDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceDetail'>;
 type ChallengeDetailRouteProp = RouteProp<RootStackParamList, 'ChallengeDetail'>;
 
@@ -28,15 +29,29 @@ interface Bakery {
   bakery_name: string;
   address: string;
   elastic_id: string;
+  completed: boolean;
+  spot_id: number;
+  rating: number | null;
+  phone: string;
+  business_hours: string;
+  description: string;
+  spot_image_url: string | null;
+  wassumon_image_url: string | null;
+  wassumon_name: string;
+  hashtags: string[];
 }
 
 const ChallengeDetail = () => {
   const navigation = useNavigation<ChallengeDetailNavigationProp>();
   const route = useRoute<ChallengeDetailRouteProp>();
   const {id} = route.params;
+  const {id: courseId} = route.params; // courseId 가져오기
   const [courseName, setCourseName] = useState('');
   const [images, setImages] = useState<string[]>([]);
-  const [bakeries, setBakeries] = useState<Bakery[]>([]);
+  const [hashtags, setHashtags] = useState<string[]>([]); // 새로운 상태 추가
+  const [course_datail, setcourse_datail] = useState<Bakery[]>([]);
+  const [completedAll, setCompletedAll] = useState('yet');
+  const Progress1Icon = require('../../assets/imgs/progress1.png');
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -44,19 +59,33 @@ const ChallengeDetail = () => {
       if (data) {
         setCourseName(data.course.course_name);
         setImages([data.course.image_url]);
-        setBakeries(data.bakeries);
+        setcourse_datail(data.course_details);
+        setCompletedAll(data.completed_all); // 상태 설정
+        setHashtags(data.course.hashtags); // course의 hashtags 설정
       }
     };
     fetchCourseDetail();
   }, [id]);
-
+  const handleStartChallenge = async () => {
+    try {
+      const response = await startCourse(courseId); // startCourse API 호출
+      if (response) {
+        console.log('Challenge started successfully:', response);
+        setCompletedAll('start'); // 챌린지 상태를 'start'로 변경
+      } else {
+        console.error('Failed to start challenge.');
+      }
+    } catch (error) {
+      console.error('Error starting challenge:', error);
+    }
+  };
   const goToPlaceDetail = (placeId: string) => {
     console.log('Navigating to PlaceDetail with ID:', placeId);
     navigation.navigate('PlaceDetail', {id: placeId});
   };
 
-  const goToARPage = () => {
-    navigation.navigate('Ar'); // AR 페이지로 이동
+  const goToARPage = (spotId: number) => {
+    navigation.navigate('Ar', {courseId, spotId}); // courseId와 spotId를 함께 전달
   };
 
   return (
@@ -75,9 +104,25 @@ const ChallengeDetail = () => {
         </View>
 
         <View style={styles.containerT}>
-          <Text style={styles.title}>{courseName}</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+              {courseName}
+            </Text>
+            <Text style={styles.subtitle}>왓슈볼을 눌러 도전하세요! 왓슈몬을 잡으세요.</Text>
+          </View>
+          {/* Hashtag Container 수정 */}
+          <View style={styles.hashtagContainer}>
+            {hashtags.map((hashtag, index) => (
+              <TouchableOpacity key={index}>
+                <View style={styles.hashtagButton}>
+                  <FlameIcon width={25} height={25} />
+                  <Text style={styles.hashtagText}>{hashtag}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-          {bakeries.map((bakery, index) => (
+          {course_datail.map((bakery, index) => (
             <TouchableOpacity
               key={bakery.elastic_id}
               onPress={() => goToPlaceDetail(bakery.elastic_id)}>
@@ -90,41 +135,52 @@ const ChallengeDetail = () => {
                   <Text style={styles.courseTitle}>{bakery.bakery_name}</Text>
                   <Text style={styles.courseAddress}>{bakery.address}</Text>
                 </View>
-                <MonIcon width={75} height={75} style={styles.courseIcon} />
+
+                {bakery.completed ? (
+                  <Image
+                    source={{uri: bakery.wassumon_image_url || ''}}
+                    style={styles.courseIcon}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    key={bakery.elastic_id}
+                    onPress={() => goToARPage(bakery.spot_id)} // bakery.spot_id 전달
+                  >
+                    <Image source={require('../../assets/imgs/watsuball.png')} />
+                  </TouchableOpacity>
+                )}
               </View>
             </TouchableOpacity>
           ))}
 
           <Text style={styles.title2}>등장 왔슈몬</Text>
           <View style={styles.monContainer}>
-            <View style={styles.monItem}>
-              <MonIcon width={75} height={75} />
-              <Text style={styles.monText}>단팥몬</Text>
-            </View>
-            <View style={styles.monItem}>
-              <MononeIcon width={75} height={75} />
-              <Text style={styles.monText}>소보루몬</Text>
-            </View>
-            <View style={styles.monItem}>
-              <MontwoIcon width={75} height={75} />
-              <Text style={styles.monText}>바게트몬</Text>
-            </View>
+            {course_datail.map((bakery, index) => (
+              <View key={index} style={styles.monItem}>
+                <Image source={{uri: bakery.wassumon_image_url || ''}} style={styles.monIcon} />
+                <Text style={styles.monText}>{bakery.wassumon_name}</Text>
+              </View>
+            ))}
           </View>
 
-          <TouchableOpacity style={styles.challengeButton}>
-            <PlayIcon width={20} height={20} style={styles.buttonIcon} />
-            <Text style={styles.challengeButtonText}>챌린지 시작</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.challengeButton}>
-            <CalendarIcon width={20} height={20} style={styles.buttonIcon} />
-            <Text style={styles.challengeButtonText}>일정에 코스 담기</Text>
-          </TouchableOpacity>
-
-          {/* AR 페이지로 이동하는 버튼 */}
-          <TouchableOpacity style={styles.arButton} onPress={goToARPage}>
-            <Text style={styles.arButtonText}>AR 시작하기</Text>
-          </TouchableOpacity>
+          {/* 챌린지 버튼 */}
+          {completedAll === 'yet' ? (
+            <TouchableOpacity style={styles.challengeButton} onPress={handleStartChallenge}>
+              <PlayIcon width={20} height={20} style={styles.buttonIcon} />
+              <Text style={styles.challengeButtonText}>챌린지 시작</Text>
+            </TouchableOpacity>
+          ) : completedAll === 'start' ? (
+            <View style={styles.challengeButton}>
+              <Image source={ProgressIcon} style={styles.buttonIcon} />
+              <Text style={styles.challengeButtonText}>챌린지 진행중</Text>
+              <Image source={Progress1Icon} style={styles.progress1Icon} />
+            </View>
+          ) : (
+            <View style={styles.challengeButton}>
+              <Image source={CompleteIcon} style={styles.buttonIcon} />
+              <Text style={styles.challengeButtonText}>챌린지 완료</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </>
@@ -143,12 +199,22 @@ const styles = StyleSheet.create({
   containerT: {
     paddingHorizontal: width * 0.06,
   },
+  titleContainer: {
+    marginBottom: 10,
+  },
   title: {
     fontSize: 24,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
     color: '#333333',
-    marginVertical: 20,
+    marginVertical: 10, // 기존 20에서 10으로 줄임
+    flexWrap: 'wrap', // 줄바꿈 가능하게
+  },
+  subtitle: {
+    fontSize: 12, // 작은 크기 (10에서 12로 증가)
+    color: '#333333',
+    fontFamily: 'Pretendard-Bold',
+    marginTop: 5, // 제목과의 간격을 줄임
   },
   courseItem: {
     backgroundColor: '#fff',
@@ -164,6 +230,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
+  hashtagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 20,
+  },
+  hashtagButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderWidth: 1.5,
+    borderColor: 'rgba(153, 153, 153, 0.5)',
+  },
+  hashtagText: {
+    fontSize: 16,
+    color: '#999999',
+    marginLeft: 5,
+    fontFamily: 'Pretendard-Regular',
+  },
+
   numberContainer: {
     width: 20,
     height: 20,
@@ -195,6 +283,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   courseIcon: {
+    width: 75, // 이미지 너비
+    height: 75, // 이미지 높이
     alignSelf: 'center',
   },
   title2: {
@@ -210,12 +300,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between', // Distribute items evenly
     alignItems: 'center',
     marginBottom: 20,
+    paddingHorizontal: 10, // Add some horizontal padding
   },
   monItem: {
+    width: '30%', // Each item takes up 30% of the container width
     alignItems: 'center',
+    marginBottom: 20, // Space between rows
+  },
+  monIcon: {
+    width: 65,
+    height: 65,
   },
   monText: {
     fontSize: 16,
@@ -237,6 +334,13 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginRight: 10,
+    width: 24,
+    height: 24,
+  },
+  progress1Icon: {
+    marginLeft: 10,
+    width: 20,
+    height: 20,
   },
   challengeButtonText: {
     color: '#418663',

@@ -204,3 +204,111 @@ export async function getChatbotResponse(userInput: string) {
     }
   }
 }
+// 장소 방문 완료 요청
+export async function markSpotAsVisited(courseId: number, spotId: number) {
+  try {
+    const response = await Authfastapi.post(`/courses/${courseId}/spots/${spotId}/visit`);
+
+    if (response && response.data) {
+      console.log('Spot marked as visited successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to mark spot as visited.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Mark spot as visited error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during marking spot as visited:', err);
+      return null;
+    }
+  }
+}
+// 챌린지 조회
+export async function getUserChallenges() {
+  try {
+    const response = await Authfastapi.get('/user/challenges');
+
+    if (response && response.data) {
+      console.log('User challenges retrieved successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to retrieve user challenges.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Get user challenges error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during user challenges retrieval:', err);
+      return null;
+    }
+  }
+}
+
+// 왓슈몬 조회
+export async function getUserWassumon() {
+  try {
+    const response = await Authfastapi.get('/user/wassumon');
+
+    if (response && response.data) {
+      console.log('User Wassumon retrieved successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to retrieve user Wassumon.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Get user Wassumon error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during user Wassumon retrieval:', err);
+      return null;
+    }
+  }
+}
+// 코스 시작 API
+export async function startCourse(courseId: number) {
+  try {
+    const response = await Authfastapi.post(`/courses/${courseId}/start`);
+    if (response && response.data) {
+      console.log('Challenge started successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to start challenge.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Start challenge error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during challenge start:', err);
+      return null;
+    }
+  }
+}
+export async function getWassumonDetails(spotId: number) {
+  try {
+    const response = await Authfastapi.get(`/wassumons/${spotId}`);
+    if (response && response.data) {
+      console.log('Wassumon details retrieved successfully:', response.data);
+      return response.data.wassumon_details;
+    } else {
+      console.error('Failed to retrieve Wassumon details.');
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('Get Wassumon details error (Axios):', err.response);
+      return null;
+    } else {
+      console.error('Unexpected error during Wassumon details retrieval:', err);
+      return null;
+    }
+  }
+}

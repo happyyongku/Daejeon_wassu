@@ -1,59 +1,65 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
 import BreadIcon from '../../assets/imgs/bread.svg';
-import CompleteIcon from '../../assets/imgs/complete.svg';
+import {getUserChallenges} from '../../api/recommended'; // axios 함수 임포트
 
 const {width} = Dimensions.get('window');
 
 type CourseNavigationProp = StackNavigationProp<RootStackParamList, 'ChallengeDetail'>;
 
-const Course = () => {
-  const navigation = useNavigation<CourseNavigationProp>();
+interface Course {
+  id: number;
+  course_name: string;
+  description: string;
+  image_url: string;
+}
 
-  const goToChallengeDetail = () => {
-    navigation.navigate('ChallengeDetail');
+interface Challenge {
+  course: Course;
+  course_details: any[];
+}
+
+const OngoingChallenge = () => {
+  const navigation = useNavigation<CourseNavigationProp>();
+  const [inProgressChallenges, setInProgressChallenges] = useState<Challenge[]>([]);
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      const data = await getUserChallenges();
+      if (data) {
+        setInProgressChallenges(data.in_progress);
+      }
+    };
+    fetchChallenges();
+  }, []);
+
+  const goToChallengeDetail = (courseId: number) => {
+    navigation.navigate('ChallengeDetail', {id: courseId});
   };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.sectionTitle}>진행중인 챌린지</Text>
 
-      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <CompleteIcon width={50} height={50} style={styles.completeIcon} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
+      {inProgressChallenges.map(challenge => (
+        <TouchableOpacity
+          key={challenge.course.id}
+          style={styles.card}
+          onPress={() => goToChallengeDetail(challenge.course.id)}>
+          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -113,4 +119,4 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-export default Course;
+export default OngoingChallenge;
