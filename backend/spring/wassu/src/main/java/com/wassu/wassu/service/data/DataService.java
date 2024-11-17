@@ -71,12 +71,23 @@ public class DataService {
                 spot.setCategories(categories);
 
                 List<ElasticTouristSpotEntity.Image> images = new ArrayList<>();
-                String imagsValue = record.get("images").trim();
-                if (imagsValue != null && !imagsValue.isEmpty()) {
-                    for (String image: imagsValue.split("; ")) {
-                        images.add(new ElasticTouristSpotEntity.Image(image.trim()));
-                    }
+//                String imagsValue = record.get("images").trim();
+//                if (imagsValue != null && !imagsValue.isEmpty()) {
+//                for (String image: imagsValue.split("; ")) {
+//                    images.add(new ElasticTouristSpotEntity.Image());
+//                }
+//                }
+                for (int i = 1 ; i <= Integer.parseInt(record.get("image_count")); i++) {
+                    images.add(
+                            new ElasticTouristSpotEntity.Image(
+                                    "https://" + amazonS3Config.getBucket() + ".s3." +
+                                            amazonS3Config.getRegion() + ".amazonaws.com/tourist_spot_image/" +
+                                            record.get("spot_name") + "_(" + i + ")" + ".jpg"
+                            )
+                    );
                 }
+                spot.setImages(images);
+
 
                 spot.setImages(images);
                 spots.add(spot);

@@ -34,7 +34,8 @@ public class TouristSpotEntity {
     private String spotDescription;
 
     private int favoritesCount;
-    
+
+    @Column(columnDefinition = "TEXT")
     private String businessHours;
 
     private String phone;
