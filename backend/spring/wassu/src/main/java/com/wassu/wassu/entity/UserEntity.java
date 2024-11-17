@@ -85,13 +85,13 @@ public class UserEntity {
     private List<ScheduleEntity> schedules;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TouristSpotStampEntity> touristSpotStamp = new ArrayList<>();
+    private List<TouristSpotStampEntity> touristSpotStamp;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserCourseProgressEntity> userCourseProgress = new ArrayList<>();
+    private List<UserCourseProgressEntity> userCourseProgress;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CatchedWassuMonEntity> catchedWassuMons = new ArrayList<>();
+    private List<CatchedWassuMonEntity> catchedWassuMons;
 
     public UserEntity(String email, String password, String gender, Integer birthYear, String nickname) {}
 }

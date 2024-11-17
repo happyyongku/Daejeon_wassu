@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class UserCourseProgressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,7 +14,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class WassuMonEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -10,7 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
 @Table(name = "tour_course_details_entity")
 public class TourCourseDetailEntity {
     @Id

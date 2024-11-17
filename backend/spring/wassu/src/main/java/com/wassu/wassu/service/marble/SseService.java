@@ -7,7 +7,6 @@ import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
 import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.marble.MarbleRoomRepository;
-import com.wassu.wassu.test.TestRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,7 +29,6 @@ public class SseService {
     private final MarbleRoomRepository roomRepository;
     private final UserRepository userRepository;
     private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
-    private final Map<Long, TestRoom> testRepository = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
     public SseEmitter createEmitter(String email, Long roomId) {
@@ -51,7 +49,7 @@ public class SseService {
         // 비동기로 초기 데이터 전송
         CompletableFuture.runAsync(() -> {
             sendEmitter(user, room);
-            sendUserInfo(user, room); 
+            sendUserInfo(user, room);
         });
         // 스케줄러를 사용하여 주기적으로 핑 전송
         schedulePing(email, roomId, context, emitter);
