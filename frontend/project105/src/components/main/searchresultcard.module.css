@@ -3,6 +3,7 @@
   justify-content: space-between;
   width: 650px;
   margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .textcontainer {

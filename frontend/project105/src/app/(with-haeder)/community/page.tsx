@@ -45,11 +45,22 @@ export default function Page() {
           <div className={style.titletext1}>다양한 관광지에 대한 소감,</div>
           <div className={style.titletext2}>커뮤니티 ‍🤝‍🧑</div>
         </div>
-        <p className={style.content}>
-          다양한 관광지에 대한 사용자들의 후기를 접하고,
-        </p>
-        <p className={style.content}>다양한 방법으로 관광지를 즐겨보세요.</p>
-        <button onClick={toCreate}>글쓰기</button>
+        <div className={style.writebox}>
+          <div>
+            <p className={style.content}>
+              다양한 관광지에 대한 사용자들의 후기를 접하고,
+            </p>
+            <p className={style.content}>
+              다양한 방법으로 관광지를 즐겨보세요.
+            </p>
+          </div>
+          <img
+            className={style.writebutton}
+            src="/images/update.png"
+            alt=""
+            onClick={toCreate}
+          />
+        </div>
       </div>
       <div className={style.cardcontainer}>
         {articles.length > 0 ? (

@@ -13,7 +13,7 @@ export interface CategoryData {
 }
 
 export interface ArticleData {
-  id: number;
+  id: string;
   title: string;
   content: string;
   createdAt: string;
