@@ -8,6 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 public class SseDTO {
 
+    private boolean ready;
+
     private int yourPosition;
     private boolean yourVerified;
     private int yourReroll;
