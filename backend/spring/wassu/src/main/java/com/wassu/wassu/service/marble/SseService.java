@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -64,6 +63,7 @@ public class SseService {
         SseDTO sseDTO;
         if (user.equals(room.getCreator())) {
             sseDTO = SseDTO.builder()
+                    .ready(room.isReady())
                     .yourPosition(room.getCreatorPosition())
                     .yourVerified(room.isCreatorVerified())
                     .yourReroll(room.getCreatorReroll())
@@ -77,6 +77,7 @@ public class SseService {
                     .build();
         } else {
             sseDTO = SseDTO.builder()
+                    .ready(room.isReady())
                     .yourPosition(room.getGuestPosition())
                     .yourVerified(room.isGuestVerified())
                     .yourReroll(room.getGuestReroll())
@@ -101,6 +102,7 @@ public class SseService {
         SseDTO sseDTO;
         if (user.equals(room.getCreator())) {
             sseDTO = SseDTO.builder()
+                    .ready(room.isReady())
                     .yourPosition(room.getCreatorPosition())
                     .yourVerified(room.isCreatorVerified())
                     .yourReroll(room.getCreatorReroll())
@@ -112,6 +114,7 @@ public class SseService {
                     .build();
         } else {
             sseDTO = SseDTO.builder()
+                    .ready(room.isReady())
                     .yourPosition(room.getGuestPosition())
                     .yourVerified(room.isGuestVerified())
                     .yourReroll(room.getGuestReroll())
@@ -152,43 +155,6 @@ public class SseService {
                 throw new RuntimeException(e); // 스케줄러 종료를 위해 예외 발생
             }
         }, 0, 30, TimeUnit.SECONDS);
-    }
-
-    public SseEmitter testEmitter(String email, Long roomId) {
-        TestRoom existRoom = testRepository.get(roomId);
-        if (existRoom == null) {
-            TestRoom newRoom = new TestRoom();
-            newRoom.setUser1Email(email);
-            testRepository.put(roomId, newRoom);
-        } else {
-            if (!existRoom.getUser1Email().equals(email)) {
-                existRoom.setUser2Email(email);
-            }
-        }
-        return createEmitter(email, roomId);
-    }
-
-    public void testSend(String email, Long roomId) {
-        Random random = new Random();
-        int randomNumber1 = random.nextInt(100);
-        int randomNumber2 = random.nextInt(100);
-        Map<String, SseEmitter> roomEmitters = emitters.get(roomId);
-        TestRoom testRoom = testRepository.get(roomId);
-        testRoom.setUser1Data(randomNumber1);
-        testRoom.setUser2Data(randomNumber2);
-        if (roomEmitters != null) {
-            for (Map.Entry<String, SseEmitter> entry : roomEmitters.entrySet()) {
-                String userEmail = entry.getKey();
-                SseEmitter emitter = entry.getValue();
-                try {
-                    emitter.send(SseEmitter.event().name("message").data(testRoom));
-                } catch (IOException e) {
-                    emitter.completeWithError(e);
-                }
-            }
-        } else {
-            log.info("mapping roomId:emitter not found");
-        }
     }
 
 }

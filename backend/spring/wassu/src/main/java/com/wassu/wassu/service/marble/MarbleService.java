@@ -59,6 +59,7 @@ public class MarbleService {
         if (!dto.isSingle()) { // 같이도슈면 초대코드 생성
             code = generateInviteCode();
             room.setSingle(false);
+            room.setReady(false);
             room.setInviteCode(code);
         }
         MarbleRoomEntity savedRoom = roomRepository.save(room);
@@ -74,6 +75,7 @@ public class MarbleService {
             MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             room.setGuest(user);
+            room.setReady(true);
             return roomId;
         }
         return null;
