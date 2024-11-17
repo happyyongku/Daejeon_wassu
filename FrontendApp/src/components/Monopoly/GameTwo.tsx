@@ -40,7 +40,7 @@ type Node = {
   nodeOrder: number;
 };
 
-const GROUP_COLORS = ['#E0F2E0', '#D0E8FF', '#FFE0E0', '#FFF7CC'];
+const SEGMENT_COLORS = ['#E0F2E0', '#D0E8FF', '#FFE0E0', '#FFF7CC'];
 
 const GameTwo = () => {
   const navigation = useNavigation<GameTwoNavigationProp>();
@@ -65,6 +65,9 @@ const GameTwo = () => {
   const [opponentPosition, setOpponentPosition] = useState<number | null>(null);
   const [opponentIcon, setOpponentIcon] = useState<string | null>(null);
   const [isGameFinished, setIsGameFinished] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [showInviteCodeSection, setShowInviteCodeSection] = useState(true);
+  const sseRef = useRef<any>(null);
 
   const confettiRef = useRef<Confetti | null>(null);
   const {width, height} = useWindowDimensions();
@@ -105,12 +108,27 @@ const GameTwo = () => {
           console.log('연결 성공');
         });
 
+        sse.addEventListener('userInfo', (event: any) => {
+          const userData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          console.log('userData:', userData);
+
+          // 유저 이미지 업데이트
+          if (userData.opponent) {
+            setOpponentIcon(userData.opponent); // 상대 프로필 이미지 업데이트
+          }
+        });
+
         sse.addEventListener('message', (event: any) => {
           console.log('SSE message raw data:', event.data);
           if (event.data === 'keep-alive') return;
 
           const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
           console.log('Parsed SSE data:', parsedData);
+
+          if (parsedData.ready !== undefined) {
+            setReady(parsedData.ready); // ready 값 업데이트
+            setShowInviteCodeSection(!parsedData.ready);
+          }
 
           if (parsedData.opponentPosition !== undefined) {
             const updatedOpponentPosition =
@@ -129,6 +147,10 @@ const GameTwo = () => {
           // 인증상태 업뎃
           if (parsedData.yourVerified !== undefined) {
             setYourVerified(parsedData.yourVerified);
+          }
+
+          if (parsedData.yourPass !== undefined) {
+            setYourPass(parsedData.yourPass); // SSE에서 yourPass 값 동기화
           }
 
           //현재 위치 업뎃
@@ -156,6 +178,9 @@ const GameTwo = () => {
         sse.addEventListener('error', (error: any) => {
           console.error('SSE 연결 에러:', error);
         });
+
+        sseRef.current = sse;
+
         return () => {
           sse.close();
           console.log('SSE 연결 종료');
@@ -169,6 +194,10 @@ const GameTwo = () => {
     connectSSE();
 
     return () => {
+      if (sseRef.current) {
+        sseRef.current.close();
+        console.log('SSE 연결 종료됨');
+      }
       Orientation.unlockAllOrientations();
     };
   }, [roomId]);
@@ -320,7 +349,18 @@ const GameTwo = () => {
         top = (index - TOP_CELLS * 2 - SIDE_CELLS + 1) * CELL_HEIGHT;
       }
 
-      const cellColor = GROUP_COLORS[Math.floor(index / 9) % GROUP_COLORS.length];
+      let segmentIndex = 0;
+      if (index < TOP_CELLS) {
+        segmentIndex = 0;
+      } else if (index < TOP_CELLS + SIDE_CELLS) {
+        segmentIndex = 1;
+      } else if (index < TOP_CELLS * 2 + SIDE_CELLS) {
+        segmentIndex = 2;
+      } else {
+        segmentIndex = 3;
+      }
+
+      const cellColor = SEGMENT_COLORS[segmentIndex];
 
       return (
         <TouchableOpacity
@@ -581,7 +621,7 @@ const GameTwo = () => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 배경
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContents: {
       width: '80%',
@@ -627,13 +667,15 @@ const GameTwo = () => {
       resizeMode="cover">
       <View style={styles.boardContainer}>{renderCells()}</View>
 
-      <View style={styles.inviteCodeContainer}>
-        <TouchableOpacity onPress={toggleInviteCodeVisibility}>
-          <Text style={showInviteCode ? styles.inviteCodeText : styles.hiddenInviteCode}>
-            {showInviteCode ? inviteCode : '초대코드 보기'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {showInviteCodeSection && (
+        <View style={styles.inviteCodeContainer}>
+          <TouchableOpacity onPress={toggleInviteCodeVisibility}>
+            <Text style={showInviteCode ? styles.inviteCodeText : styles.hiddenInviteCode}>
+              {showInviteCode ? inviteCode : '초대코드 보기'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {isGameFinished && (
         <Modal

@@ -43,7 +43,7 @@ type SSEData = {
   dice2: number;
 };
 
-const GROUP_COLORS = ['#E0F2E0', '#D0E8FF', '#FFE0E0', '#FFF7CC'];
+const SEGMENT_COLORS = ['#E0F2E0', '#D0E8FF', '#FFE0E0', '#FFF7CC'];
 
 const GameOne = () => {
   const navigation = useNavigation<GameOneNavigationProp>();
@@ -60,6 +60,7 @@ const GameOne = () => {
   const [showDiceResult, setShowDiceResult] = useState(false);
   const [yourPass, setYourPass] = useState(1);
   const [playerIcon, setPlayerIcon] = useState<string | null>(null);
+  const sseRef = useRef<any>(null);
 
   const confettiRef = useRef<Confetti | null>(null);
   const {width, height} = useWindowDimensions();
@@ -100,6 +101,10 @@ const GameOne = () => {
           console.log('SSE 연결 성공');
         });
 
+        sse.addEventListener('userInfo', () => {
+          console.log('SSE 연결 성공');
+        });
+
         sse.addEventListener('message', (event: any) => {
           console.log('SSE message raw data:', event.data);
           if (event.data === 'keep-alive') return;
@@ -120,6 +125,10 @@ const GameOne = () => {
             setYourVerified(parsedData.yourVerified);
           }
 
+          if (parsedData.yourPass !== undefined) {
+            setYourPass(parsedData.yourPass); // SSE에서 yourPass 값 동기화
+          }
+
           //현재 위치 업뎃
           if (parsedData.yourPosition !== undefined) {
             const updatedPosition = parsedData.yourPosition >= 27 ? 27 : parsedData.yourPosition;
@@ -136,6 +145,8 @@ const GameOne = () => {
           console.error('SSE 연결 에러:', error);
         });
 
+        sseRef.current = sse;
+
         return () => {
           sse.close();
           console.log('SSE 연결 종료');
@@ -149,6 +160,10 @@ const GameOne = () => {
     connectSSE();
 
     return () => {
+      if (sseRef.current) {
+        sseRef.current.close();
+        console.log('SSE 연결 종료됨');
+      }
       Orientation.unlockAllOrientations();
     };
   }, [roomId]);
@@ -280,7 +295,18 @@ const GameOne = () => {
         top = (index - TOP_CELLS * 2 - SIDE_CELLS + 1) * CELL_HEIGHT;
       }
 
-      const cellColor = GROUP_COLORS[Math.floor(index / 9) % GROUP_COLORS.length];
+      let segmentIndex = 0;
+      if (index < TOP_CELLS) {
+        segmentIndex = 0;
+      } else if (index < TOP_CELLS + SIDE_CELLS) {
+        segmentIndex = 1;
+      } else if (index < TOP_CELLS * 2 + SIDE_CELLS) {
+        segmentIndex = 2;
+      } else {
+        segmentIndex = 3;
+      }
+
+      const cellColor = SEGMENT_COLORS[segmentIndex];
 
       return (
         <TouchableOpacity

@@ -257,3 +257,31 @@ export async function joinRoom(inviteCode: string): Promise<{roomId: number}> {
     }
   }
 }
+
+// 진행 중인 마블 조회
+export async function getMyMarble(): Promise<{roomId: number; single: boolean} | null> {
+  try {
+    // GET 요청으로 진행 중인 마블 정보 조회
+    const response = await Authapi.get(`/marble/my`);
+
+    if (response.status === 200) {
+      if (response.data.message === 'no room') {
+        console.log('진행 중인 마블 없음:', response.data.message);
+        return null; // 진행 중인 마블이 없을 경우 null 반환
+      }
+
+      console.log('진행 중인 마블 조회 성공:', response.data);
+      return response.data; // roomId와 single 값을 반환
+    } else {
+      console.error('진행 중인 마블 조회 실패:', response.data);
+      return null; // 실패 시 null 반환
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('진행 중인 마블 조회 요청 에러:', error.response);
+    } else {
+      console.error('진행 중인 마블 조회 요청 에러:', error);
+    }
+    return null; // 에러 발생 시 null 반환
+  }
+}
