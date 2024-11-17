@@ -41,6 +41,7 @@ import GameOne from '../components/Monopoly/GameOne';
 import GameTwo from '../components/Monopoly/GameTwo';
 import Invitation from '../components/Monopoly/Invitation';
 import MainRoom from '../components/Monopoly/MainRoom';
+import ChoiceTwo from '../components/Monopoly/ChoiceTwo';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -118,10 +119,11 @@ export type RootStackParamList = {
     };
     dayId?: string;
   };
-  Choice: undefined;
-  GameOne: undefined;
-  GameTwo: undefined;
-  Invitation: undefined;
+  Choice: {single: boolean};
+  ChoiceTwo: {single: boolean; inviteCode?: string};
+  GameOne: {roomId: number};
+  GameTwo: {roomId: number; inviteCode?: string};
+  Invitation: {single: boolean};
   MainRoom: undefined;
 };
 
@@ -211,6 +213,7 @@ function Navigator() {
       />
 
       <Stack.Screen name="Choice" component={Choice} options={{headerShown: false}} />
+      <Stack.Screen name="ChoiceTwo" component={ChoiceTwo} options={{headerShown: false}} />
       <Stack.Screen name="GameOne" component={GameOne} options={{headerShown: false}} />
       <Stack.Screen name="GameTwo" component={GameTwo} options={{headerShown: false}} />
       <Stack.Screen name="Invitation" component={Invitation} options={{headerShown: false}} />
