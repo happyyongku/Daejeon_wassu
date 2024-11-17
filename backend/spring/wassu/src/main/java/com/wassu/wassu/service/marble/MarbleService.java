@@ -245,6 +245,7 @@ public class MarbleService {
     public MyMarbleDTO getMyMarble(String email) {
         MarbleRoomEntity myRoom = roomRepository.findMyRoom(email);
         if (myRoom != null) {
+            log.info("myRoom id = {}", myRoom.getId());
             return new MyMarbleDTO(myRoom.getId(), myRoom.isSingle());
         }
         return null;
