@@ -142,6 +142,7 @@ public class MarbleController {
         return ResponseEntity.ok(Map.of("verified", result));
     }
 
+    // 진행중인 마블 조회
     @GetMapping("/my")
     public ResponseEntity<?> getMyMarble(@RequestHeader(value="Authorization", required = false) String accessToken) {
         String userEmail = null;
@@ -154,6 +155,13 @@ public class MarbleController {
             return ResponseEntity.ok(Map.of("onGoingRoomId", result));
         }
         return ResponseEntity.ok(Map.of("message", "no room"));
+    }
+
+    // 완료된 마블 삭제
+    @DeleteMapping("/room/{roomId}/complete")
+    public ResponseEntity<?> completeMarble(@PathVariable Long roomId) {
+        marbleService.completeMarble(roomId);
+        return ResponseEntity.ok(Map.of("status", "marble deleted"));
     }
 
 }
