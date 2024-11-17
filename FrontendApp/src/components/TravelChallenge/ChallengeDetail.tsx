@@ -48,6 +48,7 @@ const ChallengeDetail = () => {
   const {id: courseId} = route.params; // courseId 가져오기
   const [courseName, setCourseName] = useState('');
   const [images, setImages] = useState<string[]>([]);
+  const [hashtags, setHashtags] = useState<string[]>([]); // 새로운 상태 추가
   const [course_datail, setcourse_datail] = useState<Bakery[]>([]);
   const [completedAll, setCompletedAll] = useState('yet');
   const Progress1Icon = require('../../assets/imgs/progress1.png');
@@ -60,6 +61,7 @@ const ChallengeDetail = () => {
         setImages([data.course.image_url]);
         setcourse_datail(data.course_details);
         setCompletedAll(data.completed_all); // 상태 설정
+        setHashtags(data.course.hashtags); // course의 hashtags 설정
       }
     };
     fetchCourseDetail();
@@ -103,12 +105,14 @@ const ChallengeDetail = () => {
 
         <View style={styles.containerT}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>{courseName}</Text>
+            <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+              {courseName}
+            </Text>
             <Text style={styles.subtitle}>왓슈볼을 눌러 도전하세요! 왓슈몬을 잡으세요.</Text>
           </View>
-          {/* Hashtag Container */}
+          {/* Hashtag Container 수정 */}
           <View style={styles.hashtagContainer}>
-            {course_datail[0]?.hashtags.map((hashtag, index) => (
+            {hashtags.map((hashtag, index) => (
               <TouchableOpacity key={index}>
                 <View style={styles.hashtagButton}>
                   <FlameIcon width={25} height={25} />
@@ -196,23 +200,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.06,
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 10, // 작은 크기
-    color: '#333333', // 회색 텍스트 색상
-    marginLeft: 8, // 코스 소개 글자와의 간격
-    fontFamily: 'Pretendard-Bold',
-    marginTop: 10,
   },
   title: {
     fontSize: 24,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
     color: '#333333',
-    marginVertical: 20,
+    marginVertical: 10, // 기존 20에서 10으로 줄임
+    flexWrap: 'wrap', // 줄바꿈 가능하게
+  },
+  subtitle: {
+    fontSize: 12, // 작은 크기 (10에서 12로 증가)
+    color: '#333333',
+    fontFamily: 'Pretendard-Bold',
+    marginTop: 5, // 제목과의 간격을 줄임
   },
   courseItem: {
     backgroundColor: '#fff',
