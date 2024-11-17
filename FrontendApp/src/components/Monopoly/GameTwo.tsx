@@ -301,7 +301,7 @@ const GameTwo = () => {
     navigation.navigate('Main');
   };
 
-  // 바꿔야함
+  // 바꿔야해요
   const handleGameEnd = async () => {
     try {
       const response = await endGame(roomId); // 게임 종료 API 호출
