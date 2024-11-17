@@ -5,6 +5,8 @@ import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.marble.MarbleRoomEntity;
 import com.wassu.wassu.exception.CustomErrorCode;
 import com.wassu.wassu.exception.CustomException;
+import com.wassu.wassu.repository.UserRepository;
+import com.wassu.wassu.repository.marble.MarbleRoomRepository;
 import com.wassu.wassu.test.TestRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -28,11 +27,15 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class SseService {
 
+    private final MarbleRoomRepository roomRepository;
+    private final UserRepository userRepository;
     private final Map<Long, Map<String, SseEmitter>> emitters = new ConcurrentHashMap<>();
     private final Map<Long, TestRoom> testRepository = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
     public SseEmitter createEmitter(String email, Long roomId) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
         SseEmitter emitter = new SseEmitter(300_000L);
         SecurityContext context = SecurityContextHolder.getContext();
 
@@ -45,18 +48,10 @@ public class SseService {
         emitter.onTimeout(() -> removeEmitter(roomId, email));
         emitter.onError(e -> removeEmitter(roomId, email));
 
+        // 비동기로 초기 데이터 전송
+        CompletableFuture.runAsync(() -> sendEmitter(user, room));
         // 스케줄러를 사용하여 주기적으로 핑 전송
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                SecurityContextHolder.setContext(context);
-                emitter.send(SseEmitter.event().name("message").data("keep-alive"));
-                log.info("emitter sent ping: {} {}", roomId, email);
-            } catch (IOException e) {
-                removeEmitter(roomId, email);
-                throw new RuntimeException(e); // 스케줄러 종료를 위해 예외 발생
-            }
-        }, 0, 30, TimeUnit.SECONDS);
-
+        schedulePing(email, roomId, context, emitter);
         return emitter;
     }
 
@@ -144,6 +139,19 @@ public class SseService {
                 emitters.remove(roomId);
             }
         }
+    }
+
+    private void schedulePing(String email, Long roomId, SecurityContext context, SseEmitter emitter) {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                SecurityContextHolder.setContext(context);
+                emitter.send(SseEmitter.event().name("message").data("keep-alive"));
+                log.info("emitter sent ping: {} {}", roomId, email);
+            } catch (IOException e) {
+                removeEmitter(roomId, email);
+                throw new RuntimeException(e); // 스케줄러 종료를 위해 예외 발생
+            }
+        }, 0, 30, TimeUnit.SECONDS);
     }
 
     public SseEmitter testEmitter(String email, Long roomId) {

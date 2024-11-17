@@ -81,6 +81,7 @@ public class MarbleService {
 
     public String reGenerateInviteCode(Long roomId) {
         String code = generateInviteCode();
+        log.info("generated invite code {}", code);
         redisRepository.createCertification(code, roomId);
         return code;
     }
