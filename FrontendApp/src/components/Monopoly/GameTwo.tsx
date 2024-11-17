@@ -33,62 +33,41 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 type GameTwoRouteProp = RouteProp<RootStackParamList, 'GameTwo'>;
 type GameTwoNavigationProp = StackNavigationProp<RootStackParamList>;
 
-type Place = {
-  id: number;
-  place: string;
-  image: any;
+type Node = {
+  nodeId: number;
+  spotName: string;
+  thumbnail: string;
+  nodeOrder: number;
 };
 
-const PLACE_LIST = [
-  {id: 1, place: '출발지', image: require('../../assets/imgs/hanbat.png')},
-  {id: 2, place: '대전역', image: require('../../assets/imgs/hanbat.png')},
-  {id: 3, place: '유성온천', image: require('../../assets/imgs/hanbat.png')},
-  {id: 4, place: '엑스포', image: require('../../assets/imgs/hanbat.png')},
-  {id: 5, place: '오월드', image: require('../../assets/imgs/hanbat.png')},
-  {id: 6, place: '대청댐', image: require('../../assets/imgs/hanbat.png')},
-  {id: 7, place: '계룡산', image: require('../../assets/imgs/hanbat.png')},
-  {id: 8, place: '한밭수목원', image: require('../../assets/imgs/hanbat.png')},
-  {id: 9, place: '동학사', image: require('../../assets/imgs/hanbat.png')},
-  {id: 10, place: '충남대', image: require('../../assets/imgs/hanbat.png')},
-  {id: 11, place: '전민동', image: require('../../assets/imgs/hanbat.png')},
-  {id: 12, place: '대덕구청', image: require('../../assets/imgs/hanbat.png')},
-  {id: 13, place: '서구청', image: require('../../assets/imgs/hanbat.png')},
-  {id: 14, place: '갑천', image: require('../../assets/imgs/hanbat.png')},
-  {id: 15, place: '유림공원', image: require('../../assets/imgs/hanbat.png')},
-  {id: 16, place: '정부청사', image: require('../../assets/imgs/hanbat.png')},
-  {id: 17, place: '국립중앙과학관수장', image: require('../../assets/imgs/hanbat.png')},
-  {id: 18, place: '한밭도서관', image: require('../../assets/imgs/hanbat.png')},
-  {id: 19, place: '대전시립미술관', image: require('../../assets/imgs/hanbat.png')},
-  {id: 20, place: '천문대', image: require('../../assets/imgs/hanbat.png')},
-  {id: 21, place: '갑천초등학교', image: require('../../assets/imgs/hanbat.png')},
-  {id: 22, place: '동구청', image: require('../../assets/imgs/hanbat.png')},
-  {id: 23, place: '대전컨벤션센터', image: require('../../assets/imgs/hanbat.png')},
-  {id: 24, place: '엑스포대교', image: require('../../assets/imgs/hanbat.png')},
-  {id: 25, place: '동부선', image: require('../../assets/imgs/hanbat.png')},
-  {id: 26, place: '남부선', image: require('../../assets/imgs/hanbat.png')},
-  {id: 27, place: '서부선', image: require('../../assets/imgs/hanbat.png')},
-  {id: 28, place: '도착지', image: require('../../assets/imgs/hanbat.png')},
-];
-
-// 그룹 색상 배열
 const GROUP_COLORS = ['#E0F2E0', '#D0E8FF', '#FFE0E0', '#FFF7CC'];
 
 const GameTwo = () => {
+  const navigation = useNavigation<GameTwoNavigationProp>();
   const route = useRoute<GameTwoRouteProp>();
   const {roomId, inviteCode: initialInviteCode} = route.params as {
     roomId: number;
     inviteCode?: string;
   };
-  const [inviteCode, setInviteCode] = useState(initialInviteCode);
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [diceResult, setDiceResult] = useState<number | null>(null);
+  const [nodes, setNodes] = useState<Node[]>([]);
   const [currentPosition, setCurrentPosition] = useState(0);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [yourVerified, setYourVerified] = useState(false); // 서버에서 온 상태 값
+  const [isVerifying, setIsVerifying] = useState(false); // 인증 중 여부
+  const [diceResult, setDiceResult] = useState<number | null>(null);
   const [diceRolling, setDiceRolling] = useState(false);
   const [showDiceResult, setShowDiceResult] = useState(false);
+  const [yourPass, setYourPass] = useState(1);
+  const [playerIcon, setPlayerIcon] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState(initialInviteCode);
+  const [showInviteCode, setShowInviteCode] = useState(false);
+  const [opponentPosition, setOpponentPosition] = useState<number | null>(null);
+  const [opponentIcon, setOpponentIcon] = useState<string | null>(null);
+  const [isGameFinished, setIsGameFinished] = useState(false);
+
   const confettiRef = useRef<Confetti | null>(null);
   const {width, height} = useWindowDimensions();
-  const [showInviteCode, setShowInviteCode] = useState(false);
 
   const TOP_CELLS = 9;
   const SIDE_CELLS = 5;
@@ -97,6 +76,19 @@ const GameTwo = () => {
 
   useEffect(() => {
     Orientation.lockToLandscape();
+
+    const fetchRoomDetails = async () => {
+      try {
+        const roomData = await getRoomDetails(roomId); // API 호출
+        const sortedNodes = roomData.nodes.sort((a: Node, b: Node) => a.nodeOrder - b.nodeOrder);
+        setNodes(sortedNodes); // 정렬된 노드 저장
+        setPlayerIcon(roomData.you.profileImage); // profileImage 설정
+        setOpponentIcon(roomData.opponent?.profileImage || null);
+      } catch (error) {
+        Alert.alert('오류', '방 정보를 가져오는 중 문제가 발생했습니다.');
+        console.error('getRoomDetails Error:', error);
+      }
+    };
 
     const connectSSE = async () => {
       try {
@@ -110,18 +102,54 @@ const GameTwo = () => {
         });
 
         sse.addEventListener('open', () => {
-          console.log('SSE 연결 성공');
-        });
-
-        sse.addEventListener('open', () => {
           console.log('연결 성공');
         });
 
         sse.addEventListener('message', (event: any) => {
-          console.log('SSE message event data received:', event.data);
-          if (event.data !== 'keep-alive') {
-            const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-            console.log(parsedData.user1Data);
+          console.log('SSE message raw data:', event.data);
+          if (event.data === 'keep-alive') return;
+
+          const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          console.log('Parsed SSE data:', parsedData);
+
+          if (parsedData.opponentPosition !== undefined) {
+            const updatedOpponentPosition =
+              parsedData.opponentPosition >= 27 ? 27 : parsedData.opponentPosition;
+            setOpponentPosition(updatedOpponentPosition);
+          }
+
+          // 인증 상태 업데이트
+          if (parsedData.dice1 === 0 && parsedData.dice2 === 0) {
+            handleLocationVerification(parsedData);
+          } else if (parsedData.dice1 >= 0 && parsedData.dice2 >= 0) {
+            // 주사위 굴리기 이벤트 처리
+            handleDiceRoll(parsedData);
+          }
+
+          // 인증상태 업뎃
+          if (parsedData.yourVerified !== undefined) {
+            setYourVerified(parsedData.yourVerified);
+          }
+
+          //현재 위치 업뎃
+          if (parsedData.yourPosition !== undefined) {
+            const updatedPosition = parsedData.yourPosition >= 27 ? 27 : parsedData.yourPosition;
+            setCurrentPosition(updatedPosition);
+          }
+
+          // 내 게임이 끝났을 때
+          if (Number(parsedData.yourPosition) >= 27 && Boolean(parsedData.yourVerified)) {
+            setIsGameFinished(true);
+          }
+
+          // 종료 시키기
+          if (
+            Number(parsedData.yourPosition) >= 27 &&
+            Number(parsedData.opponentPosition) >= 27 &&
+            Boolean(parsedData.yourVerified) &&
+            Boolean(parsedData.opponentVerified)
+          ) {
+            handleGameEnd(); // 종료 함수 호출
           }
         });
 
@@ -137,6 +165,7 @@ const GameTwo = () => {
       }
     };
 
+    fetchRoomDetails();
     connectSSE();
 
     return () => {
@@ -159,41 +188,113 @@ const GameTwo = () => {
     return () => clearInterval(interval);
   }, [roomId]);
 
-  const handleCellPress = (place: Place) => {
-    setSelectedPlace(place);
-    setModalVisible(true);
+  useEffect(() => {
+    if (currentPosition >= 0 && currentPosition < nodes.length) {
+      const targetNode = nodes[currentPosition];
+      setSelectedNode(targetNode);
+      setModalVisible(true);
+    }
+  }, [currentPosition]);
+
+  const handleLocationVerification = (parsedData: any) => {
+    console.log('장소 인증 이벤트 감지');
+    if (parsedData.yourVerified !== undefined) {
+      setYourVerified(parsedData.yourVerified);
+      setModalVisible(false); // 인증 완료 후 모달 닫기
+    }
   };
 
-  const handleRollDice = () => {
-    setDiceRolling(true); // 주사위 GIF 시작
+  const handleDiceRoll = (parsedData: any) => {
+    const totalDiceValue = parsedData.dice1 + parsedData.dice2;
+    setDiceResult(totalDiceValue); // 주사위 값 업데이트
+    setShowDiceResult(true); // 주사위 결과 표시
+    console.log(`주사위 결과: ${parsedData.dice1} + ${parsedData.dice2} = ${totalDiceValue}`);
+
     setTimeout(() => {
-      setDiceRolling(false); // 주사위 GIF 종료
-      const dice = Math.floor(Math.random() * 6) + 1; // 주사위 값 생성
-      setDiceResult(dice);
-      setShowDiceResult(true); // 주사위 결과 표시
-      confettiRef.current?.startConfetti(); // 빵빠레 시작
+      setShowDiceResult(false); // 주사위 결과 숨김
+    }, 2000);
+  };
 
-      // 2초 후에 빵빠레 중지 및 주사위 결과 숨김
+  const handleRollDice = async () => {
+    try {
+      setDiceRolling(true); // 주사위 GIF 시작
+      const response = await playMarble(roomId, 'roll-dice');
+      if (response.success) {
+        console.log('게임 플레이 요청 성공:', response.message);
+      } else {
+        Alert.alert('오류', response.message || '주사위 굴리기에 실패했습니다.');
+      }
+    } catch (error) {
+      Alert.alert('오류', '주사위 굴리기 중 문제가 발생했습니다.');
+      console.error('주사위 굴리기 에러:', error);
+    } finally {
       setTimeout(() => {
-        confettiRef.current?.stopConfetti();
-        setShowDiceResult(false);
+        setDiceRolling(false); // 주사위 GIF 종료
+      }, 2900); // GIF 2.9초 후 종료
+    }
+  };
 
-        // 주사위 값에 따라 이동 시작
-        let steps = 0;
-        const interval = setInterval(() => {
-          setCurrentPosition(prevPosition => {
-            const newPosition = (prevPosition + 1) % PLACE_LIST.length;
-            steps++;
-            if (steps === dice) {
-              clearInterval(interval); // 이동 완료
-              setSelectedPlace(PLACE_LIST[newPosition]); // 도착지 선택
-              setModalVisible(true); // 도착지 모달 표시
-            }
-            return newPosition;
-          });
-        }, 500); // 500ms 간격 이동
-      }, 2000); // 2초 동안 결과 표시 후 이동 시작
-    }, 2900); // 2.9초 동안 GIF 실행
+  const handlePassDice = async () => {
+    try {
+      const response = await playMarble(roomId, 'pass');
+      if (response.success) {
+        console.log('Pass 요청 성공:', response.message);
+        setYourPass(0); // Pass 버튼 비활성화
+      } else {
+        Alert.alert('오류', response.message || 'Pass에 실패했습니다.');
+      }
+    } catch (error) {
+      Alert.alert('오류', 'Pass 중 문제가 발생했습니다.');
+      console.error('Pass 처리 에러:', error);
+    }
+  };
+
+  const handleVerifyLocation = async () => {
+    if (!selectedNode) return; // 선택된 노드가 없으면 종료
+    setIsVerifying(true); // 인증 중 상태 설정
+    try {
+      const result = await verifyLocation(roomId, selectedNode.nodeId); // 인증 요청
+      if (result.verified) {
+        Alert.alert('성공', '위치 인증이 완료되었습니다!');
+      } else {
+        Alert.alert('실패', '위치 인증에 실패했습니다.');
+      }
+    } catch (error) {
+      Alert.alert('오류', '위치 인증 중 문제가 발생했습니다.');
+      console.error('위치 인증 에러:', error);
+    } finally {
+      setIsVerifying(false);
+      setModalVisible(false);
+    }
+  };
+
+  const goToMain = () => {
+    navigation.navigate('Main');
+  };
+
+  // 바꿔야함
+  const handleGameEnd = async () => {
+    try {
+      const response = await endGame(roomId); // 게임 종료 API 호출
+      if (response.status === 'marble deleted') {
+        Alert.alert(
+          '게임 종료',
+          '게임이 종료되었습니다.',
+          [
+            {
+              text: '확인',
+              onPress: goToMain,
+            },
+          ],
+          {cancelable: false},
+        );
+      } else {
+        Alert.alert('오류', '게임 종료 처리에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게임 종료 에러:', error);
+      Alert.alert('오류', '게임 종료 요청 중 문제가 발생했습니다.');
+    }
   };
 
   const toggleInviteCodeVisibility = () => {
@@ -201,7 +302,7 @@ const GameTwo = () => {
   };
 
   const renderCells = () => {
-    return PLACE_LIST.map((place, index) => {
+    return nodes.map((node, index) => {
       let left = 0;
       let top = 0;
 
@@ -219,44 +320,32 @@ const GameTwo = () => {
         top = (index - TOP_CELLS * 2 - SIDE_CELLS + 1) * CELL_HEIGHT;
       }
 
-      let cellColor = '';
-      if (index < 9) {
-        cellColor = GROUP_COLORS[0];
-      } else if (index < 14) {
-        cellColor = GROUP_COLORS[1];
-      } else if (index < 23) {
-        cellColor = GROUP_COLORS[2];
-      } else {
-        cellColor = GROUP_COLORS[3];
-      }
+      const cellColor = GROUP_COLORS[Math.floor(index / 9) % GROUP_COLORS.length];
 
       return (
         <TouchableOpacity
-          key={place.id}
+          key={node.nodeId}
           style={[styles.cell, {left, top}]}
-          onPress={() => handleCellPress(place)}>
+          onPress={() => {
+            setSelectedNode(node);
+            setModalVisible(true);
+          }}>
           <LinearGradient
             colors={['#f1f1f1', cellColor, '#b0b0b0']}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
             style={StyleSheet.absoluteFillObject}
           />
-          {currentPosition === index && (
-            <Image source={require('../../assets/imgs/mono/pn.png')} style={styles.playerIcon} />
+          {currentPosition === index && playerIcon && (
+            <Image source={{uri: playerIcon}} style={styles.playerIcon} />
           )}
-          <Text style={styles.cellText}>{place.place}</Text>
+          {opponentPosition === index && opponentIcon && (
+            <Image source={{uri: opponentIcon}} style={styles.opponentIcon} />
+          )}
+          <Text style={styles.cellText}>{node.spotName}</Text>
         </TouchableOpacity>
       );
     });
-  };
-
-  const handlePass = () => {
-    console.log('Pass Button Clicked');
-  };
-
-  const handleReRoll = () => {
-    console.log('Re-roll Button Clicked');
-    handleRollDice();
   };
 
   const styles = StyleSheet.create({
@@ -477,6 +566,58 @@ const GameTwo = () => {
       color: '#aaa',
       textAlign: 'center',
     },
+    opponentIcon: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      resizeMode: 'cover',
+      position: 'absolute',
+      zIndex: 10,
+      overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: '#333',
+    },
+    modalContainers: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 배경
+    },
+    modalContents: {
+      width: '80%',
+      backgroundColor: '#fff',
+      borderRadius: 15,
+      padding: 20,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalTitles: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 10,
+      color: '#333',
+    },
+    modalMessage: {
+      fontSize: 16,
+      color: '#555',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    modalButtons: {
+      backgroundColor: '#418663',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 10,
+    },
+    modalButtonsText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
   });
 
   return (
@@ -494,6 +635,30 @@ const GameTwo = () => {
         </TouchableOpacity>
       </View>
 
+      {isGameFinished && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isGameFinished}
+          onRequestClose={() => setIsGameFinished(false)}>
+          <View style={styles.modalContainers}>
+            <View style={styles.modalContents}>
+              <Text style={styles.modalTitles}>게임 종료</Text>
+              <Text style={styles.modalMessage}>게임이 종료되었습니다!</Text>
+
+              <TouchableOpacity
+                style={styles.modalButtons}
+                onPress={() => {
+                  setIsGameFinished(false); // 모달 닫기
+                  goToMain(); // 메인 화면으로 이동
+                }}>
+                <Text style={styles.modalButtonsText}>메인 화면으로</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
       {diceRolling && (
         <FastImage
           style={{width: 300, height: 300}}
@@ -510,7 +675,7 @@ const GameTwo = () => {
 
       <Confetti ref={confettiRef} duration={2000} />
 
-      {selectedPlace && (
+      {selectedNode && (
         <Modal
           animationType="slide"
           transparent={true}
@@ -521,26 +686,44 @@ const GameTwo = () => {
               <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                 <Text style={styles.closeButtonText}>X</Text>
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>{selectedPlace.place}</Text>
-              <Image source={selectedPlace.image} style={styles.modalImage} />
-              <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.modalButtonText}>확인</Text>
+
+              <Text style={styles.modalTitle}>{selectedNode.spotName}</Text>
+
+              <Image source={{uri: selectedNode.thumbnail}} style={styles.modalImage} />
+
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: isVerifying ? '#d3d3d3' : '#418663'}, // 인증 중일 때 회색
+                ]}
+                onPress={isVerifying ? undefined : handleVerifyLocation} // 인증 중일 때 클릭 불가
+                disabled={isVerifying} // 인증 중일 때 비활성화
+              >
+                <Text style={styles.modalButtonText}>
+                  {isVerifying ? '인증 중...' : '인증하기'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
       )}
 
-      <TouchableOpacity style={[styles.actionButton, {left: width / 2 - 130}]} onPress={handlePass}>
-        <Text style={styles.actionButtonText}>Pass</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.rollButton} onPress={handleRollDice}>
-        <Text style={styles.rollButtonText}>Roll</Text>
-      </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.actionButtons, {right: width / 2 - 130}]}
-        onPress={handleReRoll}>
-        <Text style={styles.actionButtonTexts}>Re-roll</Text>
+        style={[
+          styles.passButton,
+          {backgroundColor: yourPass === 1 ? '#418663' : '#aaa'}, // yourPass 값에 따라 색상 변경
+        ]}
+        onPress={yourPass === 1 ? handlePassDice : undefined} // yourPass가 1일 때만 클릭 가능
+        disabled={yourPass === 0} // yourPass가 0일 때 비활성화
+      >
+        <Text style={styles.passButtonText}>Pass</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.rollButton, {backgroundColor: yourVerified ? '#418663' : '#aaa'}]}
+        onPress={yourVerified ? handleRollDice : undefined}
+        disabled={!yourVerified}>
+        <Text style={styles.rollButtonText}>Roll</Text>
       </TouchableOpacity>
     </ImageBackground>
   );

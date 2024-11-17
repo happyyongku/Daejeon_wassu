@@ -21,6 +21,16 @@ interface User {
   profileImage: string;
 }
 
+interface Opponent {
+  email: string;
+  nickname: string;
+  birthYear: number;
+  gender: string;
+  level: string;
+  exp: number;
+  profileImage: string | null;
+}
+
 interface RoomDetails {
   roomId: number;
   marbleId: number;
@@ -28,6 +38,7 @@ interface RoomDetails {
   single: boolean;
   nodes: Node[];
   you: User;
+  opponent?: Opponent;
 }
 
 interface LocationData {
