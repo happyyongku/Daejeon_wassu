@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   extends: ['@react-native', 'eslint:recommended', 'prettier'],
   rules: {
+    'no-undef': 'off',
     'no-var': 'error',
     'no-multiple-empty-lines': 'error',
     'no-console': 'off',

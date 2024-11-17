@@ -26,11 +26,11 @@ const MonopolyPage = () => {
   }, []);
 
   const goToChoice = () => {
-    navigation.navigate('Choice');
+    navigation.navigate('Choice', {single: true});
   };
 
   const goToInvitation = () => {
-    navigation.navigate('Invitation');
+    navigation.navigate('Invitation', {single: false});
   };
 
   const styles = StyleSheet.create({
