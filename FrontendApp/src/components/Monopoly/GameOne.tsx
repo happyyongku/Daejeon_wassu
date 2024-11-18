@@ -72,7 +72,7 @@ const GameOne = () => {
   const CELL_HEIGHT = height / (SIDE_CELLS + 2);
 
   useEffect(() => {
-    Orientation.lockToLandscapeLeft();
+    Orientation.lockToLandscape();
 
     const handleBackPress = () => {
       goToMain(); // 뒤로가기 버튼을 눌렀을 때 메인 화면으로 이동
@@ -200,10 +200,8 @@ const GameOne = () => {
     console.log(`주사위 결과: ${parsedData.dice1} + ${parsedData.dice2} = ${totalDiceValue}`);
 
     setTimeout(() => {
-      const updatedPosition = currentPosition + totalDiceValue; // 새로운 위치 계산
-      setCurrentPosition(updatedPosition);
       setShowDiceResult(false); // 주사위 결과 숨김
-    }, 4000);
+    }, 2000);
   };
 
   const handleRollDice = async () => {

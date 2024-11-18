@@ -305,12 +305,12 @@ const ChoiceTwo = () => {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>테마 보드</Text>
           <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(1)}>
-            <Text style={styles.buttonText}>지하철</Text>
+            <Text style={styles.buttonText}>빵집</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(2)}>
+          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(8)}>
             <Text style={styles.buttonText}>맛집</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(3)}>
+          <TouchableOpacity style={styles.button} onPress={() => handleThemeBoardSelection(10)}>
             <Text style={styles.buttonText}>과학</Text>
           </TouchableOpacity>
         </View>

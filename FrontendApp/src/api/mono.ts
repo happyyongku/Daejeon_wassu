@@ -118,19 +118,17 @@ export async function verifyLocation(
   nodeId: number,
 ): Promise<{verified: boolean} | any> {
   try {
-    // const position = await new Promise<LocationData>((resolve, reject) => {
-    //   Geolocation.getCurrentPosition(
-    //     position => {
-    //       const {latitude, longitude} = position.coords;
-    //       resolve({latitude, longitude});
-    //     },
-    //     error => reject(error),
-    //     {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    //   );
-    // });
-    // const {latitude, longitude} = position;
-    const latitude = 36.3466842; // 테스트용 고정 위도
-    const longitude = 127.3022638; // 테스트용 고정 경도
+    const position = await new Promise<LocationData>((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          resolve({latitude, longitude});
+        },
+        error => reject(error),
+        {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+      );
+    });
+    const {latitude, longitude} = position;
     // 서버로 인증 요청
     const response = await Authapi.post(`/marble/room/${roomId}/mission/${nodeId}/verify`, {
       latitude,
@@ -339,7 +337,7 @@ export async function postCustomMarbles(
 ): Promise<{roomId: number; inviteCode: string} | null> {
   try {
     const response = await Authapi.post(
-      '/wassu/marble/route',
+      '/marble/route',
       {
         preference,
         start_lat: startLat,

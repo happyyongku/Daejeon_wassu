@@ -31,6 +31,7 @@ import {getRecommendedPosts} from '../api/community';
 import {getSpots} from '../api/itinerary';
 import {TouristSpot} from '../types';
 import {getUserProfile} from '../api/mypage';
+import {getMyMarble} from '../api/mono';
 
 const {width, height} = Dimensions.get('window');
 
@@ -166,7 +167,9 @@ const MainPage = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       const {accessToken} = await getTokens();
+      const {refreshToken} = await getTokens();
       console.log(accessToken);
+      console.log(refreshToken);
 
       if (accessToken) {
         const profile = await getUserProfile();
@@ -205,8 +208,26 @@ const MainPage = () => {
     navigation.navigate('TravelChallenge');
   };
 
-  const goToMonopolyPage = () => {
-    navigation.navigate('MonopolyPage');
+  const goToMonopolyPage = async () => {
+    try {
+      const myMarble = await getMyMarble();
+
+      if (myMarble) {
+        const {roomId, single} = myMarble;
+
+        if (single) {
+          navigation.navigate('GameOne', {roomId}); // GameOne 페이지로 이동
+        } else {
+          navigation.navigate('GameTwo', {roomId}); // GameTwo 페이지로 이동
+        }
+      } else {
+        // 진행 중인 마블이 없는 경우
+        navigation.navigate('MonopolyPage'); // MonopolyPage로 이동
+      }
+    } catch (error) {
+      console.error('MonopolyPage 이동 중 에러 발생:', error);
+      Alert.alert('오류', '페이지 이동 중 문제가 발생했습니다.');
+    }
   };
 
   const goToCommunity = () => {
