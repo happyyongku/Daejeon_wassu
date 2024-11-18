@@ -87,7 +87,7 @@ const MyPage = () => {
         </View>
         <TouchableOpacity style={styles.collectionButton} onPress={goToCollection}>
           <Image source={require('../assets/imgs/monster.png')} style={styles.monsterIcon} />
-          <Text style={styles.collectionText}>왓슈몬 도감</Text>
+          <Text style={styles.collectionText}>왔슈몬 도감</Text>
         </TouchableOpacity>
       </View>
 

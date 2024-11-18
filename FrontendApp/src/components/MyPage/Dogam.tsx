@@ -34,7 +34,7 @@ const Dogam = () => {
         start={{x: 0, y: 0}}
         end={{x: 0, y: 1}}>
         {wassumons.length === 0 ? (
-          <Text style={styles.noItemsText}>도감에 등록된 왓슈몬이 없습니다.</Text>
+          <Text style={styles.noItemsText}>도감에 등록된 왔슈몬이 없습니다.</Text>
         ) : (
           wassumons.map((wassumon, index) => (
             <View key={wassumon.spot_id} style={styles.monItem}>

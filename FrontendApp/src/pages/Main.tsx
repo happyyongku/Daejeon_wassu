@@ -378,7 +378,7 @@ const MainPage = () => {
 
         <View style={styles.challengeContainer}>
           <View style={styles.challengeHeader}>
-            <Text style={styles.challengeTitle}>코스를 돌며 왓슈몬을 잡는</Text>
+            <Text style={styles.challengeTitle}>코스를 돌며 왔슈몬을 잡는</Text>
 
             <View style={styles.challengeSubtitleContainer}>
               <Text style={styles.challengeSubtitle}>대전여행코스 챌린지</Text>

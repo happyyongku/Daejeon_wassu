@@ -59,7 +59,7 @@ const ChallengeCourse = () => {
         <Image source={require('../../assets/imgs/run.png')} style={styles.runIcon} />
         <View style={styles.textContainer}>
           <Text style={styles.addButtonText}>챌린지 참여하러 가기</Text>
-          <Text style={styles.addButtonSubtitle}>대전 왓슈의 많은 챌린지를 도전하세요.</Text>
+          <Text style={styles.addButtonSubtitle}>대전 왔슈의 많은 챌린지를 도전하세요.</Text>
         </View>
       </TouchableOpacity>
 
