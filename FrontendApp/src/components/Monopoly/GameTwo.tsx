@@ -79,7 +79,7 @@ const GameTwo = () => {
   const CELL_HEIGHT = height / (SIDE_CELLS + 2);
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
 
     const handleBackPress = () => {
       goToMain(); // 뒤로가기 버튼을 눌렀을 때 메인 화면으로 이동

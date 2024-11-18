@@ -19,7 +19,7 @@ const MonopolyPage = () => {
   const {width, height} = useWindowDimensions();
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
     return () => {
       Orientation.unlockAllOrientations();
     };

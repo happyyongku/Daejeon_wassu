@@ -28,7 +28,7 @@ const Invitation = () => {
   const [inviteCode, setInviteCode] = useState('');
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
     return () => {
       Orientation.unlockAllOrientations();
     };
