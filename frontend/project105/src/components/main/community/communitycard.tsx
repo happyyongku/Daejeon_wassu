@@ -13,7 +13,6 @@ export default function CommunityCard({
   images,
 }: ArticleData) {
   // 일단 여기는 props로 이미 데이터를 받은 상태이다.
-  console.log(id);
   const router = useRouter();
   const toDetail = () => {
     router.push(`/community/${id}`);

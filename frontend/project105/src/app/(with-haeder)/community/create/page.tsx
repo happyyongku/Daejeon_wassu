@@ -72,9 +72,11 @@ export default function Page() {
     );
   };
 
+  const [token, setToken] = useState("");
+
   // 게시글 폼 제출 핸들러
   const submit = async () => {
-    const token = localStorage.getItem("authToken");
+    // const token = localStorage.getItem("authToken");
     const formData = new FormData();
     const articleDTO: ArticleDTO = {
       title: title,
@@ -111,6 +113,8 @@ export default function Page() {
 
   useEffect(() => {
     closeDropdown();
+    // const token = localStorage.getItem("authToken");
+    setToken(localStorage.getItem("authToken") || "");
   }, []);
 
   return (

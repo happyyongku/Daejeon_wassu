@@ -10,9 +10,11 @@ import style from "./header.module.css";
 export default function Header() {
   const { isDropdownOpen, toggleDropdown, closeDropdown } = useDropdownStore();
 
+  const [token, setToken] = useState("");
+
   // 유저 데이터 요청 axios
   const [profile, setProfile] = useState<UserData | null>(null);
-  const token = localStorage.getItem("authToken");
+  // const token = localStorage.getItem("authToken");
   const getMyData = async () => {
     try {
       const response = await axios.get(
@@ -57,29 +59,19 @@ export default function Header() {
   const router = useRouter();
 
   const toMain = () => {
-    // setDropdownVisible(false);
     closeDropdown();
     router.push("/main");
   };
 
   const toMyPage = () => {
-    // setDropdownVisible(false);
-    // setForRander(!forRander);
     closeDropdown();
     router.push("/mypage");
   };
 
-  // const toggleDropdown = () => {
-  //   setDropdownVisible((prev) => !prev); // 드롭다운 상태 토글
-  // };
-
   useEffect(() => {
     getMyData();
+    setToken(localStorage.getItem("authToken") || "");
   }, []);
-
-  // useEffect(() => {
-  // setDropdownVisible(false);
-  // }, [forRander]);
 
   return (
     <div className={style.header}>
