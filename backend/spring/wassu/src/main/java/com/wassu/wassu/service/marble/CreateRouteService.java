@@ -1,9 +1,6 @@
 package com.wassu.wassu.service.marble;
 
-import com.wassu.wassu.dto.marble.CreateRouteDTO;
-import com.wassu.wassu.dto.marble.InviteRoomDTO;
-import com.wassu.wassu.dto.marble.NodeDTO;
-import com.wassu.wassu.dto.marble.OptimalRouteDTO;
+import com.wassu.wassu.dto.marble.*;
 import com.wassu.wassu.entity.UserEntity;
 import com.wassu.wassu.entity.marble.MarbleEntity;
 import com.wassu.wassu.entity.marble.NodeEntity;
@@ -53,14 +50,14 @@ public class CreateRouteService {
             email = jwtUtil.extractUserEmail(accessToken);
         }
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(accessToken, dto);
+        List<RouteSpotDTO> optimalRoute = getOptimalRoute(accessToken, dto);
         MarbleEntity marble = new MarbleEntity();
         marble.setMarbleName("custom marble");
         MarbleEntity savedMarble = marbleRepository.save(marble);
         int order = 1;
         if (optimalRoute != null) {
-            for (OptimalRouteDTO.Spot route : optimalRoute) {
-                String spotName = route.getSpotName();
+            for (RouteSpotDTO route : optimalRoute) {
+                String spotName = route.getSpot_name();
                 TouristSpotEntity spot = spotRepository.findBySpotName(spotName).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
                 NodeEntity node = new NodeEntity();
                 node.setNodeOrder(order);
@@ -75,7 +72,7 @@ public class CreateRouteService {
         return marbleService.processCreateRoom(single, savedMarble, creator);
     }
 
-    private List<OptimalRouteDTO.Spot> getOptimalRoute(String token, CreateRouteDTO dto) {
+    private List<RouteSpotDTO> getOptimalRoute(String token, CreateRouteDTO dto) {
         String url = "https://" + serverDomain + "/fast_api/api/optimal-route";
 
         HttpHeaders headers = new HttpHeaders();
@@ -90,7 +87,7 @@ public class CreateRouteService {
         );
         OptimalRouteDTO optimalRoute = response.getBody();
         if (optimalRoute != null) {
-            return optimalRoute.getOptimalRoute();
+            return optimalRoute.getOptimal_route();
         }
         return null;
     }
