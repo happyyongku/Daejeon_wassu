@@ -110,28 +110,42 @@ const Profile = () => {
 
     if (result.didCancel) {
       console.log('이미지 선택 취소');
-    } else if (result.errorCode) {
+      return;
+    }
+
+    if (result.errorCode) {
       console.error('이미지 선택 오류:', result.errorMessage);
-      Alert.alert(
-        '이미지 선택 오류',
-        '이미지를 선택하는 중 오류가 발생했습니다. 다시 시도해 주세요.',
-      );
-    } else if (result.assets && result.assets.length > 0) {
+      Alert.alert('이미지 선택 오류', '이미지 선택 중 오류가 발생했습니다.');
+      return;
+    }
+
+    if (result.assets && result.assets.length > 0) {
       const selectedImage = result.assets[0];
+      if (!selectedImage.uri || !selectedImage.type || !selectedImage.fileName) {
+        Alert.alert('이미지 처리 오류', '이미지 정보가 올바르지 않습니다.');
+        return;
+      }
+
       const file = {
         uri: selectedImage.uri,
         type: selectedImage.type,
         name: selectedImage.fileName,
       };
 
-      const success = await updateProfileImage(file);
-      if (success) {
-        setProfile(prevProfile => ({
-          ...prevProfile,
-          profileImage: selectedImage.uri || null,
-        }));
-      } else {
-        Alert.alert('프로필 이미지 변경 실패', '이미지 변경에 실패했습니다. 다시 시도해 주세요.');
+      try {
+        const success = await updateProfileImage(file);
+        if (success) {
+          setProfile(prevProfile => ({
+            ...prevProfile,
+            profileImage: selectedImage.uri || null,
+          }));
+          Alert.alert('프로필 이미지 변경 완료', '프로필 이미지가 변경되었습니다.');
+        } else {
+          Alert.alert('프로필 이미지 변경 실패', '이미지 변경에 실패했습니다. 다시 시도해 주세요.');
+        }
+      } catch (error) {
+        console.error('프로필 이미지 업로드 중 에러:', error);
+        Alert.alert('오류', '이미지 업로드 중 문제가 발생했습니다.');
       }
     }
     closeImagePickerModal();

@@ -120,11 +120,20 @@ const DetailedInquiry = () => {
     }
   };
 
-  const renderFooter = () => (
-    <TouchableOpacity style={styles.updateButton} onPress={handleUpdateSchedule}>
-      <Text style={styles.updateButtonText}>수정하기</Text>
-    </TouchableOpacity>
-  );
+  const renderFooter = () => {
+    // dailyPlans 중 하나라도 places가 비어 있으면 버튼 비활성화
+    const isButtonDisabled = dailyPlans.some(day => day.places.length === 0);
+
+    return (
+      <TouchableOpacity
+        style={[styles.updateButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleUpdateSchedule}
+        disabled={isButtonDisabled} // 조건에 따라 버튼 활성/비활성화
+      >
+        <Text style={styles.updateButtonText}>수정하기</Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderDaySection = ({item}: {item: Day}) => (
     <View style={styles.daySection}>
@@ -257,6 +266,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', // 비활성화된 버튼 색상
   },
 });
 

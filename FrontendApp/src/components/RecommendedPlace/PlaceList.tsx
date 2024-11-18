@@ -17,6 +17,7 @@ import Header from '../common/Header';
 import MarkerIcon from '../../assets/imgs/marker.svg';
 import {getTouristSpotsByCategorys} from '../../api/tourist';
 import {TouristSpot} from '../../types';
+import {getSpots} from '../../api/itinerary';
 
 const {width, height} = Dimensions.get('window');
 
@@ -28,6 +29,14 @@ type RouteParams = {
   };
 };
 
+interface TouristSpots {
+  id: string;
+  image: {uri: string} | number;
+  area: string;
+  address: string;
+  name: string;
+}
+
 const PlaceList: React.FC = () => {
   const navigation = useNavigation<PlaceListNavigationProp>();
   const route = useRoute<RouteProp<RouteParams, 'PlaceList'>>();
@@ -36,6 +45,9 @@ const PlaceList: React.FC = () => {
   const [places, setPlaces] = useState<TouristSpot[]>([]);
   const [page, setPage] = useState(0); // 현재 페이지
   const [isFetching, setIsFetching] = useState(false); // 데이터 로딩 여부
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
+  const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
 
   // 데이터 요청 함수
   const fetchPlacesByCategory = async (category: string, pageNum: number) => {
@@ -81,6 +93,29 @@ const PlaceList: React.FC = () => {
     navigation.navigate('PlaceDetail', {id});
   };
 
+  const handleSearch = async () => {
+    if (searchText.trim()) {
+      // 검색어가 있을 때만 검색 실행
+      const results = await getSpots(searchText);
+      setSearchResults(results ?? []); // If results is null, set an empty array
+      setIsSearchResultVisible(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchResultVisible(false); // 검색어가 없으면 검색 결과 숨김
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchText('');
+    setIsSearchResultVisible(false);
+  };
+
+  // searchText가 변경될 때마다 handleSearch 실행
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
   const renderPlaceItem = ({item}: {item: TouristSpot}) => (
     <TouchableOpacity onPress={() => goToPlaceDetail(item.id)}>
       <View style={styles.card}>
@@ -106,12 +141,35 @@ const PlaceList: React.FC = () => {
       <View style={styles.container}>
         <View style={styles.search}>
           <RecommendedSearchBar
-            value=""
-            onChangeText={() => {}}
-            onSearch={() => {}}
-            onClear={() => {}}
+            value={searchText}
+            onChangeText={setSearchText} // 검색어 변경 시 자동 호출
+            onSearch={handleSearch} // 엔터 키를 눌렀을 때 검색
+            onClear={handleClearSearch} // X 버튼 클릭 시 검색어 초기화
           />
         </View>
+
+        {isSearchResultVisible && (
+          <View style={styles.searchResultContainer}>
+            {searchResults.length > 0 ? (
+              <FlatList
+                data={searchResults}
+                keyExtractor={item => item.id}
+                renderItem={({item}) => (
+                  <TouchableOpacity onPress={() => goToPlaceDetail(item.id)}>
+                    <View style={styles.listItem}>
+                      <Text style={styles.spotName}>{item.spotName}</Text>
+                      <Text style={styles.spotAddress}>{item.spotAddress}</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <View style={styles.noResultsContainer}>
+                <Text style={styles.noResultsText}>검색 결과가 없습니다</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={styles.categoryIcon}>
           <CategoryList onSelectCategory={setSelectedCategory} />

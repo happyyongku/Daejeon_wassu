@@ -77,10 +77,6 @@ const RecommendedPlace = () => {
     fetchPlacesByCategory(selectedCategory);
   }, [selectedCategory]);
 
-  useEffect(() => {
-    fetchPlacesByCategory(selectedCategory);
-  }, [selectedCategory]);
-
   const goToPlaceList = () => {
     navigation.navigate('PlaceList', {category: selectedCategory});
   };

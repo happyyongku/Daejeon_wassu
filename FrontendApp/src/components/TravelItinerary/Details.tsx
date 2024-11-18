@@ -137,11 +137,19 @@ const Details = () => {
     }
   };
 
-  const renderFooter = () => (
-    <TouchableOpacity style={styles.addScheduleButton} onPress={handleAddSchedule}>
-      <Text style={styles.addScheduleButtonText}>일정추가하기</Text>
-    </TouchableOpacity>
-  );
+  const renderFooter = () => {
+    const isButtonDisabled = itinerary.some(day => day.places.length === 0);
+
+    return (
+      <TouchableOpacity
+        style={[styles.addScheduleButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleAddSchedule}
+        disabled={isButtonDisabled} // 조건에 따라 버튼 활성/비활성화
+      >
+        <Text style={styles.addScheduleButtonText}>일정추가하기</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -284,6 +292,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', // 비활성화된 버튼 색상
   },
 });
 

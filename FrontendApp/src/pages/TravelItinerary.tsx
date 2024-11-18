@@ -199,13 +199,13 @@ const TravelItinerary = () => {
         <Image source={require('../assets/imgs/plus.png')} style={styles.plusIcon} />
         <View style={styles.textContainer}>
           <Text style={styles.addButtonText}>대전 여행 일정 추가하기</Text>
-          <Text style={styles.addButtonSubtitle}>대전와슈와 대전 여행을 함께하세요</Text>
+          <Text style={styles.addButtonSubtitle}>대전왔슈와 대전 여행을 함께하세요</Text>
         </View>
       </TouchableOpacity>
 
-      {/* 대전와슈 추천 코스 보기 */}
+      {/* 대전왔슈 추천 코스 보기 */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>대전와슈 추천 코스 보기</Text>
+        <Text style={styles.sectionTitle}>대전왔슈 추천 코스 보기</Text>
         <Image source={require('../assets/imgs/recommend.png')} style={styles.icon} />
         <TouchableOpacity onPress={goToTravelChallenge}>
           <Text style={styles.viewAllText}>전체 코스 보기</Text>
