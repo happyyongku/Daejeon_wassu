@@ -130,11 +130,9 @@ const Details = () => {
     try {
       const response = await createSchedule(requestData);
       if (response) {
-        Alert.alert('일정 생성', '일정이 성공적으로 생성되었습니다.');
         navigation.navigate('TravelItinerary');
       }
     } catch (error) {
-      Alert.alert('오류', '일정 생성 중 오류가 발생했습니다.');
       console.error(error);
     }
   };

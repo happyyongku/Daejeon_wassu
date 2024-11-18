@@ -78,7 +78,6 @@ const ReItinerary = () => {
           <TouchableOpacity
             style={styles.resultItem}
             onPress={() => {
-              console.log('Place clicked:', item); // 클릭 이벤트 확인용 로그
               handleSelectPlace(item);
             }}>
             <Image

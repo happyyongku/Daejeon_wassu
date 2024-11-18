@@ -84,12 +84,9 @@ const Writing = () => {
 
     try {
       const response = await createPost(articleDTO, images);
-      console.log({response});
-      Alert.alert('게시글이 작성되었습니다.');
       navigation.navigate('Community');
     } catch (error) {
       console.error('게시글 등록 실패:', error);
-      Alert.alert('등록 실패', '게시글 등록 중 오류가 발생했습니다.');
     }
   };
 

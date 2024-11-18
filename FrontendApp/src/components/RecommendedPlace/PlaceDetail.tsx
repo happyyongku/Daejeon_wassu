@@ -201,7 +201,6 @@ const PlaceDetail = () => {
     setIsRequestInProgress(true);
 
     const {latitude, longitude} = coords;
-    console.log('Retrieved coordinates:', {latitude, longitude});
     setCoordinates(coords);
 
     try {
@@ -215,9 +214,6 @@ const PlaceDetail = () => {
           longitude.toString(),
           tag,
         );
-
-        console.log('Stamp registration response:', response);
-
         if (response === 'success') {
           setStampModalContent(`${spotDetails.spotName}에 스탬프 찍기를 성공하였습니다!!`);
           setStampImageSource(imageSource);

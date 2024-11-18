@@ -159,7 +159,6 @@ const ChallengeDetail = () => {
     try {
       const response = await startCourse(courseId); // startCourse API 호출
       if (response) {
-        console.log('Challenge started successfully:', response);
         setCompletedAll('start'); // 챌린지 상태를 'start'로 변경
         setModalVisible(false); // 모달 닫기
       } else {
@@ -173,7 +172,6 @@ const ChallengeDetail = () => {
     if (buttonDisabled) return; // 버튼이 비활성화된 경우 클릭 무시
 
     setButtonDisabled(true); // 버튼 비활성화
-    console.log('Navigating to PlaceDetail with ID:', placeId);
     navigation.navigate('PlaceDetail', {id: placeId});
 
     // 버튼을 다시 활성화 (필요에 따라 특정 시점에 활성화)

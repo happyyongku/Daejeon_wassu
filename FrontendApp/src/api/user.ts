@@ -33,8 +33,6 @@ export async function login(email: string, password: string) {
       const {access: accessToken, refresh: refreshToken} = response.data;
 
       if (accessToken && refreshToken) {
-        console.log('Access Token:', accessToken);
-        console.log('Refresh Token:', refreshToken);
         await saveTokens(accessToken, refreshToken);
       } else {
         console.error('Access token or refresh token is missing.');

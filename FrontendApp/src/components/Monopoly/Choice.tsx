@@ -72,18 +72,12 @@ const Choice = () => {
       );
       if (response && response.roomId) {
         const roomId = response.roomId;
-        Alert.alert('성공', '보드 생성에 성공했습니다!', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('GameOne', {roomId: roomId}),
-          },
-        ]);
+        navigation.navigate('GameOne', {roomId: roomId});
       } else {
         Alert.alert('실패', '보드 생성에 실패했습니다.');
       }
     } catch (error) {
       console.error('보드 생성 중 에러:', error);
-      Alert.alert('오류', '보드 생성 중 문제가 발생했습니다.');
     }
   };
 
@@ -92,15 +86,12 @@ const Choice = () => {
       const response = await postMarble(marbled.toString(), single);
       if (response && response.roomId) {
         const roomId = response.roomId;
-        Alert.alert('성공', '보드 생성에 성공했습니다!', [
-          {text: '확인', onPress: () => navigation.navigate('GameOne', {roomId})},
-        ]);
+        navigation.navigate('GameOne', {roomId});
       } else {
         Alert.alert('실패', '보드 생성에 실패했습니다.');
       }
     } catch (error) {
       console.error('보드 생성 중 에러:', error);
-      Alert.alert('오류', '보드 생성 중 문제가 발생했습니다.');
     }
   };
 

@@ -164,7 +164,6 @@ export async function updateNickname(newNickname: string): Promise<boolean> {
     });
 
     if (response && response.status === 200) {
-      console.log('닉네임 수정 성공:', response.data);
       return true;
     } else {
       console.error('닉네임 수정 실패:', response.data);
@@ -201,7 +200,6 @@ export const updateProfileImage = async (file?: any): Promise<boolean> => {
     });
 
     if (response.status === 200 && response.data.status === 'success') {
-      console.log('프로필 이미지 변경 성공:', response.data);
       return true;
     } else {
       console.error('프로필 이미지 변경 실패:', response.data);
@@ -220,7 +218,6 @@ export async function getUserArticles(): Promise<UserArticle[] | null> {
 
     if (response && response.status === 200) {
       const articles = response.data as UserArticle[];
-      console.log('나의 게시글 불러오기 성공:', articles);
       return articles;
     } else {
       console.error('나의 게시글 불러오기 실패:', response.data);

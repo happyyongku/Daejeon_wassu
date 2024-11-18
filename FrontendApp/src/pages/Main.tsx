@@ -168,8 +168,6 @@ const MainPage = () => {
     const checkLoginStatus = async () => {
       const {accessToken} = await getTokens();
       const {refreshToken} = await getTokens();
-      console.log(accessToken);
-      console.log(refreshToken);
 
       if (accessToken) {
         const profile = await getUserProfile();
@@ -226,7 +224,6 @@ const MainPage = () => {
       }
     } catch (error) {
       console.error('MonopolyPage 이동 중 에러 발생:', error);
-      Alert.alert('오류', '페이지 이동 중 문제가 발생했습니다.');
     }
   };
 
@@ -243,7 +240,6 @@ const MainPage = () => {
   };
 
   const goToPlaceDetail = (id: string) => {
-    console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
     navigation.navigate('PlaceDetail', {id});
   };
   const insertLineBreak = (text: string, maxChars: number) => {

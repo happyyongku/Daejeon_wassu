@@ -66,7 +66,7 @@ const Profile = () => {
       Alert.alert('계정 삭제 완료', '계정이 성공적으로 삭제되었습니다.');
       navigation.navigate('Login');
     } else {
-      Alert.alert('계정 삭제 실패', '계정 삭제에 실패했습니다. 다시 시도해 주세요.');
+      console.log('삭제 실패');
     }
     closeDeleteModal();
   };
@@ -77,7 +77,6 @@ const Profile = () => {
       navigation.navigate('Main');
     } catch (error) {
       console.error('Logout error:', error);
-      Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
     }
   };
 
@@ -131,7 +130,6 @@ const Profile = () => {
           ...prevProfile,
           profileImage: selectedImage.uri || null,
         }));
-        Alert.alert('프로필 이미지 변경 완료', '프로필 이미지가 성공적으로 변경되었습니다.');
       } else {
         Alert.alert('프로필 이미지 변경 실패', '이미지 변경에 실패했습니다. 다시 시도해 주세요.');
       }

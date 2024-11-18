@@ -94,7 +94,6 @@ const MyTrips = () => {
   const handleDelete = async (scheduleId: string) => {
     const isDeleted = await deleteSchedule(scheduleId);
     if (isDeleted) {
-      console.log('삭제 성공');
       await fetchSchedules(); // 일정 목록을 새로 로드
       setIsModalVisible(false);
     } else {

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {RootStackParamList} from '../../router/Navigator';
 import {updateNickname} from '../../api/mypage';
@@ -18,10 +18,9 @@ const ChangeInfo = () => {
   const handleUpdateNickname = async () => {
     const success = await updateNickname(newNickname);
     if (success) {
-      Alert.alert('성공', '닉네임이 성공적으로 변경되었습니다.');
       navigation.goBack(); // 닉네임이 변경된 후 이전 화면으로 돌아갑니다.
     } else {
-      Alert.alert('실패', '닉네임 변경에 실패했습니다. 다시 시도해 주세요.');
+      console.log('닉넴변경실패');
     }
   };
 

@@ -52,7 +52,6 @@ const SignUp = (): React.JSX.Element => {
       }
     } catch (error) {
       console.error('Sign-up error:', error);
-      Alert.alert('오류가 발생했습니다. 다시 시도해 주세요.');
     }
   };
 
@@ -73,7 +72,6 @@ const SignUp = (): React.JSX.Element => {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
       setIsVerifyingEmail(false); // 요청 완료 후 버튼 다시 활성화
     }

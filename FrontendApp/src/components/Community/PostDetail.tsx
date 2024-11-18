@@ -7,7 +7,6 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {getPostDetail, deletePost, toggleLike} from '../../api/community';
@@ -58,7 +57,6 @@ const PostDetail = () => {
       }
     } catch (error) {
       console.error('좋아요 처리 실패:', error);
-      Alert.alert('오류', '좋아요 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -76,10 +74,9 @@ const PostDetail = () => {
   const handleDeletePress = async () => {
     try {
       await deletePost(articleId);
-      Alert.alert('삭제 성공', '게시글이 삭제되었습니다.');
       navigation.goBack();
     } catch (error) {
-      Alert.alert('삭제 실패', '게시글 삭제 중 오류가 발생했습니다.');
+      console.log('삭제 실패');
     }
   };
 

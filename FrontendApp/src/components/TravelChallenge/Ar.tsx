@@ -233,8 +233,6 @@ const ARModalExample = () => {
         if (wassumonDetails) {
           setWassumonDetails(wassumonDetails);
           setWassumonName(wassumonDetails.wassumon_name);
-          console.log('Wassumon details:', wassumonDetails); // Wassumon 세부 정보 로그
-          console.log('Wassumon name set to:', wassumonDetails.wassumon_name); // Wassumon name 로그
         } else {
           console.log('Wassumon details not found for spotId:', spotId); // 추가 로그
         }
@@ -248,7 +246,6 @@ const ARModalExample = () => {
           if (spotDetail && spotDetail.wassumon_model) {
             setModelUrl(spotDetail.wassumon_model);
           }
-          console.log('Course details:', courseDetails); // 코스 세부 정보 로그
         }
       } catch (error) {
         console.error('데이터 가져오기 오류:', error);
@@ -264,7 +261,6 @@ const ARModalExample = () => {
         try {
           // courseId와 spotId를 함께 전달
           const response = await markSpotAsVisited(courseId, spotId);
-          console.log('Spot marked as visited:', response);
         } catch (error) {
           console.error('Error marking spot as visited:', error);
         }
