@@ -65,9 +65,10 @@ export default function Page() {
       <div className={style.containerbox}>
         <div className={style.cardcontainer}>
           {articles.length > 0 ? (
-            articles.map((article) => (
-              <CommunityCard key={article.id} {...article} />
-            ))
+            articles
+              .slice()
+              .reverse()
+              .map((article) => <CommunityCard key={article.id} {...article} />)
           ) : (
             <div>게시글을 불러오는 중입니다...</div>
           )}

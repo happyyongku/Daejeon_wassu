@@ -7,7 +7,7 @@ import PartTwo from "@/components/mypage/parttwo";
 import PartThree from "@/components/mypage/partthree";
 
 export default function Page() {
-  const [activeButton, setActiveButton] = useState<number | null>(2);
+  const [activeButton, setActiveButton] = useState<number | null>(1);
 
   // 버튼 클릭 시 활성화 상태 변경
   const handleButtonClick = (buttonNumber: number) => {
@@ -44,24 +44,24 @@ export default function Page() {
   return (
     <div>
       <div className={style.navbox}>
-        <div
+        <button
           className={`${style.nav} ${activeButton === 1 ? style.active : ""}`}
           onClick={() => handleButtonClick(1)}
         >
           나의 여행
-        </div>
-        <div
+        </button>
+        <button
           className={`${style.nav} ${activeButton === 2 ? style.active : ""}`}
           onClick={() => handleButtonClick(2)}
         >
           나의 기록
-        </div>
-        <div
+        </button>
+        <button
           className={`${style.nav} ${activeButton === 3 ? style.active : ""}`}
           onClick={() => handleButtonClick(3)}
         >
           여행기
-        </div>
+        </button>
       </div>
       <div>{renderImage1()}</div>
     </div>
