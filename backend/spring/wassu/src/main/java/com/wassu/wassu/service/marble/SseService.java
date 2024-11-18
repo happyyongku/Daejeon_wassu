@@ -93,11 +93,7 @@ public class SseService {
                         .dice2(dice2)
                         .build();
             }
-            try {
-                emitter.send(SseEmitter.event().name("message").data(sseDTO));
-            } catch (IOException e) {
-                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
-            }
+            messageProcess(user, room, emitter, sseDTO);
         }
     }
 
@@ -130,9 +126,19 @@ public class SseService {
                         .opponentPass(room.getCreatorPass())
                         .build();
             }
-            try {
-                emitter.send(SseEmitter.event().name("message").data(sseDTO));
-            } catch (IOException e) {
+            messageProcess(user, room, emitter, sseDTO);
+        }
+    }
+
+    private void messageProcess(UserEntity user, MarbleRoomEntity room, SseEmitter emitter, SseDTO sseDTO) {
+        try {
+            emitter.send(SseEmitter.event().name("message").data(sseDTO));
+        } catch (IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Broken pipe")) {
+                log.info("Client intentionally closed the connection. roomId: {}, email: {}", room.getId(), user.getEmail());
+                removeEmitter(room.getId(), user.getEmail());
+            } else {
+                log.error("Unexpected IOException occurred: {}", e.getMessage());
                 throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
             }
         }
@@ -146,22 +152,35 @@ public class SseService {
         SseEmitter creatorEmitter = getEmitter(room.getId(), creator.getEmail());
         if (guest != null) {
             SseEmitter guestEmitter = getEmitter(room.getId(), guest.getEmail());
-            try {
-                creatorUserInfo.put("you", creator.getProfileImage());
-                creatorUserInfo.put("opponent", guest.getProfileImage());
-                creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
-
-                guestUserInfo.put("you", guest.getProfileImage());
-                guestUserInfo.put("opponent", creator.getProfileImage());
-                guestEmitter.send(SseEmitter.event().name("userInfo").data(guestUserInfo));
-            } catch (IOException e) {
-                throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
-            }
+            userInfoProcess(room, creatorUserInfo, creator, guest, creatorEmitter);
+            userInfoProcess(room, guestUserInfo, guest, creator, guestEmitter);
         } else {
             creatorUserInfo.put("you", creator.getProfileImage());
             try {
                 creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
             } catch (IOException e) {
+                if (e.getMessage() != null && e.getMessage().contains("Broken pipe")) {
+                    log.info("Client intentionally closed the connection. roomId: {}, email: {}", room.getId(), creator.getEmail());
+                    removeEmitter(room.getId(), creator.getEmail());
+                } else {
+                    log.error("Unexpected IOException occurred: {}", e.getMessage());
+                    throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
+                }
+            }
+        }
+    }
+
+    private void userInfoProcess(MarbleRoomEntity room, Map<String, String> creatorUserInfo, UserEntity creator, UserEntity guest, SseEmitter creatorEmitter) {
+        try {
+            creatorUserInfo.put("you", creator.getProfileImage());
+            creatorUserInfo.put("opponent", guest.getProfileImage());
+            creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
+        } catch (IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Broken pipe")) {
+                log.info("Client intentionally closed the connection. roomId: {}, email: {}", room.getId(), creator.getEmail());
+                removeEmitter(room.getId(), creator.getEmail());
+            } else {
+                log.error("Unexpected IOException occurred: {}", e.getMessage());
                 throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
             }
         }
