@@ -103,7 +103,7 @@ const MainRoom = () => {
       <View style={styles.cardContainer}>
         {/* 프로필 카드 */}
         <View style={styles.profileCard}>
-          <Image source={require('../../assets/imgs/basic.png')} style={styles.profileImage} />
+          <Image source={require('../../assets/imgs/uiicon.png')} style={styles.profileImage} />
           <Text style={styles.profileName}>대전의 아들 장현수</Text>
         </View>
 

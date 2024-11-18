@@ -46,7 +46,7 @@ const Profile = () => {
 
   const profileImageSource =
     !profile.profileImage || profile.profileImage === 'default'
-      ? require('../assets/imgs/basic.png')
+      ? require('../assets/imgs/uiicon.png')
       : {uri: profile.profileImage};
 
   const goToChangePassword = () => {
@@ -85,7 +85,7 @@ const Profile = () => {
   const closeImagePickerModal = () => setImagePickerModalVisible(false);
 
   const handleResetImage = async () => {
-    const defaultImage = Image.resolveAssetSource(require('../assets/imgs/basic.png'));
+    const defaultImage = Image.resolveAssetSource(require('../assets/imgs/uiicon.png'));
 
     const file = {
       uri: defaultImage.uri,
