@@ -112,6 +112,7 @@ export default function Page() {
   };
 
   useEffect(() => {
+    document.title = "대전왓슈 - create";
     closeDropdown();
     // const token = localStorage.getItem("authToken");
     setToken(localStorage.getItem("authToken") || "");

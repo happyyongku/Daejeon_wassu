@@ -41,6 +41,7 @@ export default function Page() {
         console.log("장소 상세 조회 성공", response.data);
         setLocation(response.data);
         setForLoading(true);
+        document.title = `대전왓슈 - ${response.data.spotName}`;
       }
     } catch (error) {
       console.error(error);

@@ -13,6 +13,7 @@ export default function Page() {
 
   // 컴포넌트가 마운트될 때 토큰 확인
   useEffect(() => {
+    document.title = "대전왓슈 - 회원가입";
     const token = localStorage.getItem("authToken");
 
     // 토큰이 있으면 main 페이지로 리디렉션

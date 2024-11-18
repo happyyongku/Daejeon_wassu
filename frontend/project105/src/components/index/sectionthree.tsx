@@ -45,9 +45,18 @@ export default function SectionThree() {
             </p>
           </div>
           <div className={style.imgbox}>
-            <div className={style.img1}>이미지 대용1</div>
-            <div className={style.img2}>이미지 대용2</div>
-            <div className={style.img3}>이미지 대용3</div>
+            {/* <img className={style.img1} src="/images/코스.png" alt="" />
+            <img className={style.img1} src="/images/코스추천2.png" alt="" />
+            <img className={style.img1} src="/images/코스추천3.png" alt="" /> */}
+            <div className={style.img1}>
+              <img className={style.img11} src="/images/코스추천3.png" alt="" />
+            </div>
+            <div className={style.img2}>
+              <img className={style.img11} src="/images/코스.png" alt="" />
+            </div>
+            <div className={style.img3}>
+              <img className={style.img11} src="/images/코스추천2.png" alt="" />
+            </div>
           </div>
         </div>
 
@@ -63,7 +72,9 @@ export default function SectionThree() {
             <p className={style.rightdesc}>인공지능을 통해 추천 받아보세요</p>
           </div>
           <div className={style.secondimgbox}>
-            <div className={style.secondimg}>이미지 대용</div>
+            <div className={style.secondimg}>
+              <img className={style.chatimg} src="/images/챗봇.png" alt="" />
+            </div>
           </div>
         </div>
       </div>

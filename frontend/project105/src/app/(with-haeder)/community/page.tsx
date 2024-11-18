@@ -34,6 +34,7 @@ export default function Page() {
   };
 
   useEffect(() => {
+    document.title = "대전왓슈-커뮤니티";
     getArticles();
     closeDropdown();
   }, []);
@@ -65,9 +66,10 @@ export default function Page() {
       <div className={style.containerbox}>
         <div className={style.cardcontainer}>
           {articles.length > 0 ? (
-            articles.map((article) => (
-              <CommunityCard key={article.id} {...article} />
-            ))
+            articles
+              .slice()
+              .reverse()
+              .map((article) => <CommunityCard key={article.id} {...article} />)
           ) : (
             <div>게시글을 불러오는 중입니다...</div>
           )}

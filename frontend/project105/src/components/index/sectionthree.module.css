@@ -124,6 +124,14 @@
   left: -20px;
   top: 200px;
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img11 {
+  width: 290px;
+  height: 110px;
 }
 
 .secondbox {
@@ -161,9 +169,16 @@
   height: 170px;
   border-radius: 10px;
   background-color: #ffffff;
-
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
   position: absolute;
   left: 35px;
   top: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chatimg {
+  width: 340px;
+  height: 160px;
 }

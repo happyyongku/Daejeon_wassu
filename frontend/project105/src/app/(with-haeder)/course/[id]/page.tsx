@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CourseDetailData } from "@/types";
+import { CourseDetailData, CompletedData } from "@/types";
 import useDropdownStore from "@/store/dropdownStore";
 import style from "./page.module.css";
 import axios from "axios";
@@ -11,9 +11,9 @@ export default function Page() {
   const router = useRouter();
   const { id } = useParams();
   const [forLoading, setForLoading] = useState(false);
-  const [courseDetail, setCourseDetail] = useState<
-    CourseDetailData | undefined
-  >(undefined);
+  const [courseDetail, setCourseDetail] = useState<CompletedData | undefined>(
+    undefined
+  );
   const { closeDropdown } = useDropdownStore();
 
   const toDetail = (bakeryId: string) => {
@@ -22,14 +22,21 @@ export default function Page() {
 
   // 코스 상세 조회 axios 요청
   const getCourse = async () => {
+    const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
-        `https://k11b105.p.ssafy.io/fast_api/courses/${id}`
+        `https://k11b105.p.ssafy.io/fast_api/courses/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (response.data) {
         console.log("코스 상세 조회 성공", response.data);
         setCourseDetail(response.data);
+        document.title = `대전왔슈-${response.data.course.course_name}`;
         setForLoading(true);
       }
     } catch (error) {
@@ -85,7 +92,7 @@ export default function Page() {
         </div>
         <div className={style.cardcontainer}>
           <div className={style.greenline}></div>
-          {courseDetail?.bakeries.map((item, index) => (
+          {courseDetail?.course_details.map((item, index) => (
             <div
               key={index}
               className={`${
@@ -102,10 +109,10 @@ export default function Page() {
                   <div className={style.cardtitle}>{item.bakery_name}</div>
                 </div>
                 <div>
-                  {item.image_url ? (
+                  {item.spot_image_url ? (
                     <img
                       className={style.cardimg}
-                      src={item.image_url}
+                      src={item.spot_image_url}
                       alt="장소 image"
                     />
                   ) : (
@@ -131,7 +138,7 @@ export default function Page() {
                     </div>
                     <img
                       className={style.wassu}
-                      src="/images/wassu.png"
+                      src={item.wassumon_image_url}
                       alt=""
                     />
                   </div>
