@@ -50,7 +50,7 @@ public class CreateRouteService {
         String accessToken = null;
         if (token != null) {
             accessToken = token.replace("Bearer ", "");
-            email = jwtUtil.extractUserEmail(token);
+            email = jwtUtil.extractUserEmail(accessToken);
         }
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(token, dto);
@@ -80,7 +80,7 @@ public class CreateRouteService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        
+
         HttpEntity<CreateRouteDTO> request = new HttpEntity<>(dto, headers);
         ResponseEntity<OptimalRouteDTO> response = restTemplate.exchange(
                 url,
