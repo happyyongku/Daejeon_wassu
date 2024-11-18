@@ -3,11 +3,11 @@ import {View, Text, StyleSheet, TouchableOpacity, Image, Dimensions} from 'react
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
-import BreadIcon from '../../assets/imgs/bread.svg';
 import {getUserChallenges} from '../../api/recommended';
 
 type ChallengeCourseNavigationProp = StackNavigationProp<RootStackParamList>;
 const {width} = Dimensions.get('window');
+
 interface Course {
   id: number;
   course_name: string;
@@ -17,12 +17,14 @@ interface Course {
 
 interface Challenge {
   course: Course;
-  course_details: any[]; // 필요한 경우, 더 구체적인 타입으로 설정 가능
+  course_details: any[];
 }
+
 const ChallengeCourse = () => {
   const navigation = useNavigation<ChallengeCourseNavigationProp>();
   const [inProgressChallenges, setInProgressChallenges] = useState<Challenge[]>([]);
   const [completedChallenges, setCompletedChallenges] = useState<Challenge[]>([]);
+
   useEffect(() => {
     const fetchChallenges = async () => {
       const data = await getUserChallenges();
@@ -33,6 +35,7 @@ const ChallengeCourse = () => {
     };
     fetchChallenges();
   }, []);
+
   const handleNavigateToChallenge = () => {
     navigation.navigate('TravelChallenge');
   };
@@ -40,12 +43,15 @@ const ChallengeCourse = () => {
   const handleNavigateToOngoingChallenge = () => {
     navigation.navigate('OngoingChallenge');
   };
+
   const handleNavigateToCompletedChallenge = () => {
     navigation.navigate('CompletedChallenge');
   };
+
   const goToChallengeDetail = (courseId: number) => {
     navigation.navigate('ChallengeDetail', {id: courseId});
   };
+
   return (
     <View style={styles.container}>
       {/* 챌린지 참여하러 가기 버튼 */}
@@ -70,13 +76,18 @@ const ChallengeCourse = () => {
           key={challenge.course.id}
           style={styles.card}
           onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <Image
+            source={{uri: challenge.course.image_url}}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
             <Text style={styles.cardDescription}>{challenge.course.description}</Text>
           </View>
         </TouchableOpacity>
       ))}
+
       {/* 완료한 챌린지 타이틀과 전체 보기 */}
       <View style={styles.titleContainer}>
         <Text style={styles.mainTitle}>완료한 챌린지</Text>
@@ -90,7 +101,11 @@ const ChallengeCourse = () => {
           key={challenge.course.id}
           style={styles.card}
           onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <Image
+            source={{uri: challenge.course.image_url}}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
             <Text style={styles.cardDescription}>{challenge.course.description}</Text>
@@ -153,36 +168,6 @@ const styles = StyleSheet.create({
     color: '#999999',
     marginTop: 10,
   },
-  challengeCard: {
-    flexDirection: 'row',
-    width: width * 0.9,
-    height: 80,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    padding: 10,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  challengeImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-  },
-  challengeTextContainer: {
-    marginLeft: 10,
-    flex: 1,
-  },
-  challengeTitle: {
-    fontSize: 14,
-    fontFamily: 'Pretendard-SemiBold',
-    color: '#333333',
-  },
-  challengeDescription: {
-    fontSize: 10,
-    fontFamily: 'Pretendard-Regular',
-    color: '#666666',
-    marginTop: 5,
-  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -197,6 +182,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   cardImage: {
+    width: 100, // 이미지 너비 설정
+    height: 100, // 이미지 높이 설정
     marginRight: 10,
     borderRadius: 12,
   },
