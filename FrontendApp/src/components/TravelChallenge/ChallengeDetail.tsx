@@ -22,6 +22,7 @@ import CompleteIcon from '../../assets/imgs/complete.png';
 import FlameIcon from '../../assets/imgs/flame.svg';
 import {getCourseDetail, startCourse} from '../../api/recommended'; // startCourse API 추가
 import GpsComponent from '../common/GpsComponent'; // GPS 컴포넌트 가져오기
+
 const {width} = Dimensions.get('window');
 
 type ChallengeDetailNavigationProp = StackNavigationProp<RootStackParamList, 'PlaceDetail'>;
@@ -55,7 +56,6 @@ const ChallengeDetail = () => {
   const [hashtags, setHashtags] = useState<string[]>([]); // 새로운 상태 추가
   const [course_datail, setcourse_datail] = useState<Bakery[]>([]);
   const [completedAll, setCompletedAll] = useState('yet');
-  const Progress1Icon = require('../../assets/imgs/progress1.png');
   const [showGpsComponent, setShowGpsComponent] = useState(false);
   const [selectedBakery, setSelectedBakery] = useState<Bakery | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -269,7 +269,6 @@ const ChallengeDetail = () => {
             <View style={styles.challengeButton}>
               <Image source={ProgressIcon} style={styles.buttonIcon} />
               <Text style={styles.challengeButtonText}>챌린지 진행중</Text>
-              <Image source={Progress1Icon} style={styles.progress1Icon} />
             </View>
           ) : (
             <View style={styles.challengeButton}>
