@@ -11,6 +11,7 @@ import {
   Image,
   useWindowDimensions,
   Alert,
+  BackHandler,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import LinearGradient from 'react-native-linear-gradient';
@@ -80,6 +81,13 @@ const GameTwo = () => {
   useEffect(() => {
     Orientation.lockToLandscape();
 
+    const handleBackPress = () => {
+      goToMain(); // 뒤로가기 버튼을 눌렀을 때 메인 화면으로 이동
+      return true; // 기본 뒤로가기 동작을 막음
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
     const fetchRoomDetails = async () => {
       try {
         const roomData = await getRoomDetails(roomId); // API 호출
@@ -115,6 +123,7 @@ const GameTwo = () => {
           // 유저 이미지 업데이트
           if (userData.opponent) {
             setOpponentIcon(userData.opponent); // 상대 프로필 이미지 업데이트
+            setShowInviteCodeSection(false);
           }
         });
 
@@ -198,6 +207,7 @@ const GameTwo = () => {
         sseRef.current.close();
         console.log('SSE 연결 종료됨');
       }
+      backHandler.remove();
       Orientation.unlockAllOrientations();
     };
   }, [roomId]);
@@ -361,7 +371,7 @@ const GameTwo = () => {
       }
 
       const cellColor = SEGMENT_COLORS[segmentIndex];
-
+      const isSamePosition = currentPosition === index && opponentPosition === index;
       return (
         <TouchableOpacity
           key={node.nodeId}
@@ -376,11 +386,25 @@ const GameTwo = () => {
             end={{x: 1, y: 1}}
             style={StyleSheet.absoluteFillObject}
           />
+          {/* 플레이어 아이콘 */}
           {currentPosition === index && playerIcon && (
-            <Image source={{uri: playerIcon}} style={styles.playerIcon} />
+            <Image
+              source={{uri: playerIcon}}
+              style={[
+                styles.playerIcon,
+                isSamePosition && {transform: [{translateX: -10}]}, // 왼쪽으로 이동
+              ]}
+            />
           )}
+          {/* 상대방 아이콘 */}
           {opponentPosition === index && opponentIcon && (
-            <Image source={{uri: opponentIcon}} style={styles.opponentIcon} />
+            <Image
+              source={{uri: opponentIcon}}
+              style={[
+                styles.opponentIcon,
+                isSamePosition && {transform: [{translateX: 10}]}, // 오른쪽으로 이동
+              ]}
+            />
           )}
           <Text style={styles.cellText}>{node.spotName}</Text>
         </TouchableOpacity>

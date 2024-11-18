@@ -44,6 +44,7 @@ interface ArticleDTO {
   title: string;
   content: string;
   tags: string[];
+  place?: string;
 }
 
 // 게시글 작성

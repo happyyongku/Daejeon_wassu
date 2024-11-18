@@ -482,7 +482,7 @@ const MainPage = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.containers}>
           {/* 인기 리뷰 섹션 */}
           <View style={styles.reviewContainer}>
             <View style={styles.reviewHeader}>
@@ -510,10 +510,6 @@ const MainPage = () => {
             ))}
           </View>
         </ScrollView>
-
-        <TouchableOpacity style={styles.communityLink} onPress={goToMap}>
-          <Text style={styles.communityLinkText}>맵</Text>
-        </TouchableOpacity>
       </ScrollView>
     </>
   );
@@ -522,6 +518,10 @@ const MainPage = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F2F5FB',
+  },
+  containers: {
+    backgroundColor: '#F2F5FB',
+    marginBottom: 50,
   },
   contentContainer: {
     paddingHorizontal: width * 0.06,

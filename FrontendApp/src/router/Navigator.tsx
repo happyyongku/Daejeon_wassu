@@ -90,6 +90,7 @@ export type RootStackParamList = {
     initialContent: string;
     initialImages: any[];
     initialtags: string;
+    initialPlace?: string;
   };
   DetailedInquiry: {
     itinerary?: {

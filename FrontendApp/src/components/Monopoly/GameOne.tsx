@@ -11,6 +11,7 @@ import {
   Image,
   useWindowDimensions,
   Alert,
+  BackHandler,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import LinearGradient from 'react-native-linear-gradient';
@@ -72,6 +73,13 @@ const GameOne = () => {
 
   useEffect(() => {
     Orientation.lockToLandscape();
+
+    const handleBackPress = () => {
+      goToMain(); // 뒤로가기 버튼을 눌렀을 때 메인 화면으로 이동
+      return true; // 기본 뒤로가기 동작을 막음
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
     // 서버에서 데이터 가져오기
     const fetchRoomDetails = async () => {
@@ -164,6 +172,7 @@ const GameOne = () => {
         sseRef.current.close();
         console.log('SSE 연결 종료됨');
       }
+      backHandler.remove();
       Orientation.unlockAllOrientations();
     };
   }, [roomId]);
@@ -191,8 +200,10 @@ const GameOne = () => {
     console.log(`주사위 결과: ${parsedData.dice1} + ${parsedData.dice2} = ${totalDiceValue}`);
 
     setTimeout(() => {
+      const updatedPosition = currentPosition + totalDiceValue; // 새로운 위치 계산
+      setCurrentPosition(updatedPosition);
       setShowDiceResult(false); // 주사위 결과 숨김
-    }, 2000);
+    }, 4000);
   };
 
   const handleRollDice = async () => {

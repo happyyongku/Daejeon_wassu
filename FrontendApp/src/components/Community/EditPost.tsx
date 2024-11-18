@@ -25,18 +25,19 @@ type EditPostScreenProp = StackNavigationProp<RootStackParamList, 'EditPost'>;
 const EditPost = () => {
   const navigation = useNavigation<EditPostScreenProp>();
   const route = useRoute();
-  const {articleId, initialTitle, initialContent, initialtags} = route.params as {
+  const {articleId, initialTitle, initialContent, initialtags, initialPlace} = route.params as {
     articleId: string;
     initialTitle: string;
     initialContent: string;
     initialtags: any[]; // initialtags는 배열로 가정
+    initialPlace: string;
   };
 
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialtags && initialtags.length > 0 ? initialtags[0].tag : '카테고리 선택',
   ); // 초기값 설정
-  const [selectedLocation, setSelectedLocation] = useState<string>(''); // 위치 기본값 설정
+  const [selectedLocation, setSelectedLocation] = useState<string>(initialPlace || '');
   const [title, setTitle] = useState<string>(initialTitle || ''); // 제목 기본값 설정
   const [content, setContent] = useState<string>(initialContent || ''); // 내용 기본값 설정
   const [images, setImages] = useState<any[]>([]);
@@ -101,6 +102,7 @@ const EditPost = () => {
       title,
       content,
       tags: [selectedCategory], // 태그는 배열로 전송
+      place: selectedLocation,
     };
 
     // 새로 추가된 이미지와 기존 이미지를 처리
