@@ -1,9 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Image,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
-import BreadIcon from '../../assets/imgs/bread.svg';
 import CompleteIcon from '../../assets/imgs/complete.svg';
 import {getUserChallenges} from '../../api/recommended'; // axios 함수 임포트
 
@@ -50,9 +57,14 @@ const CompletedChallenge = () => {
           key={challenge.course.id}
           style={styles.card}
           onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          <Image
+            source={{uri: challenge.course.image_url}}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
           <CompleteIcon width={50} height={50} style={styles.completeIcon} />
           <View style={styles.cardContent}>
+            {/* 텍스트를 반드시 <Text> 컴포넌트로 감싸기 */}
             <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
             <Text style={styles.cardDescription}>{challenge.course.description}</Text>
           </View>
@@ -96,8 +108,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cardImage: {
-    marginRight: 10,
+    width: 100,
+    height: 100,
     borderRadius: 12,
+    marginRight: 10,
   },
   cardContent: {
     flex: 1,

@@ -1,9 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Image,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
-import BreadIcon from '../../assets/imgs/bread.svg';
 import {getUserChallenges} from '../../api/recommended'; // axios 함수 임포트
 
 const {width} = Dimensions.get('window');
@@ -49,7 +56,12 @@ const OngoingChallenge = () => {
           key={challenge.course.id}
           style={styles.card}
           onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <BreadIcon width={100} height={100} style={styles.cardImage} />
+          {/* BreadIcon 대신 Image 컴포넌트 사용 */}
+          <Image
+            source={{uri: challenge.course.image_url}}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
             <Text style={styles.cardDescription}>{challenge.course.description}</Text>
@@ -73,13 +85,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 30,
   },
-  sectionSubtitle: {
-    fontSize: 20,
-    color: '#333',
-    fontFamily: 'Pretendard-Bold',
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -95,6 +100,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cardImage: {
+    width: 100, // Image 너비 설정
+    height: 100, // Image 높이 설정
     marginRight: 10,
     borderRadius: 12,
   },
@@ -112,11 +119,6 @@ const styles = StyleSheet.create({
     color: 'rgba(51, 51, 51, 0.5)',
     marginTop: 10,
   },
-  completeIcon: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    zIndex: 1,
-  },
 });
+
 export default OngoingChallenge;
