@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,6 +16,6 @@ public class MarbleEntity {
     private String marbleName;
 
     @OneToMany(mappedBy = "marble", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NodeEntity> nodes;
+    private List<NodeEntity> nodes = new ArrayList<>();
 
 }
