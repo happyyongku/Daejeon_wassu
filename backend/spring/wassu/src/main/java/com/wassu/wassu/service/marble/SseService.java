@@ -57,7 +57,10 @@ public class SseService {
     }
 
     public SseEmitter getEmitter(Long roomId, String email) {
-        return emitters.get(roomId).get(email);
+        if (emitters.get(roomId) != null) {
+            return emitters.get(roomId).get(email);
+        }
+        return null;
     }
 
     public void sendEmitter(UserEntity user, MarbleRoomEntity room, int dice1, int dice2) {
@@ -150,14 +153,18 @@ public class SseService {
         UserEntity creator = room.getCreator();
         UserEntity guest = room.getGuest();
         SseEmitter creatorEmitter = getEmitter(room.getId(), creator.getEmail());
-        if (guest != null) {
+        if (guest != null && creatorEmitter != null) {
             SseEmitter guestEmitter = getEmitter(room.getId(), guest.getEmail());
             userInfoProcess(room, creatorUserInfo, creator, guest, creatorEmitter);
-            userInfoProcess(room, guestUserInfo, guest, creator, guestEmitter);
+            if (guestEmitter != null) {
+                userInfoProcess(room, guestUserInfo, guest, creator, guestEmitter);
+            }
         } else {
             creatorUserInfo.put("you", creator.getProfileImage());
             try {
-                creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
+                if (creatorEmitter != null) {
+                    creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
+                }
             } catch (IOException e) {
                 if (e.getMessage() != null && e.getMessage().contains("Broken pipe")) {
                     log.info("Client intentionally closed the connection. roomId: {}, email: {}", room.getId(), creator.getEmail());
