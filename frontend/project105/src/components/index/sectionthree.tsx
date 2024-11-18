@@ -49,13 +49,25 @@ export default function SectionThree() {
             <img className={style.img1} src="/images/코스추천2.png" alt="" />
             <img className={style.img1} src="/images/코스추천3.png" alt="" /> */}
             <div className={style.img1}>
-              <img className={style.img11} src="/images/코스추천3.png" alt="" />
+              <img
+                className={style.img11}
+                src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/코스추천3.PNG"
+                alt=""
+              />
             </div>
             <div className={style.img2}>
-              <img className={style.img11} src="/images/코스.png" alt="" />
+              <img
+                className={style.img11}
+                src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/코스.PNG"
+                alt=""
+              />
             </div>
             <div className={style.img3}>
-              <img className={style.img11} src="/images/코스추천2.png" alt="" />
+              <img
+                className={style.img11}
+                src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/코스추천2.PNG"
+                alt=""
+              />
             </div>
           </div>
         </div>
@@ -73,7 +85,11 @@ export default function SectionThree() {
           </div>
           <div className={style.secondimgbox}>
             <div className={style.secondimg}>
-              <img className={style.chatimg} src="/images/챗봇.png" alt="" />
+              <img
+                className={style.chatimg}
+                src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/챗봇.PNG"
+                alt=""
+              />
             </div>
           </div>
         </div>

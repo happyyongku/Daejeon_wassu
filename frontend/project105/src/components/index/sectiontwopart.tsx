@@ -16,15 +16,19 @@ export default function SectionTwoPart() {
       case 1:
         return (
           <div className={style.img1}>
-            <img className={style.img11} src="/images/검색1.png" alt="" />
+            <img
+              className={style.img11}
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/검색1.PNG"
+              alt=""
+            />
           </div>
-        ); // 버튼 1 클릭 시 보여줄 이미지
+        ); // 버튼 1 클릭 시 보여줄 이미지  https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/관광지추천.PNG
       case 2:
         return (
           <div className={style.img11111}>
             <img
               className={style.img111111}
-              src="/images/관광지추천.png"
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/관광지추천.PNG"
               alt=""
             />
           </div>
@@ -38,7 +42,11 @@ export default function SectionTwoPart() {
       case 4:
         return (
           <div className={style.img1}>
-            <img className={style.img11} src="/images/상세2.png" alt="" />
+            <img
+              className={style.img11}
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/상세2.PNG"
+              alt=""
+            />
           </div>
         ); // 버튼 4 클릭 시 보여줄 이미지
       default:
@@ -51,7 +59,11 @@ export default function SectionTwoPart() {
       case 1:
         return (
           <div className={style.img2}>
-            <img className={style.img11} src="/images/검색.png" alt="" />
+            <img
+              className={style.img11}
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/검색.PNG"
+              alt=""
+            />
           </div>
         ); // 버튼 1 클릭 시 보여줄 이미지
       case 2:
@@ -59,13 +71,21 @@ export default function SectionTwoPart() {
       case 3:
         return (
           <div className={style.img2}>
-            <img className={style.img11} src="/images/도장랜딩.png" alt="" />
+            <img
+              className={style.img11}
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/도장랜딩.PNG"
+              alt=""
+            />
           </div>
         ); // 버튼 3 클릭 시 보여줄 이미지
       case 4:
         return (
           <div className={style.img2}>
-            <img className={style.img11} src="/images/상세1.png" alt="" />
+            <img
+              className={style.img11}
+              src="https://wassu-k11b105.s3.ap-northeast-2.amazonaws.com/landing_page/상세1.PNG"
+              alt=""
+            />
           </div>
         ); // 버튼 4 클릭 시 보여줄 이미지
       default:
