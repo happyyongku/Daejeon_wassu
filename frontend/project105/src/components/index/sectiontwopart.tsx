@@ -4,38 +4,70 @@ import { useState } from "react";
 import style from "./sectiontowpart.module.css";
 
 export default function SectionTwoPart() {
-  const [activeButton, setActiveButton] = useState<number | null>(null);
+  const [activeButton, setActiveButton] = useState<number | null>(1);
 
   // 버튼 클릭 시 활성화 상태 변경
   const handleButtonClick = (buttonNumber: number) => {
     setActiveButton(buttonNumber);
   };
-
+  // <img src="/images/검색1.png" alt="" />;
   const renderImage1 = () => {
     switch (activeButton) {
       case 1:
-        return <div className={style.img1}>이미지 1</div>; // 버튼 1 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img1}>
+            <img className={style.img11} src="/images/검색1.png" alt="" />
+          </div>
+        ); // 버튼 1 클릭 시 보여줄 이미지
       case 2:
-        return <div className={style.img1}>이미지 2</div>; // 버튼 2 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img11111}>
+            <img
+              className={style.img111111}
+              src="/images/관광지추천.png"
+              alt=""
+            />
+          </div>
+        ); // 버튼 2 클릭 시 보여줄 이미지
       case 3:
-        return <div className={style.img1}>이미지 3</div>; // 버튼 3 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img111}>
+            <img className={style.img11} src="/images/랜드마크.png" alt="" />
+          </div>
+        ); // 버튼 3 클릭 시 보여줄 이미지
       case 4:
-        return <div className={style.img1}>이미지 4</div>; // 버튼 4 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img1}>
+            <img className={style.img11} src="/images/상세2.png" alt="" />
+          </div>
+        ); // 버튼 4 클릭 시 보여줄 이미지
       default:
-        return <div className={style.img1}>기본 이미지</div>; // 기본 이미지
+        return <div className={style.img1}>기본 이미지</div>;
     }
   };
 
   const renderImage2 = () => {
     switch (activeButton) {
       case 1:
-        return <div className={style.img2}>이미지 1</div>; // 버튼 1 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img2}>
+            <img className={style.img11} src="/images/검색.png" alt="" />
+          </div>
+        ); // 버튼 1 클릭 시 보여줄 이미지
       case 2:
-        return <div className={style.img2}>이미지 2</div>; // 버튼 2 클릭 시 보여줄 이미지
+        return <div></div>; // 버튼 2 클릭 시 보여줄 이미지
       case 3:
-        return <div className={style.img2}>이미지 3</div>; // 버튼 3 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img2}>
+            <img className={style.img11} src="/images/도장랜딩.png" alt="" />
+          </div>
+        ); // 버튼 3 클릭 시 보여줄 이미지
       case 4:
-        return <div className={style.img2}>이미지 4</div>; // 버튼 4 클릭 시 보여줄 이미지
+        return (
+          <div className={style.img2}>
+            <img className={style.img11} src="/images/상세1.png" alt="" />
+          </div>
+        ); // 버튼 4 클릭 시 보여줄 이미지
       default:
         return <div className={style.img2}>기본 이미지</div>; // 기본 이미지
     }
