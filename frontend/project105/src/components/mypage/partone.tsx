@@ -2,11 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { MyScheduleData } from "@/types";
+import UseApp from "../useapp";
 import axios from "axios";
 import style from "./partone.module.css";
 
 export default function PartOne() {
   const [mySchedule, setMySchedule] = useState<MyScheduleData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 모달 열기 함수
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // 모달 닫기 함수
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   // 내 여행 조회
   const getMyTrip = async () => {
@@ -36,7 +48,10 @@ export default function PartOne() {
   return (
     <div className={style.partonebox}>
       <div className={style.addschebox}>
-        <button className={style.addbutton}>+</button>
+        {isModalOpen && <UseApp onClose={closeModal} />}
+        <button className={style.addbutton} onClick={openModal}>
+          +
+        </button>
         <div className={style.contentbox}>
           <p className={style.text1}>대전 여행 일정 추가하기</p>
           <p className={style.text2}>대전왔슈와 대전 여행을 함께하세요</p>
@@ -111,6 +126,7 @@ export default function PartOne() {
           <div className={style.cardcontainer2}>지난 일정이 없습니다</div>
         )}
       </div>
+
       <div></div>
     </div>
   );

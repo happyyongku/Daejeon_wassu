@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArticleData } from "@/types";
 import Carousel from "@/components/main/course/carousel";
+import useDropdownStore from "@/store/dropdownStore";
 import axios from "axios";
 import style from "./page.module.css";
 
@@ -13,6 +14,7 @@ export default function Page() {
   const router = useRouter();
   const [article, setArticle] = useState<ArticleData | null>(null);
   const [forLoading, setForLoading] = useState(false);
+  const { closeDropdown } = useDropdownStore();
 
   // 모달 상태 관리
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -92,6 +94,7 @@ export default function Page() {
   // 마운트 됐을 때 게시글 상세 조회
   useEffect(() => {
     getArticle();
+    closeDropdown();
   }, []);
 
   // 로딩중일 때
@@ -127,6 +130,7 @@ export default function Page() {
       </div>
       <div className={style.contentbox}>
         <div className={style.title}>{article?.title}</div>
+        <div className={style.place}>{article?.place}</div>
         <p className={style.date}>{article?.createdAt}</p>
       </div>
       <div className={style.ectbox}>
@@ -166,22 +170,18 @@ export default function Page() {
         <div className={style.button}>
           <div>
             {!article?.userLiked ? (
-              <div className={style.buttonbox}>
-                <button
-                  className={style.button1}
-                  onClick={() => likeUnlike("like")}
-                >
-                  🤍
-                </button>
+              <div
+                className={style.buttonbox}
+                onClick={() => likeUnlike("like")}
+              >
+                <button className={style.button1}>🤍</button>
               </div>
             ) : (
-              <div className={style.buttonbox}>
-                <button
-                  className={style.button1}
-                  onClick={() => likeUnlike("unlike")}
-                >
-                  ❤️
-                </button>
+              <div
+                className={style.buttonbox}
+                onClick={() => likeUnlike("unlike")}
+              >
+                <button className={style.button1}>❤️</button>
               </div>
             )}
           </div>

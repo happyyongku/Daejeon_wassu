@@ -60,21 +60,15 @@ export default function CourseCarousel({ course }: CarouselProps) {
 
       {/* 슬라이드 내용 */}
       <div className={style.carouselContent}>
-        {/* <img
-          src={course[currentIndex]?.image_url}
-          alt="코스 이미지"
-          className={style.carouselImage}
-        /> */}
-        {/* <div className={style.contentbox}> */}
+        <div className={style.shadow}></div>
         <img
-          src={course[currentIndex]?.image_url || "/images/default.png"}
+          src={course[currentIndex]?.image_url}
           alt="코스 이미지"
           className={style.carouselImage}
           onClick={() => toCourseDetail(course[currentIndex]?.id)}
         />
         <p className={style.p1}>{course[currentIndex]?.course_name}</p>
         <p className={style.p2}>{course[currentIndex]?.description}</p>
-        {/* </div> */}
       </div>
 
       {/* 다음 버튼 */}

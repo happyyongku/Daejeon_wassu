@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CourseDetailData } from "@/types";
+import useDropdownStore from "@/store/dropdownStore";
 import style from "./page.module.css";
 import axios from "axios";
 
@@ -13,6 +14,7 @@ export default function Page() {
   const [courseDetail, setCourseDetail] = useState<
     CourseDetailData | undefined
   >(undefined);
+  const { closeDropdown } = useDropdownStore();
 
   const toDetail = (bakeryId: string) => {
     router.push(`/location/${bakeryId}`);
@@ -37,6 +39,7 @@ export default function Page() {
 
   useEffect(() => {
     getCourse();
+    closeDropdown();
   }, []);
 
   // 로딩중일 때

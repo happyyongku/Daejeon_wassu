@@ -13,7 +13,7 @@ export interface CategoryData {
 }
 
 export interface ArticleData {
-  id: number;
+  id: string;
   title: string;
   content: string;
   createdAt: string;
@@ -25,6 +25,7 @@ export interface ArticleData {
   nickName: string;
   userLiked: boolean;
   matched: boolean;
+  place: string;
 }
 export interface ReviewImageData {
   reviewImageId: number;
@@ -130,4 +131,30 @@ export interface RecoData {
 
 export interface RecosData {
   data: RecoData[];
+}
+
+export interface StampData {
+  category: string;
+  spotName: string;
+}
+
+export interface ProgressData {
+  address: string;
+  bakery_name: string;
+  business_hours: string;
+  completed: boolean;
+  description: string;
+  elastic_id: string;
+  image_url: string;
+}
+
+export interface CompletedData {
+  course: CourseData;
+  course_details: ProgressData[];
+  completed_count: number;
+}
+
+export interface ChallengeData {
+  completed: CompletedData[];
+  in_progress: CompletedData[];
 }

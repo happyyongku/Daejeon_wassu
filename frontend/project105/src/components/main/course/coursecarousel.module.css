@@ -34,10 +34,14 @@
 
 .p2 {
   position: absolute;
+  width: 530px;
   bottom: 35px;
   left: 40px;
   z-index: 10;
   color: #ffffff;
+  white-space: nowrap; /* 텍스트를 한 줄로 표시 */
+  overflow: hidden; /* 넘치는 텍스트 숨기기 */
+  text-overflow: ellipsis;
 }
 
 .carouselImage {
@@ -50,15 +54,17 @@
   z-index: 0;
 }
 
-.carouselImage::after {
-  content: ""; /* 빈 내용으로 가상 요소 생성 */
+.shadow {
   position: absolute;
-  top: 0;
-  left: 0;
+  width: 550px;
+  height: 230px;
+  border-radius: 10px;
+  top: 23px;
+  left: 25px;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
-  /* pointer-events: none; 이미지 클릭 방지 */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+  pointer-events: none;
   z-index: 1; /* 이미지 위에 그림자 표시 */
 }
 

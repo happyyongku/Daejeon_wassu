@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArticleData } from "@/types";
+import style from "./page.module.css";
 import axios from "axios";
 
 interface ImageFile {
@@ -166,9 +167,83 @@ export default function Page() {
 
   return (
     <div>
-      {/* 카테고리 선택 */}
+      <div className={style.marginleft}>
+        <p className={style.title}>게시글 수정</p>
+        <div className={style.descbox}>
+          <p className={style.desc}>자신이 다녀온 관광지에 관한 경험을</p>
+          <p className={style.desc}>다른 유저와 함께 공유해보세요</p>
+        </div>
+      </div>
+
+      {/* 이미지 업로드 및 미리보기 */}
+      <div className={style.addimgbox}>
+        <label htmlFor="image-upload" className={style.addimg}>
+          이미지 추가
+        </label>
+        <input
+          type="file"
+          id="image-upload"
+          multiple
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+      </div>
+
+      {/* 서버에서 받아온 이미지 미리보기 */}
       <div>
-        <label htmlFor="category">카테고리</label>
+        {images.length > 0 && (
+          <div>
+            {/* <h3>게시글에 첨부된 이미지 미리보기</h3> */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-start",
+                flexWrap: "wrap",
+                width: "750px",
+                height: "100%",
+              }}
+            >
+              {imagePreviews.map((preview, index) => (
+                <div
+                  key={index}
+                  style={{ margin: "10px", position: "relative" }}
+                >
+                  <img
+                    src={preview}
+                    alt="preview"
+                    onClick={() => handleImageRemove(index)}
+                    style={{
+                      width: "220px",
+                      height: "220px",
+                    }}
+                  />
+                  {/* <button
+                    onClick={() => handleImageRemove(index)}
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      right: "0",
+                      background: "rgba(0, 0, 0, 0.5)",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ❌
+                  </button> */}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 카테고리 선택 */}
+      <div className={style.catebox}>
+        <label className={style.cate} htmlFor="category">
+          카테고리
+        </label>
         <select
           id="category"
           value={category[0]?.tag || ""}
@@ -188,8 +263,9 @@ export default function Page() {
 
       {/* 제목 */}
       <div>
-        <label htmlFor="">제목</label>
+        {/* <label htmlFor="">제목</label> */}
         <input
+          className={style.titleinput}
           type="text"
           value={title}
           placeholder="제목을 입력하세요"
@@ -197,73 +273,24 @@ export default function Page() {
         />
       </div>
 
+      <div className={style.hr}></div>
+
       {/* 내용 */}
       <div>
-        <label htmlFor="">내용</label>
+        {/* <label htmlFor="">내용</label> */}
         <textarea
+          className={style.textareainput}
           value={content}
           placeholder="내용을 입력하세요"
           onChange={handleContent}
         />
       </div>
 
-      {/* 이미지 업로드 및 미리보기 */}
-      <div>
-        <label htmlFor="image-upload">이미지 업로드</label>
-        <input
-          type="file"
-          id="image-upload"
-          multiple
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-      </div>
-
-      {/* 서버에서 받아온 이미지 미리보기 */}
-      <div>
-        {images.length > 0 && (
-          <div>
-            <h3>게시글에 첨부된 이미지 미리보기</h3>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-              {imagePreviews.map((preview, index) => (
-                <div
-                  key={index}
-                  style={{ margin: "10px", position: "relative" }}
-                >
-                  <img
-                    src={preview}
-                    alt="preview"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      marginRight: "10px",
-                    }}
-                  />
-                  <button
-                    onClick={() => handleImageRemove(index)}
-                    style={{
-                      position: "absolute",
-                      top: "0",
-                      right: "0",
-                      background: "rgba(0, 0, 0, 0.5)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                    }}
-                  >
-                    ❌
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* 수정 완료 버튼 */}
-      <div>
-        <button onClick={fixRequest}>수정 완료</button>
+      <div className={style.buttonbox}>
+        <button className={style.button} onClick={fixRequest}>
+          수정 완료
+        </button>
       </div>
     </div>
   );

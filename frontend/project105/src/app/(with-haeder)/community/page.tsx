@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import CommunityCard from "@/components/main/community/communitycard";
 import style from "./page.module.css";
+import useDropdownStore from "@/store/dropdownStore";
 
 export default function Page() {
   const router = useRouter();
   const [articles, setArticles] = useState<ArticleData[]>([]);
+  const { closeDropdown } = useDropdownStore();
 
   const getArticles = async () => {
     // const token = localStorage.getItem("authToken");
@@ -33,29 +35,43 @@ export default function Page() {
 
   useEffect(() => {
     getArticles();
+    closeDropdown();
   }, []);
 
   return (
-    <div>
+    <div className={style.backgroundcolor}>
       <div className={style.header}>
         <div className={style.title}>
           <div className={style.titletext1}>다양한 관광지에 대한 소감,</div>
           <div className={style.titletext2}>커뮤니티 ‍🤝‍🧑</div>
         </div>
-        <p className={style.content}>
-          다양한 관광지에 대한 사용자들의 후기를 접하고,
-        </p>
-        <p className={style.content}>다양한 방법으로 관광지를 즐겨보세요.</p>
-        <button onClick={toCreate}>글쓰기</button>
+        <div className={style.writebox}>
+          <div>
+            <p className={style.content}>
+              다양한 관광지에 대한 사용자들의 후기를 접하고,
+            </p>
+            <p className={style.content}>
+              다양한 방법으로 관광지를 즐겨보세요.
+            </p>
+          </div>
+          <img
+            className={style.writebutton}
+            src="/images/update.png"
+            alt=""
+            onClick={toCreate}
+          />
+        </div>
       </div>
-      <div className={style.cardcontainer}>
-        {articles.length > 0 ? (
-          articles.map((article) => (
-            <CommunityCard key={article.id} {...article} />
-          ))
-        ) : (
-          <div>게시글을 불러오는 중입니다...</div>
-        )}
+      <div className={style.containerbox}>
+        <div className={style.cardcontainer}>
+          {articles.length > 0 ? (
+            articles.map((article) => (
+              <CommunityCard key={article.id} {...article} />
+            ))
+          ) : (
+            <div>게시글을 불러오는 중입니다...</div>
+          )}
+        </div>
       </div>
     </div>
   );

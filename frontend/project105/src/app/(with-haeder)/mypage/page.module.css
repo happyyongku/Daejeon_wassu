@@ -8,7 +8,19 @@
 .nav {
   font-size: 16px;
   font-weight: bold;
-  color: #333333;
-  opacity: 35%;
+  color: #d9d9d9;
+  /* opacity: 35%; */
   cursor: pointer;
+  width: 100px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  box-sizing: border-box;
+  border-top: 3px solid rgba(255, 255, 255, 0);
+}
+
+.nav.active {
+  color: #418663; /* 초록색으로 변경 */
+  border-top: 3px solid #418663;
+  box-sizing: border-box;
 }

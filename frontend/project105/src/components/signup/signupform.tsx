@@ -111,9 +111,12 @@ export default function SignupForm() {
 
   const onBirthCheck = () => {
     if (birth.length !== 4) {
-      setBirthError("생년월일을 입력해주세요. (ex. YYYY)");
+      setBirthError("생년월일을 4자리로 입력해주세요. (ex. YYYY)");
+    } else if (isNaN(Number(birth)) || Number(birth) < 0) {
+      // 숫자가 아니거나 음수일 경우
+      setBirthError("생년월일은 숫자만 입력할 수 있습니다.");
     } else {
-      setBirthError("");
+      setBirthError(""); // 유효성 검사 통과
     }
   };
 
@@ -358,6 +361,7 @@ export default function SignupForm() {
           placeholder="YYYY"
           onChange={onChangeBirth}
           onBlur={onBirthCheck}
+          maxLength={4}
         />
         {birthError && <div className={style.email_error}>{birthError}</div>}
       </div>
