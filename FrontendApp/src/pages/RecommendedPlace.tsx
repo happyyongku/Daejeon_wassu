@@ -174,7 +174,6 @@ const RecommendedPlace = () => {
                             <MarkerIcon width={20} height={20} />
                             <Text style={styles.areaText}>{item.area}</Text>
                           </View>
-                          <Text style={styles.tagsText}>#태그 없음</Text>
                         </View>
                       </ImageBackground>
                     </View>

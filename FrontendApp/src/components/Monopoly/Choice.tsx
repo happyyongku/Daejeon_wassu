@@ -42,9 +42,7 @@ const Choice = () => {
       const response = await postMarble(marbled.toString(), single);
       if (response && response.roomId) {
         const roomId = response.roomId;
-        Alert.alert('성공', '보드 생성에 성공했습니다!', [
-          {text: '확인', onPress: () => navigation.navigate('GameOne', {roomId})},
-        ]);
+        navigation.navigate('GameOne', {roomId});
       } else {
         Alert.alert('실패', '보드 생성에 실패했습니다.');
       }
@@ -95,7 +93,7 @@ const Choice = () => {
     button: {
       backgroundColor: '#E0F2E0',
       borderColor: '#418663',
-      borderWidth: 1.5,
+      borderWidth: 1,
       width: '80%',
       paddingVertical: 8,
       borderRadius: 25,
@@ -125,16 +123,16 @@ const Choice = () => {
       flex: 1,
       backgroundColor: '#E0F2E0',
       borderColor: '#418663',
-      borderWidth: 1,
+      borderWidth: 0.5,
       borderRadius: 25,
       paddingHorizontal: 10,
       height: 35,
     },
     input: {
       flex: 1,
-      fontSize: 11,
+      fontSize: 10,
       color: '#333',
-      fontFamily: 'Pretendard-Regular',
+      fontFamily: 'Pretendard-Light',
     },
     icon: {
       marginLeft: 5,

@@ -79,6 +79,7 @@ const Writing = () => {
       title,
       content,
       tags: [selectedCategory],
+      place: selectedLocation,
     };
 
     try {

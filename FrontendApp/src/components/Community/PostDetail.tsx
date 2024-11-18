@@ -69,6 +69,7 @@ const PostDetail = () => {
       initialContent: postDetail.content,
       initialImages: postDetail.images,
       initialtags: postDetail.tags,
+      initialPlace: postDetail.place,
     });
   };
 
@@ -139,7 +140,9 @@ const PostDetail = () => {
           </ScrollView>
 
           <View style={styles.detailsContainer}>
-            <Text style={styles.location}>{postDetail.location || '위치 정보 없음'}</Text>
+            <Text style={styles.place}>
+              {postDetail.place || '장소 정보 없음'} {/* place 값을 표시 */}
+            </Text>
             <Text style={styles.time}>{postDetail.createdAt}</Text>
           </View>
 
@@ -274,6 +277,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontFamily: 'Pretendard-SemiBold',
+  },
+  place: {
+    fontSize: 13,
+    color: '#666', // place 텍스트 색상
+    marginBottom: 5, // 아래 여백 추가
+    fontFamily: 'Pretendard-Regular', // 폰트 스타일
   },
 });
 
