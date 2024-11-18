@@ -32,12 +32,15 @@ interface Challenge {
 const OngoingChallenge = () => {
   const navigation = useNavigation<CourseNavigationProp>();
   const [inProgressChallenges, setInProgressChallenges] = useState<Challenge[]>([]);
+  const [hasChallenges, setHasChallenges] = useState<boolean>(true); // 챌린지 여부 상태 추가
 
   useEffect(() => {
     const fetchChallenges = async () => {
       const data = await getUserChallenges();
-      if (data) {
+      if (data && data.in_progress) {
         setInProgressChallenges(data.in_progress);
+      } else {
+        setHasChallenges(false); // 진행 중인 챌린지가 없을 경우
       }
     };
     fetchChallenges();
@@ -51,23 +54,28 @@ const OngoingChallenge = () => {
     <ScrollView style={styles.container}>
       <Text style={styles.sectionTitle}>진행중인 챌린지</Text>
 
-      {inProgressChallenges.map(challenge => (
-        <TouchableOpacity
-          key={challenge.course.id}
-          style={styles.card}
-          onPress={() => goToChallengeDetail(challenge.course.id)}>
-          {/* BreadIcon 대신 Image 컴포넌트 사용 */}
-          <Image
-            source={{uri: challenge.course.image_url}}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
-            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+      {hasChallenges ? (
+        inProgressChallenges.map(challenge => (
+          <TouchableOpacity
+            key={challenge.course.id}
+            style={styles.card}
+            onPress={() => goToChallengeDetail(challenge.course.id)}>
+            <Image
+              source={{uri: challenge.course.image_url}}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+              <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <View style={styles.noChallengesContainer}>
+          <Text style={styles.noChallengesText}>진행 중인 챌린지가 없습니다</Text>
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -118,6 +126,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(51, 51, 51, 0.5)',
     marginTop: 10,
+  },
+  noChallengesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  noChallengesText: {
+    fontSize: 16,
+    fontFamily: 'Pretendard-Medium',
+    color: '#888',
   },
 });
 

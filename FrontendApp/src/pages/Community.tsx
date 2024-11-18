@@ -9,6 +9,7 @@ import {
   FlatList,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import HeartIcon from '../assets/imgs/heart.svg';
@@ -16,6 +17,7 @@ import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import {filterPosts, toggleLike} from '../api/community'; // toggleLike 함수 추가
 import userPlaceholder from '../assets/imgs/user.png';
+import {getTokens} from '../utills/tokenStorage';
 
 const {width} = Dimensions.get('window');
 
@@ -124,6 +126,21 @@ const Community = () => {
     navigation.navigate('PostDetail', {articleId});
   };
 
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -167,7 +184,8 @@ const Community = () => {
           keyExtractor={item => item.id}
           renderItem={({item}) => (
             <View style={styles.postContainer}>
-              <TouchableOpacity onPress={() => handlePostPress(item.id)}>
+              <TouchableOpacity
+                onPress={() => checkLoginAndExecute(() => handlePostPress(item.id))}>
                 <View style={styles.postHeader}>
                   <Image
                     source={
@@ -242,7 +260,9 @@ const Community = () => {
         />
       )}
 
-      <TouchableOpacity style={styles.floatingButton} onPress={goToWriting}>
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => checkLoginAndExecute(goToWriting)}>
         <Text style={styles.floatingButtonText}>+</Text>
       </TouchableOpacity>
     </View>

@@ -9,11 +9,13 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {searchPosts} from '../../api/community';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
+import {getTokens} from '../../utills/tokenStorage';
 
 const {width} = Dimensions.get('window');
 
@@ -49,6 +51,21 @@ const CommunitySearch = () => {
     navigation.navigate('PostDetail', {articleId});
   };
 
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
@@ -69,7 +86,7 @@ const CommunitySearch = () => {
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.resultItem}
-            onPress={() => handlePostPress(item.articleId || item.id)}>
+            onPress={() => checkLoginAndExecute(() => handlePostPress(item.articleId ?? item.id))}>
             <Text style={styles.resultTitle}>{item.title}</Text>
             <Text style={styles.resultLocation}>{item.location || '위치 정보 없음'}</Text>
           </TouchableOpacity>
