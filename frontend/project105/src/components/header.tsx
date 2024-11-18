@@ -10,12 +10,12 @@ import style from "./header.module.css";
 export default function Header() {
   const { isDropdownOpen, toggleDropdown, closeDropdown } = useDropdownStore();
 
-  const [token, setToken] = useState("");
+  const [forRand, setForRand] = useState(false);
 
   // 유저 데이터 요청 axios
   const [profile, setProfile] = useState<UserData | null>(null);
-  // const token = localStorage.getItem("authToken");
   const getMyData = async () => {
+    const token = localStorage.getItem("authToken");
     try {
       const response = await axios.get(
         `https://k11b105.p.ssafy.io/wassu/user/profile`,
@@ -28,6 +28,7 @@ export default function Header() {
       if (response.data) {
         console.log("회원정보 조회 성공", response.data);
         setProfile(response.data);
+        setForRand(true);
       }
     } catch (error) {
       console.error(error);
@@ -36,6 +37,7 @@ export default function Header() {
 
   // 로그아웃 요청 axios
   const logout = async () => {
+    const token = localStorage.getItem("authToken");
     try {
       const response = await axios.post(
         `https://k11b105.p.ssafy.io/wassu/auth/logout`,
@@ -70,7 +72,6 @@ export default function Header() {
 
   useEffect(() => {
     getMyData();
-    setToken(localStorage.getItem("authToken") || "");
   }, []);
 
   return (
@@ -82,7 +83,7 @@ export default function Header() {
         onClick={toMain}
       />
 
-      {token ? (
+      {forRand ? (
         <div className={style.profile} onClick={toggleDropdown}>
           <img
             className={style.img}
