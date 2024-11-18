@@ -49,7 +49,7 @@ public class SseService {
         // 비동기로 초기 데이터 전송
         CompletableFuture.runAsync(() -> {
             sendEmitter(user, room);
-            sendUserInfo(user, room);
+            sendUserInfo(room);
         });
         // 스케줄러를 사용하여 주기적으로 핑 전송
         schedulePing(email, roomId, context, emitter);
@@ -138,30 +138,29 @@ public class SseService {
         }
     }
 
-    private void sendUserInfo(UserEntity user, MarbleRoomEntity room) {
-        Map<String, String> userInfo = new HashMap<>();
+    private void sendUserInfo(MarbleRoomEntity room) {
+        Map<String, String> creatorUserInfo = new HashMap<>();
+        Map<String, String> guestUserInfo = new HashMap<>();
         UserEntity creator = room.getCreator();
         UserEntity guest = room.getGuest();
         SseEmitter creatorEmitter = getEmitter(room.getId(), creator.getEmail());
         if (guest != null) {
             SseEmitter guestEmitter = getEmitter(room.getId(), guest.getEmail());
-            if (user.equals(creator)) {
-                userInfo.put("you", creator.getProfileImage());
-                userInfo.put("opponent", guest.getProfileImage());
-            } else {
-                userInfo.put("you", guest.getProfileImage());
-                userInfo.put("opponent", creator.getProfileImage());
-            }
             try {
-                creatorEmitter.send(SseEmitter.event().name("userInfo").data(userInfo));
-                guestEmitter.send((SseEmitter.event().name("userInfo").data(userInfo)));
+                creatorUserInfo.put("you", creator.getProfileImage());
+                creatorUserInfo.put("opponent", guest.getProfileImage());
+                creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
+
+                guestUserInfo.put("you", guest.getProfileImage());
+                guestUserInfo.put("opponent", creator.getProfileImage());
+                guestEmitter.send(SseEmitter.event().name("userInfo").data(guestUserInfo));
             } catch (IOException e) {
                 throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
             }
         } else {
-            userInfo.put("you", creator.getProfileImage());
+            creatorUserInfo.put("you", creator.getProfileImage());
             try {
-                creatorEmitter.send(SseEmitter.event().name("userInfo").data(userInfo));
+                creatorEmitter.send(SseEmitter.event().name("userInfo").data(creatorUserInfo));
             } catch (IOException e) {
                 throw new CustomException(CustomErrorCode.SSE_CONNECTION_ERROR);
             }
