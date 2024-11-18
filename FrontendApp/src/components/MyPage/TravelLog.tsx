@@ -58,7 +58,9 @@ const TravelLog = () => {
   const handlePostPress = (articleId: string) => {
     navigation.navigate('PostDetail', {articleId});
   };
-
+  const handleNavigateToRecommended = () => {
+    navigation.navigate('Community');
+  };
   const renderArticle = ({item}: {item: UserArticle}) => (
     <View style={styles.articleCard}>
       <TouchableOpacity onPress={() => handlePostPress(item.id)}>
@@ -113,6 +115,14 @@ const TravelLog = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.addButton} onPress={handleNavigateToRecommended}>
+        <Image source={require('../../assets/imgs/travel.png')} style={styles.plusIcon} />
+        <View style={styles.textContainer}>
+          <Text style={styles.addButtonText}>다른 여행기 보러가기</Text>
+          <Text style={styles.addButtonSubtitle}>다른 사람의 여행기도 구경해보세요.</Text>
+        </View>
+      </TouchableOpacity>
+      <Text style={styles.sectionTitle}>작성한 여행기</Text>
       {articles.length > 0 ? (
         <FlatList
           data={articles}
@@ -130,24 +140,29 @@ const TravelLog = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f1f1',
-    paddingTop: 20,
-    marginHorizontal: -width * 0.06,
+    backgroundColor: '#ffffff',
   },
   listContainer: {
     paddingBottom: 20,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginVertical: 20,
+  },
   articleCard: {
     backgroundColor: '#ffffff',
-    marginHorizontal: width * 0.06,
-    borderRadius: 8,
+    borderRadius: 15,
     padding: 15,
-    marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)', // 유리 느낌을 위한 옅은 테두리
+    shadowColor: '#333',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
+    elevation: 4, // Android 그림자 효과
   },
   articleTitle: {
     fontSize: 18,
@@ -201,6 +216,36 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
     marginTop: 50,
+  },
+  addButton: {
+    width: width * 0.9,
+    height: 80,
+    backgroundColor: 'rgba(153, 153, 153, 0.05)',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    marginVertical: 0.06 * width,
+  },
+  plusIcon: {
+    width: 33,
+    height: 33,
+    marginBottom: 5,
+  },
+  textContainer: {
+    flexDirection: 'column',
+    marginLeft: 20,
+  },
+  addButtonText: {
+    fontSize: 12,
+    fontFamily: 'Pretendard-SemiBold',
+    color: '#333333',
+  },
+  addButtonSubtitle: {
+    fontSize: 10,
+    fontFamily: 'Pretendard-Regular',
+    color: 'rgba(51, 51, 51, 0.8)',
+    marginTop: 5,
   },
 });
 
