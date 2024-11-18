@@ -79,6 +79,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       if (response.data) {
         console.log("회원정보 조회 성공", response.data);
         setProfile(response.data);
+        document.title = `대전왓슈 - ${response.data.nickname}`;
       }
     } catch (error) {
       console.error(error);

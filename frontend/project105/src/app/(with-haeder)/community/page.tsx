@@ -34,6 +34,7 @@ export default function Page() {
   };
 
   useEffect(() => {
+    document.title = "대전왓슈-커뮤니티";
     getArticles();
     closeDropdown();
   }, []);

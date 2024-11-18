@@ -146,6 +146,8 @@ export interface ProgressData {
   description: string;
   elastic_id: string;
   image_url: string;
+  spot_image_url: string;
+  wassumon_image_url: string;
 }
 
 export interface CompletedData {

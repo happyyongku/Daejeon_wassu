@@ -19,6 +19,7 @@ export default function Page() {
 
   // 로컬 스토리지에서 토큰 확인 및 유효성 검사
   useEffect(() => {
+    document.title = "대전왓슈";
     const token = localStorage.getItem("authToken");
     if (token) {
       const isValidToken = checkTokenValidity(token);
