@@ -10,35 +10,42 @@ import {
   ViroAmbientLight,
   ViroSpotLight,
   ViroAnimations,
+  ViroARImageMarker,
+  ViroARTrackingTargets, // 추가
 } from '@reactvision/react-viro';
 import {markSpotAsVisited, getWassumonDetails, getCourseDetail} from '../../api/recommended';
 
 interface HelloWorldSceneARProps {
   onAnimationEnd: () => void;
 }
+ViroARTrackingTargets.createTargets({
+  SSAFYImage: {
+    source: require('../../assets/ar/ssafy.jpg'), // 감지할 이미지 경로
+    orientation: 'Up',
+    physicalWidth: 0.1, // 실제 이미지의 폭 (미터 단위)
+  },
+});
 
 // 애니메이션 등록
 ViroAnimations.registerAnimations({
-  // 공 던지기 애니메이션
   throwBall: {
     properties: {
-      positionX: 0.1, // X축: 그대로
-      positionY: 0.1, // Y축: 아래로 이동
-      positionZ: -0.75, // Z축: 더 멀리 날아가도록 조정
-      rotateY: '+=360', // Y축 회전
+      positionX: 0.1,
+      positionY: 0.1,
+      positionZ: -0.75,
+      rotateY: '+=360',
     },
     duration: 1000,
     easing: 'easeInEaseOut',
   },
-  // 몬스터 날아가는 애니메이션
   monsterFlyAway: {
     properties: {
-      positionX: '0.1', // X축: 공 쪽으로 이동 (왼쪽에서 약간만 이동)
-      positionZ: '+=0.75', // Z축: 공 쪽으로 이동 (더 가까워지도록 조정)
-      scaleX: 0, // 점점 작아짐
-      scaleY: 0, // 점점 작아짐
-      scaleZ: 0, // 점점 작아짐
-      opacity: 0, // 투명해짐
+      positionX: '0.1',
+      positionZ: '+=0.75',
+      scaleX: 0,
+      scaleY: 0,
+      scaleZ: 0,
+      opacity: 0,
     },
     duration: 800,
     easing: 'easeIn',
@@ -52,22 +59,40 @@ const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps & {wassumonName: string
   const [text, setText] = useState('Initializing AR...');
   const [throwAnim, setThrowAnim] = useState(false);
   const [monsterAnim, setMonsterAnim] = useState(false);
+  const [isMarkerDetected, setIsMarkerDetected] = useState(false);
+  const [markerTriggered, setMarkerTriggered] = useState(false); // 한 번만 트리거되도록 상태 추가
+  const [modelPosition, setModelPosition] = useState<[number, number, number] | null>(null);
+
   useEffect(() => {
     setText('Click Ball!');
   }, []);
 
   const handleThrowBall = () => {
-    setThrowAnim(true);
-    setTimeout(() => {
-      setMonsterAnim(true);
+    if (isMarkerDetected || wassumonName !== 'SSAFY몬') {
+      // 공 애니메이션 실행
+      setThrowAnim(true);
       setTimeout(() => {
-        onAnimationEnd();
-      }, 800);
-    }, 1000);
+        setMonsterAnim(true);
+        setTimeout(() => {
+          onAnimationEnd();
+        }, 800);
+      }, 1000);
+    }
+  };
+
+  const handleMarkerDetected = (anchorPosition: [number, number, number]) => {
+    // 이미지가 인식된 후 한 번만 트리거되도록 설정
+    if (markerTriggered) return;
+
+    if (wassumonName === 'SSAFY몬') {
+      setIsMarkerDetected(true);
+      setMarkerTriggered(true); // 트리거를 한 번만 실행하도록 설정
+      setModelPosition([0, 0, 0]); // 기준점을 0, 0, 0으로 설정
+      setText('SSAFY몬 Detected!');
+    }
   };
   const getModelSource = () => {
-    console.log('Getting model source for:', wassumonName); // 현재 wassumonName 값 확인
-    switch (wassumonName) {
+    switch (wassumonName?.trim()) {
       case '밀면몬':
         return require('../../assets/ar/3d-models/밀면몬.glb');
       case '쌀국수몬':
@@ -80,11 +105,19 @@ const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps & {wassumonName: string
         return require('../../assets/ar/3d-models/카스테라몬.glb');
       case '소금빵몬':
         return require('../../assets/ar/3d-models/소금빵몬.glb');
+      case '소보루몬':
+        return require('../../assets/ar/3d-models/소보루몬.glb');
+      case '단팥몬':
+        return require('../../assets/ar/3d-models/단팥몬.glb');
+      case '바게트몬':
+        return require('../../assets/ar/3d-models/바게트몬.glb');
+      case 'SSAFY몬':
+        return require('../../assets/ar/3d-models/SSAFY몬.glb');
       default:
-        console.log('Default model used'); // 기본 모델이 선택된 경우
         return require('../../assets/ar/3d-models/model.glb');
     }
   };
+
   return (
     <ViroARScene>
       <ViroAmbientLight color="#FFFFFF" intensity={200} />
@@ -95,31 +128,81 @@ const HelloWorldSceneAR: React.FC<HelloWorldSceneARProps & {wassumonName: string
         attenuationEndDistance={4}
         castsShadow={true}
       />
-      {/* soccer.glb 모델 - 고정된 위치 */}
-      <Viro3DObject
-        source={require('../../assets/ar/3d-models/bread_ball.glb')}
-        position={[0, -0.1, -0.2]} // X: 0 (가운데), Y: -0.5 (적절한 높이), Z: -1 (정면에 위치)
-        scale={[0.03, 0.03, 0.03]}
-        type="GLB"
-        onClick={handleThrowBall}
-        animation={{
-          name: 'throwBall',
-          run: throwAnim,
-          loop: false,
-        }}
-      />
-      <Viro3DObject
-        source={getModelSource()}
-        position={[0, 0, -1.5]}
-        scale={[0.6, 0.6, 0.6]}
-        rotation={[0, 0, 0]}
-        type="GLB"
-        animation={{
-          name: 'monsterFlyAway',
-          run: monsterAnim,
-          loop: false,
-        }}
-      />
+
+      {/* SSAFY몬일 때 이미지 인식은 시작 신호 역할 및 위치 고정 */}
+      {wassumonName === 'SSAFY몬' && (
+        <ViroARImageMarker
+          target="SSAFYImage"
+          onAnchorFound={anchor =>
+            handleMarkerDetected([anchor.position[0], anchor.position[1], anchor.position[2]])
+          }
+        />
+      )}
+
+      {/* 고정된 위치에 3D 모델 렌더링 */}
+      {modelPosition && (
+        <>
+          {/* Bread Ball 3D Object */}
+          <Viro3DObject
+            source={require('../../assets/ar/3d-models/bread_ball.glb')}
+            position={[modelPosition[0], modelPosition[1] - 0.1, modelPosition[2] - 0.2]} // 기준점에서 가중치 적용
+            scale={[0.03, 0.03, 0.03]}
+            type="GLB"
+            onClick={handleThrowBall}
+            animation={{
+              name: 'throwBall',
+              run: throwAnim,
+              loop: false,
+            }}
+          />
+          {/* SSAFY몬 3D Object */}
+          {wassumonName === 'SSAFY몬' && (
+            <Viro3DObject
+              source={require('../../assets/ar/3d-models/SSAFY몬.glb')}
+              position={[modelPosition[0], modelPosition[1], modelPosition[2] - 1.5]} // 기준점에 SSAFY몬 렌더링
+              scale={[0.4, 0.4, 0.4]}
+              rotation={[0, 0, 0]}
+              type="GLB"
+              animation={{
+                name: 'monsterFlyAway',
+                run: monsterAnim,
+                loop: false,
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {/* SSAFY몬이 아닌 경우에도 같은 위치에 렌더링 */}
+      {wassumonName !== 'SSAFY몬' && (
+        <>
+          <Viro3DObject
+            source={require('../../assets/ar/3d-models/bread_ball.glb')}
+            position={[0, -0.1, -0.2]} // 고정된 위치
+            scale={[0.03, 0.03, 0.03]}
+            type="GLB"
+            onClick={handleThrowBall}
+            animation={{
+              name: 'throwBall',
+              run: throwAnim,
+              loop: false,
+            }}
+          />
+          <Viro3DObject
+            source={getModelSource()}
+            position={[0, 0, -1.5]} // 고정된 위치
+            scale={[0.4, 0.4, 0.4]}
+            rotation={[0, 0, 0]}
+            type="GLB"
+            animation={{
+              name: 'monsterFlyAway',
+              run: monsterAnim,
+              loop: false,
+            }}
+          />
+        </>
+      )}
+
       <ViroText
         text={text}
         scale={[0.5, 0.5, 0.5]}
