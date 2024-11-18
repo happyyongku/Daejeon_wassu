@@ -6,7 +6,6 @@ export async function getRecommendedTouristSpots(category: string) {
   try {
     const response = await api.get(`/tourist/recommend/${category}`);
     if (response && response.data) {
-      console.log('Recommended tourist spots retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve recommended tourist spots.');
@@ -28,7 +27,6 @@ export async function getCoursePresets() {
   try {
     const response = await Authfastapi.get('/courses');
     if (response && response.data) {
-      console.log('Course presets retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve course presets.');
@@ -49,7 +47,6 @@ export async function getCourseDetail(id: number) {
   try {
     const response = await Authfastapi.get(`/courses/${id}`);
     if (response && response.data) {
-      console.log('Course detail retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve course detail.');
@@ -70,7 +67,6 @@ export async function getAiRecommendedCourse() {
   try {
     const response = await fastapi.get('/courses/chatbot');
     if (response && response.data) {
-      console.log('AI recommended course retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve AI recommended course.');
@@ -96,7 +92,6 @@ export async function createCourse(startDate: string, endDate: string) {
     });
 
     if (response && response.data) {
-      console.log('Course created successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to create course.');
@@ -119,7 +114,6 @@ export async function updateCourseOrder(coursesId: string, updatedOrder: any) {
     const response = await api.put(`/courses/${coursesId}`, updatedOrder);
 
     if (response && response.data) {
-      console.log('Course order updated successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to update course order.');
@@ -142,7 +136,6 @@ export async function addTouristSpotToCourse(coursesId: string, touristSpot: any
     const response = await api.post(`/courses/${coursesId}`, touristSpot);
 
     if (response && response.data) {
-      console.log('Tourist spot added successfully to course:', response.data);
       return response.data;
     } else {
       console.error('Failed to add tourist spot to course.');
@@ -165,7 +158,6 @@ export async function deleteTouristSpotFromCourse(coursesId: string, touristId: 
     const response = await api.delete(`/courses/${coursesId}/tourist/${touristId}`);
 
     if (response && response.data) {
-      console.log('Tourist spot deleted successfully from course:', response.data);
       return response.data;
     } else {
       console.error('Failed to delete tourist spot from course.');
@@ -188,7 +180,6 @@ export async function getChatbotResponse(userInput: string) {
     const response = await Authfastapi.post(`/chat?user_input=${encodeURIComponent(userInput)}`);
 
     if (response && response.data) {
-      console.log('Chatbot response retrieved successfully:', response.data);
       return response.data.response; // 응답에서 `response` 필드 가져오기
     } else {
       console.error('Failed to retrieve chatbot response.');
@@ -210,7 +201,6 @@ export async function markSpotAsVisited(courseId: number, spotId: number) {
     const response = await Authfastapi.post(`/courses/${courseId}/spots/${spotId}/visit`);
 
     if (response && response.data) {
-      console.log('Spot marked as visited successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to mark spot as visited.');
@@ -232,7 +222,6 @@ export async function getUserChallenges() {
     const response = await Authfastapi.get('/user/challenges');
 
     if (response && response.data) {
-      console.log('User challenges retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve user challenges.');
@@ -255,7 +244,6 @@ export async function getUserWassumon() {
     const response = await Authfastapi.get('/user/wassumon');
 
     if (response && response.data) {
-      console.log('User Wassumon retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve user Wassumon.');
@@ -276,7 +264,6 @@ export async function startCourse(courseId: number) {
   try {
     const response = await Authfastapi.post(`/courses/${courseId}/start`);
     if (response && response.data) {
-      console.log('Challenge started successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to start challenge.');
@@ -296,7 +283,6 @@ export async function getWassumonDetails(spotId: number) {
   try {
     const response = await Authfastapi.get(`/wassumons/${spotId}`);
     if (response && response.data) {
-      console.log('Wassumon details retrieved successfully:', response.data);
       return response.data.wassumon_details;
     } else {
       console.error('Failed to retrieve Wassumon details.');

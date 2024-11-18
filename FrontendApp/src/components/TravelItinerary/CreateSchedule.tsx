@@ -237,7 +237,11 @@ const CreateSchedule = () => {
             <Text style={styles.dateText}>{getFormattedDate(endDate)}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={goToDetails}>
+        <TouchableOpacity
+          style={[styles.button, (!startDate || !endDate) && styles.disabledButton]}
+          onPress={goToDetails}
+          disabled={!startDate || !endDate} // 날짜가 선택되지 않았을 경우 비활성화
+        >
           <Text style={styles.buttonText}>
             {startDate && endDate
               ? `${getFormattedDate(startDate)} - ${getFormattedDate(endDate)} 등록하기`
@@ -316,6 +320,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontFamily: 'Pretendard-SemiBold',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', // 비활성화된 버튼 색상
   },
 });
 

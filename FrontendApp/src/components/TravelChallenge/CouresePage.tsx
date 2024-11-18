@@ -42,7 +42,6 @@ const CoursePage = () => {
   }, []);
 
   const goToChallengeDetail = (courseId: number) => {
-    console.log('Navigating with courseId:', courseId); // 추가된 로그
     navigation.navigate('ChallengeDetail', {id: courseId});
   };
 

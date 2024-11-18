@@ -45,7 +45,6 @@ const GpsComponent: React.FC<GpsComponentProps> = ({onLocationRetrieved}) => {
         onLocationRetrieved({latitude, longitude});
       },
       error => {
-        Alert.alert('위치 가져오기 실패', error.message);
         onLocationRetrieved({latitude: 0, longitude: 0});
       },
       {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},

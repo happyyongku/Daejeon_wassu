@@ -30,10 +30,8 @@ const Gps: React.FC = () => {
           },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('위치 권한이 허용되었습니다');
           getCurrentLocation();
         } else {
-          console.log('위치 권한이 거부되었습니다');
           Alert.alert('권한 거부', '위치 권한이 거부되었습니다. 위치 기능을 사용할 수 없습니다.');
         }
       } catch (err) {

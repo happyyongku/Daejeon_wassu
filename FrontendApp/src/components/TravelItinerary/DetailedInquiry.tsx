@@ -7,7 +7,6 @@ import {
   Dimensions,
   StyleSheet,
   Image,
-  Alert,
   FlatList,
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -36,7 +35,6 @@ type Day = {
 
 const DetailedInquiry = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'DetailedInquiry'>>();
-  console.log('Route Params:', route.params);
 
   const {itinerary = null, dayId, selectedPlace} = route.params || {};
   const [scheduleId, setScheduleId] = useState<number | null>(itinerary?.scheduleId ?? null);
@@ -82,7 +80,6 @@ const DetailedInquiry = () => {
 
   useEffect(() => {
     const routeParams = JSON.stringify(route.params, null, 2);
-    console.log('Route Params:', routeParams);
   }, [route.params]);
 
   const handleEditToggle = () => {
@@ -100,11 +97,6 @@ const DetailedInquiry = () => {
   };
 
   const handleUpdateSchedule = async () => {
-    if (!scheduleId) {
-      Alert.alert('오류', '유효한 일정 ID가 없습니다.');
-      return;
-    }
-
     const formattedPlans = dailyPlans.map(day => ({
       date: day.date,
       spotIds: day.places.map(place => place.id),
@@ -121,20 +113,27 @@ const DetailedInquiry = () => {
     try {
       const response = await updateSchedule(scheduleId, requestData);
       if (response) {
-        Alert.alert('수정 완료', '일정이 성공적으로 수정되었습니다.');
         navigation.navigate('TravelItinerary'); // 수정 후 여행 일정 화면으로 이동
       }
     } catch (error) {
-      Alert.alert('오류', '일정 수정 중 오류가 발생했습니다.');
       console.error(error);
     }
   };
 
-  const renderFooter = () => (
-    <TouchableOpacity style={styles.updateButton} onPress={handleUpdateSchedule}>
-      <Text style={styles.updateButtonText}>수정하기</Text>
-    </TouchableOpacity>
-  );
+  const renderFooter = () => {
+    // dailyPlans 중 하나라도 places가 비어 있으면 버튼 비활성화
+    const isButtonDisabled = dailyPlans.some(day => day.places.length === 0);
+
+    return (
+      <TouchableOpacity
+        style={[styles.updateButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleUpdateSchedule}
+        disabled={isButtonDisabled} // 조건에 따라 버튼 활성/비활성화
+      >
+        <Text style={styles.updateButtonText}>수정하기</Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderDaySection = ({item}: {item: Day}) => (
     <View style={styles.daySection}>
@@ -267,6 +266,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', // 비활성화된 버튼 색상
   },
 });
 

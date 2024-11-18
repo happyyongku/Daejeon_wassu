@@ -57,7 +57,6 @@ export async function postMarble(
     });
 
     if (response.status === 200) {
-      console.log('마블 데이터 전송 성공:', response.data);
       return response.data; // roomId 반환
     } else {
       console.error('마블 데이터 전송 실패:', response.data);
@@ -96,7 +95,6 @@ export async function getRoomDetails(roomId: number): Promise<RoomDetails> {
     const response = await Authapi.get(`/marble/room/${roomId}`);
 
     if (response.status === 200) {
-      console.log('방 상세 정보 조회 성공:', response.data);
       return response.data as RoomDetails; // 명시적 타입 변환
     } else {
       console.error('방 상세 정보 조회 실패:', response.data);
@@ -165,7 +163,6 @@ export async function playMarble(
     });
 
     if (response.status === 200) {
-      console.log('게임 플레이 요청 성공:', response.data);
       return {success: true, message: response.data.status}; // 성공 응답
     } else {
       console.error('게임 플레이 요청 실패:', response.data);
@@ -189,7 +186,6 @@ export async function endGame(roomId: number): Promise<{status: string}> {
     const response = await Authapi.delete(`/marble/room/${roomId}/complete`);
 
     if (response.status === 200) {
-      console.log('게임 종료 요청 성공:', response.data);
       return {status: response.data.status || 'marble deleted'}; // 성공 응답
     } else {
       console.error('게임 종료 요청 실패:', response.data);
@@ -213,7 +209,6 @@ export async function regenerateInviteCode(roomId: number): Promise<{inviteCode:
     const response = await Authapi.post(`/marble/room/${roomId}/code`);
 
     if (response.status === 200) {
-      console.log('초대코드 재생성 성공:', response.data);
       return response.data; // inviteCode 반환
     } else {
       console.error('초대코드 재생성 실패:', response.data);
@@ -239,7 +234,6 @@ export async function joinRoom(inviteCode: string): Promise<{roomId: number}> {
     });
 
     if (response.status === 200) {
-      console.log('방 입장 성공:', response.data);
       return response.data; // roomId 반환
     } else {
       console.error('방 입장 실패:', response.data);
@@ -264,11 +258,8 @@ export async function getMyMarble(): Promise<{roomId: number; single: boolean} |
 
     if (response.status === 200) {
       if (response.data.message === 'no room') {
-        console.log('진행 중인 마블 없음:', response.data.message);
         return null; // 진행 중인 마블이 없을 경우 null 반환
       }
-
-      console.log('진행 중인 마블 조회 성공:', response.data);
       return response.data; // roomId와 single 값을 반환
     } else {
       console.error('진행 중인 마블 조회 실패:', response.data);
@@ -311,7 +302,6 @@ export async function postCustomMarble(
     );
 
     if (response.status === 200) {
-      console.log('맞춤 보드 생성 성공:', response.data);
       return response.data; // roomId 반환
     } else {
       console.error('맞춤 보드 생성 실패:', response.data);
@@ -353,7 +343,6 @@ export async function postCustomMarbles(
     );
 
     if (response.status === 200) {
-      console.log('맞춤 보드 생성 성공 (초대 코드 포함):', response.data);
       return response.data; // roomId와 inviteCode 반환
     } else {
       console.error('맞춤 보드 생성 실패:', response.data);

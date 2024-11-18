@@ -130,20 +130,26 @@ const Details = () => {
     try {
       const response = await createSchedule(requestData);
       if (response) {
-        Alert.alert('일정 생성', '일정이 성공적으로 생성되었습니다.');
         navigation.navigate('TravelItinerary');
       }
     } catch (error) {
-      Alert.alert('오류', '일정 생성 중 오류가 발생했습니다.');
       console.error(error);
     }
   };
 
-  const renderFooter = () => (
-    <TouchableOpacity style={styles.addScheduleButton} onPress={handleAddSchedule}>
-      <Text style={styles.addScheduleButtonText}>일정추가하기</Text>
-    </TouchableOpacity>
-  );
+  const renderFooter = () => {
+    const isButtonDisabled = itinerary.some(day => day.places.length === 0);
+
+    return (
+      <TouchableOpacity
+        style={[styles.addScheduleButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleAddSchedule}
+        disabled={isButtonDisabled} // 조건에 따라 버튼 활성/비활성화
+      >
+        <Text style={styles.addScheduleButtonText}>일정추가하기</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -280,12 +286,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginVertical: 20,
+    marginBottom: 50,
     marginHorizontal: width * 0.1,
   },
   addScheduleButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', // 비활성화된 버튼 색상
   },
 });
 

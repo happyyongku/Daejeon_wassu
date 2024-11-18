@@ -65,7 +65,6 @@ const RecommendedPlace = () => {
           name: item.spotName,
         }));
         setPlaces(formattedPlaces);
-        console.log('Formatted Places:', formattedPlaces);
       } else {
         console.error('Failed to fetch places - Response is null or undefined');
       }
@@ -78,16 +77,11 @@ const RecommendedPlace = () => {
     fetchPlacesByCategory(selectedCategory);
   }, [selectedCategory]);
 
-  useEffect(() => {
-    fetchPlacesByCategory(selectedCategory);
-  }, [selectedCategory]);
-
   const goToPlaceList = () => {
     navigation.navigate('PlaceList', {category: selectedCategory});
   };
 
   const goToPlaceDetail = (id: string) => {
-    console.log('Navigating to PlaceDetail with ID:', id); // 디버그용 로그
     navigation.navigate('PlaceDetail', {id});
   };
 

@@ -41,7 +41,6 @@ const Invitation = () => {
     }
     try {
       const {roomId} = await joinRoom(inviteCode.trim());
-      console.log('방 입장 성공! Room ID:', roomId);
       navigation.navigate('GameTwo', {roomId});
     } catch (error) {
       console.error('방 입장 중 에러:', error);

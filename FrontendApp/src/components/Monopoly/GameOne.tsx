@@ -89,7 +89,6 @@ const GameOne = () => {
         setNodes(sortedNodes); // 정렬된 노드 저장
         setPlayerIcon(roomData.you.profileImage); // profileImage 설정
       } catch (error) {
-        Alert.alert('오류', '방 정보를 가져오는 중 문제가 발생했습니다.');
         console.error('getRoomDetails Error:', error);
       }
     };
@@ -211,10 +210,9 @@ const GameOne = () => {
       if (response.success) {
         console.log('게임 플레이 요청 성공:', response.message);
       } else {
-        Alert.alert('오류', response.message || '주사위 굴리기에 실패했습니다.');
+        console.log('주사위 굴리기 실패:', response.message);
       }
     } catch (error) {
-      Alert.alert('오류', '주사위 굴리기 중 문제가 발생했습니다.');
       console.error('주사위 굴리기 에러:', error);
     } finally {
       setTimeout(() => {
@@ -230,10 +228,9 @@ const GameOne = () => {
         console.log('Pass 요청 성공:', response.message);
         setYourPass(0); // Pass 버튼 비활성화
       } else {
-        Alert.alert('오류', response.message || 'Pass에 실패했습니다.');
+        console.log('Pass 실패', response.message);
       }
     } catch (error) {
-      Alert.alert('오류', 'Pass 중 문제가 발생했습니다.');
       console.error('Pass 처리 에러:', error);
     }
   };
@@ -277,11 +274,10 @@ const GameOne = () => {
           {cancelable: false},
         );
       } else {
-        Alert.alert('오류', '게임 종료 처리에 실패했습니다.');
+        console.log('종료 실패');
       }
     } catch (error) {
       console.error('게임 종료 에러:', error);
-      Alert.alert('오류', '게임 종료 요청 중 문제가 발생했습니다.');
     }
   };
 

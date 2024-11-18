@@ -65,7 +65,6 @@ export async function getTouristSpots(
     });
 
     if (response && response.status === 200) {
-      console.log(response.data.data);
       return response.data.data as TouristSpot[];
     } else {
       console.error(response.data);
@@ -144,7 +143,6 @@ export async function getTouristSpotDetails(id: string): Promise<TouristSpotDeta
     const response = await Authapi.get(`/tourist/details/${id}`);
 
     if (response && response.status === 200) {
-      console.log(response.data);
       return response.data as TouristSpotDetails;
     } else {
       console.error(response.data);
@@ -166,7 +164,6 @@ export async function getTouristSpotLocation(id: string): Promise<TouristSpotLoc
     const response = await api.get(`/tourist/location/${id}`);
 
     if (response && response.status === 200) {
-      console.log(response.data);
       return response.data as TouristSpotLocation;
     } else {
       console.error(response.data);
@@ -188,7 +185,6 @@ export async function getTouristSpotReviews(id: string): Promise<TouristSpotRevi
     const response = await api.get(`/tourist/reviews/${id}`);
 
     if (response && response.status === 200) {
-      console.log(response.data.visited_spots);
       return response.data.visited_spots as TouristSpotReview[];
     } else {
       console.error(response.data);
@@ -232,7 +228,6 @@ export async function createReview(
     });
 
     if (response && response.status === 200 && response.data === 'review created') {
-      console.log('Review created successfully.');
       return true;
     } else {
       console.error(response.data);

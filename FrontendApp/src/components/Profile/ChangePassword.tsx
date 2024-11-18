@@ -24,7 +24,6 @@ const ChangePassword = () => {
 
     const response = await changePassword(currentPassword, newPassword);
     if (response && response.data && response.data.status === 'success') {
-      Alert.alert('성공', '비밀번호가 성공적으로 변경되었습니다.');
       await logout(); // 로그아웃 함수 호출
       navigation.navigate('Login'); // 로그인 페이지로 이동
     } else {

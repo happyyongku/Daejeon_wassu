@@ -100,8 +100,6 @@ export const updatePost = async (
         'Content-Type': 'multipart/form-data',
       },
     });
-
-    console.log('게시글 수정 성공:', response.data);
   } catch (error) {
     console.error('게시글 수정 실패:', error);
     throw error;
@@ -112,7 +110,6 @@ export const updatePost = async (
 export const deletePost = async (postId: string): Promise<void> => {
   try {
     const response = await Authapi.delete(`/posts/${postId}`);
-    console.log('게시글 삭제 성공:', response.data);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('게시글 삭제 실패 (Axios 에러):', error.response);
@@ -129,7 +126,6 @@ export async function getPosts(category: string) {
     const response = await Authapi.get(`/posts/${category}`);
 
     if (response && response.data) {
-      console.log('Posts retrieved successfully:', response.data);
       return response.data;
     } else {
       console.error('Failed to retrieve posts.');

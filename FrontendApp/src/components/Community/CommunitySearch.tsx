@@ -47,7 +47,6 @@ const CommunitySearch = () => {
   }, [searchText, handleSearch]);
 
   const handlePostPress = (articleId: string) => {
-    console.log('Navigating to PostDetail with articleId:', articleId);
     navigation.navigate('PostDetail', {articleId});
   };
 

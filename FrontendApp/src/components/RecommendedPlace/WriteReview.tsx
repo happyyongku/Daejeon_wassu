@@ -88,14 +88,12 @@ const WriteReview = () => {
       // 리뷰 등록 API 호출
       const success = await createReview(spotId, review, image);
       if (success) {
-        Alert.alert('성공', '리뷰가 등록되었습니다.');
         navigation.goBack();
       } else {
-        Alert.alert('오류', '리뷰 등록에 실패했습니다.');
+        console.log('리뷰등록실패');
       }
     } catch (error) {
       console.error('리뷰 등록 오류:', error);
-      Alert.alert('오류', '리뷰 등록 중 문제가 발생했습니다.');
     }
   };
 

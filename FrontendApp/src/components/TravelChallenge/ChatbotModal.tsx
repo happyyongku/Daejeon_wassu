@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  ScrollView,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
-import {getChatbotResponse} from '../../api/recommended'; // Axios 요청 함수 불러오기
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'; // Import
+import {getChatbotResponse} from '../../api/recommended';
 
 const {width, height} = Dimensions.get('window');
 
@@ -47,17 +49,22 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
 
   return (
     <Modal transparent visible={visible} animationType="slide">
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.header}>
-            <Text style={styles.title}>왔슈봇</Text>
-            <TouchableOpacity onPress={handleModalClose}>
-              <Image source={require('../../assets/imgs/x.png')} style={styles.closeIcon} />
-            </TouchableOpacity>
-          </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.overlay}>
+          <KeyboardAwareScrollView
+            style={styles.modalContainer}
+            contentContainerStyle={{flexGrow: 1}}
+            extraScrollHeight={0} // 키보드 위에 추가 여백
+            enableOnAndroid // Android에서도 스크롤 동작 활성화
+          >
+            <View style={styles.header}>
+              <Text style={styles.title}>왔슈봇</Text>
+              <TouchableOpacity onPress={handleModalClose}>
+                <Image source={require('../../assets/imgs/x.png')} style={styles.closeIcon} />
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.chatWrapper}>
-            <ScrollView contentContainerStyle={styles.chatContainer}>
+            <View style={styles.chatWrapper}>
               {chatMessages.length === 0 ? (
                 <Text style={styles.noChatText}>대화 내용은 실제 니니즈 세계관과 무관합니다.</Text>
               ) : (
@@ -83,22 +90,22 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
                   </View>
                 ))
               )}
-            </ScrollView>
-          </View>
+            </View>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              value={userInput}
-              onChangeText={setUserInput}
-              placeholder="메시지를 입력해주세요"
-            />
-            <TouchableOpacity onPress={handleSend}>
-              <Image source={require('../../assets/imgs/input.png')} style={styles.sendIcon} />
-            </TouchableOpacity>
-          </View>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                value={userInput}
+                onChangeText={setUserInput}
+                placeholder="메시지를 입력해주세요"
+              />
+              <TouchableOpacity onPress={handleSend}>
+                <Image source={require('../../assets/imgs/input.png')} style={styles.sendIcon} />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAwareScrollView>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -106,9 +113,12 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginVertical: 100,
+    marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderRadius: 15,
   },
   modalContainer: {
     width: width * 0.95,
@@ -141,10 +151,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#DDD',
     backgroundColor: '#C8DECB',
     paddingTop: 10,
-  },
-  chatContainer: {
-    flexGrow: 1,
-    paddingHorizontal: 10,
   },
   noChatText: {
     fontSize: 14,
@@ -197,6 +203,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#DDD',
     padding: 10,
+    backgroundColor: '#FFF',
   },
   input: {
     flex: 1,

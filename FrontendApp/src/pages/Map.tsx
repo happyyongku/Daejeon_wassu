@@ -24,12 +24,10 @@ const RoomScreen = () => {
 
   // 마운트 됐을 때 연결을 시작한다
   useEffect(() => {
-    console.log('마운트 시작');
     const fetchTokenAndConnect = async () => {
       try {
         const {accessToken} = await getTokens();
         if (!accessToken) {
-          console.log('No access token found');
           return;
         }
         // SSE 연결
@@ -39,19 +37,15 @@ const RoomScreen = () => {
           },
         });
         // 연결 성공 시
-        sse.addEventListener('open', () => {
-          console.log('연결 성공');
-        });
+        sse.addEventListener('open', () => {});
         // 본인, 혹은 타인에 의해 변화가 발생하면 실시간으로 값을 반환하는 코드
         // 예를 들어서, 상대방이 주사위를 굴리면 해당 값을 event1.data로 받아올 수 있다.
         sse.addEventListener('message', (event: any) => {
-          console.log('SSE message event data received:', event.data);
           if (event.data !== 'keep-alive') {
             // 데이터를 json 형식으로 바꿔주고
             const parsedData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
             // 위에서 만든 상태를 해당 값으로 갱신해준다.
             setEvent(parsedData);
-            console.log(parsedData.user1Data);
           }
         });
 
@@ -61,7 +55,6 @@ const RoomScreen = () => {
 
         return () => {
           sse.close();
-          console.log('연결 종료');
         };
       } catch (error) {
         console.error('SSE 연결 중 오류 발생:', error);
@@ -79,7 +72,6 @@ const RoomScreen = () => {
           Authorization: `Bearer ${accessToken}`, // 헤더에 accessToken 추가
         },
       });
-      console.log('Message sent:', response.data);
     } catch (error) {
       console.error('Failed to send message:', error);
     }

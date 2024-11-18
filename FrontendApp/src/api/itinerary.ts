@@ -70,7 +70,6 @@ export async function createSchedule(scheduleData: ScheduleRequest): Promise<str
     const response = await Authapi.post('/courses', scheduleData);
 
     if (response && response.status === 200) {
-      console.log('Schedule created successfully:', response.data);
       return response.data;
     } else {
       console.error('Error creating schedule:', response.data);
@@ -92,7 +91,6 @@ export async function getMySchedules(): Promise<ScheduleResponse | null> {
     const response = await Authapi.get('/courses/my');
 
     if (response && response.status === 200) {
-      console.log('일정 조회 성공:', response.data);
       return {
         onGoingSchedules: response.data.onGoingSchedules ?? null,
         upcomingSchedules: response.data.upcomingSchedules || [],
@@ -118,7 +116,6 @@ export async function deleteSchedule(scheduleId: string): Promise<boolean> {
     const response = await Authapi.delete(`/courses/${scheduleId}`);
 
     if (response && response.status === 200) {
-      console.log(response.data);
       return true;
     } else {
       console.error(response.data);
@@ -147,7 +144,6 @@ export async function updateSchedule(
     });
 
     if (response && response.status === 200) {
-      console.log('일정 수정 성공:', response.data);
       return true;
     } else {
       console.error('일정 수정 실패:', response.data);

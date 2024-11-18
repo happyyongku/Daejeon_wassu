@@ -24,7 +24,6 @@ type ChoiceTwoRouteProp = RouteProp<RootStackParamList, 'ChoiceTwo'>;
 const ChoiceTwo = () => {
   const route = useRoute<ChoiceTwoRouteProp>();
   const {single} = route.params || {};
-  console.log('Choice에서 받은 single 값:', single);
   const navigation = useNavigation<ChoiceTwoNavigationProp>();
   const {width, height} = useWindowDimensions();
   const [departure, setDeparture] = useState('');
@@ -83,7 +82,6 @@ const ChoiceTwo = () => {
       }
     } catch (error) {
       console.error('보드 생성 중 에러:', error);
-      Alert.alert('오류', '보드 생성 중 문제가 발생했습니다.');
     }
   };
 
@@ -95,7 +93,6 @@ const ChoiceTwo = () => {
       };
       if (response && response.roomId) {
         const {roomId, inviteCode} = response;
-        console.log('보드 생성 성공:', {roomId, inviteCode});
 
         navigation.navigate('GameTwo', {
           roomId,

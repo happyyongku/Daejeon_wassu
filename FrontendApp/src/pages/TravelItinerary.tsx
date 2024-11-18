@@ -135,7 +135,6 @@ const TravelItinerary = () => {
   const handleDelete = async (scheduleId: string) => {
     const isDeleted = await deleteSchedule(scheduleId);
     if (isDeleted) {
-      console.log('삭제 성공');
       await fetchSchedules(); // 일정 목록을 새로 로드
       setIsModalVisible(false);
     } else {
@@ -200,13 +199,13 @@ const TravelItinerary = () => {
         <Image source={require('../assets/imgs/plus.png')} style={styles.plusIcon} />
         <View style={styles.textContainer}>
           <Text style={styles.addButtonText}>대전 여행 일정 추가하기</Text>
-          <Text style={styles.addButtonSubtitle}>대전와슈와 대전 여행을 함께하세요</Text>
+          <Text style={styles.addButtonSubtitle}>대전왔슈와 대전 여행을 함께하세요</Text>
         </View>
       </TouchableOpacity>
 
-      {/* 대전와슈 추천 코스 보기 */}
+      {/* 대전왔슈 추천 코스 보기 */}
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>대전와슈 추천 코스 보기</Text>
+        <Text style={styles.sectionTitle}>대전왔슈 추천 코스 보기</Text>
         <Image source={require('../assets/imgs/recommend.png')} style={styles.icon} />
         <TouchableOpacity onPress={goToTravelChallenge}>
           <Text style={styles.viewAllText}>전체 코스 보기</Text>
@@ -271,21 +270,22 @@ const TravelItinerary = () => {
       )}
 
       {/* 지난 여행 */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>지난 여행</Text>
-        <Image source={require('../assets/imgs/past.png')} style={styles.icon} />
+      <View style={styles.sectionContainerss}>
+        <View style={styles.sectionContainers}>
+          <Text style={styles.sectionTitle}>지난 여행</Text>
+          <Image source={require('../assets/imgs/past.png')} style={styles.icon} />
+        </View>
+        {pastSchedules.length > 0 ? (
+          <FlatList
+            data={pastSchedules}
+            renderItem={renderTripItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        ) : (
+          <Text style={styles.noDataText}>지난 여행이 없습니다</Text>
+        )}
       </View>
-      {pastSchedules.length > 0 ? (
-        <FlatList
-          data={pastSchedules}
-          renderItem={renderTripItem}
-          keyExtractor={item => item.id}
-          scrollEnabled={false}
-        />
-      ) : (
-        <Text style={styles.noDataText}>지난 여행이 없습니다</Text>
-      )}
-
       <DeleteConfirmationModal
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
@@ -374,6 +374,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   sectionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+  },
+  sectionContainers: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
@@ -483,6 +488,9 @@ const styles = StyleSheet.create({
     borderColor: '#418663',
     borderWidth: 2,
     backgroundColor: '#E6F4EC',
+  },
+  sectionContainerss: {
+    marginBottom: 50,
   },
 });
 
