@@ -51,12 +51,16 @@ public class MarbleService {
     public InviteRoomDTO createMarble(Long marbleId, String email, CreateRoomDTO dto) {
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         MarbleEntity marble = marbleRepository.findById(marbleId).orElseThrow(() -> new CustomException(CustomErrorCode.MARBLE_NOT_FOUND));
+        return processCreateRoom(dto.isSingle(), marble, creator);
+    }
+
+    public InviteRoomDTO processCreateRoom(boolean single, MarbleEntity marble, UserEntity creator) {
         MarbleRoomEntity room = MarbleRoomEntity.builder()
                 .marble(marble)
                 .creator(creator)
                 .build();
         String code = null;
-        if (!dto.isSingle()) { // 같이도슈면 초대코드 생성
+        if (!single) { // 같이도슈면 초대코드 생성
             code = generateInviteCode();
             room.setSingle(false);
             room.setReady(false);

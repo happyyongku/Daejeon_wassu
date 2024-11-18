@@ -24,4 +24,6 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpotEntity, 
             "order by (ts.favoritesCount + count (r.id)) desc")
     List<TouristSpotEntity> findAllWithScores();
 
+    Optional<TouristSpotEntity> findBySpotName(String spotName);
+
 }

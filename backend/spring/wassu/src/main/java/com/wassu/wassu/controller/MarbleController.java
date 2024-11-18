@@ -2,21 +2,18 @@ package com.wassu.wassu.controller;
 
 import com.wassu.wassu.dto.marble.*;
 import com.wassu.wassu.security.JwtUtil;
+import com.wassu.wassu.service.marble.CreateRouteService;
 import com.wassu.wassu.service.marble.MarbleService;
 import com.wassu.wassu.service.marble.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RestController
@@ -26,6 +23,7 @@ public class MarbleController {
 
     private final MarbleService marbleService;
     private final SseService sseService;
+    private final CreateRouteService routeService;
     private final JwtUtil jwtUtil;
 
     // 마블 목록 조회
@@ -46,6 +44,19 @@ public class MarbleController {
             userEmail = jwtUtil.extractUserEmail(token);
         }
         InviteRoomDTO result = marbleService.createMarble(marbleId, userEmail, dto);
+        return ResponseEntity.ok(result);
+    }
+
+    // 맞춤보드 생성
+    @PostMapping("/route")
+    public ResponseEntity<?> createMarbleRoot(@RequestHeader(value="Authorization", required = false) String accessToken,
+                                              @RequestParam boolean single, @RequestBody CreateRouteDTO dto) {
+        String userEmail = null;
+        if (accessToken != null) {
+            String token = accessToken.replace("Bearer ", "");
+            userEmail = jwtUtil.extractUserEmail(token);
+        }
+        InviteRoomDTO result = routeService.createMarbleRoot(userEmail, dto, single);
         return ResponseEntity.ok(result);
     }
 
