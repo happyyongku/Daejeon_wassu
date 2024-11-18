@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { StampData, ChallengeData } from "@/types";
 import style from "./parttwo.module.css";
 import axios from "axios";
 
 export default function PartTwo() {
-  const [noStamp, setNoStamp] = useState([]);
-  const [challenges, setChallenges] = useState(null);
+  const [stamps, setStamps] = useState<StampData[]>([]);
+  const [challenges, setChallenges] = useState<ChallengeData | null>(null);
 
   // 스탬프 조회
   const getStamp = async () => {
@@ -22,6 +23,7 @@ export default function PartTwo() {
       );
       if (response.data) {
         console.log("스탬프 조회 성공", response.data);
+        setStamps(response.data);
       }
     } catch (error) {
       console.error(error);
@@ -41,6 +43,7 @@ export default function PartTwo() {
       );
       if (response.data) {
         console.log("챌린지 조회 성공", response.data);
+        setChallenges(response.data);
       }
     } catch (error) {
       console.error(error);
@@ -53,5 +56,82 @@ export default function PartTwo() {
     getChallenge();
   }, []);
 
-  return <div>part two</div>;
+  return (
+    <div>
+      <div className={style.container}>
+        <div className={style.stampbox}>
+          <h3 className={style.stamptitle}>도장</h3>
+        </div>
+
+        <div className={style.challengebox}>
+          <div className={style.stampcardbox}>
+            {stamps.map((item, index) => (
+              <div key={index} className={style.stampcard}>
+                <img
+                  className={style.stampimg}
+                  src={`images/${item.category}.png`}
+                  alt="도장사진"
+                />
+                <div className={style.cardtitle}>{item.spotName}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div></div>
+      </div>
+
+      {/* 여기에 첼린지 들어가면 될듯 */}
+
+      <div className={style.challengecontainer}>
+        <h1 className={style.chaltitle}>
+          <span className={style.g}>진행중인</span> 챌린지
+        </h1>
+        {challenges?.in_progress.map((item, index) => (
+          <div key={index} className={style.chalcard}>
+            <img className={style.chalimg} src={item.course.image_url} alt="" />
+            <div className={style.chalcontentbox}>
+              <div>
+                <div className={style.coursename}>
+                  {item.course.course_name}
+                </div>
+                <div className={style.coursedesc}>
+                  {item.course.description}
+                </div>
+              </div>
+              <div>
+                <span className={style.done1}>{item.completed_count}</span>
+                <span className={style.done}>&nbsp; /&nbsp; </span>
+                <span className={style.done}>{item.course_details.length}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <h1 className={style.chaltitle}>
+          <span className={style.g}>완료한</span> 챌린지
+        </h1>
+        {challenges?.completed.map((item, index) => (
+          <div key={index} className={style.chalcard}>
+            <img className={style.chalimg} src={item.course.image_url} alt="" />
+            <div className={style.chalcontentbox}>
+              <div>
+                <div className={style.coursename}>
+                  {item.course.course_name}
+                </div>
+                <div className={style.coursedesc}>
+                  {item.course.description}
+                </div>
+              </div>
+              <div>
+                <span className={style.done1}>{item.completed_count}</span>
+                <span className={style.done}>&nbsp; /&nbsp; </span>
+                <span className={style.done}>{item.course_details.length}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -7,7 +7,7 @@ import PartTwo from "@/components/mypage/parttwo";
 import PartThree from "@/components/mypage/partthree";
 
 export default function Page() {
-  const [activeButton, setActiveButton] = useState<number | null>(1);
+  const [activeButton, setActiveButton] = useState<number | null>(2);
 
   // 버튼 클릭 시 활성화 상태 변경
   const handleButtonClick = (buttonNumber: number) => {
