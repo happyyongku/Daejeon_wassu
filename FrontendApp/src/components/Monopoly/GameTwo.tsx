@@ -662,7 +662,7 @@ const GameTwo = () => {
 
   return (
     <ImageBackground
-      source={require('../../assets/imgs/mono/DBac1.png')}
+      source={require('../../assets/imgs/mono/DBack.jpg')}
       style={styles.background}
       resizeMode="cover">
       <View style={styles.boardContainer}>{renderCells()}</View>
