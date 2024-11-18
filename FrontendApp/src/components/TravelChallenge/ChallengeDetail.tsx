@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Modal,
 } from 'react-native';
 import {useNavigation, useRoute, useFocusEffect} from '@react-navigation/native';
 import type {RouteProp} from '@react-navigation/native';
@@ -103,9 +104,15 @@ const ChallengeDetail = () => {
   const handleBakeryButtonClick = (bakery: Bakery) => {
     if (buttonDisabled) return; // 버튼이 비활성화된 경우 클릭 무시
 
-    setSelectedBakery(bakery);
-    setShowGpsComponent(true);
-    setButtonDisabled(true); // GPS 위치 불러오는 동안 버튼 비활성화
+    if (completedAll === 'yet') {
+      // 챌린지가 시작되지 않은 경우 모달을 열기
+      Alert.alert('알림', '챌린지를 시작하셔야 합니다.');
+    } else {
+      // 챌린지가 시작된 경우에만 AR 페이지로 이동
+      setSelectedBakery(bakery);
+      setShowGpsComponent(true);
+      setButtonDisabled(true); // GPS 위치 불러오는 동안 버튼 비활성화
+    }
   };
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -154,6 +161,7 @@ const ChallengeDetail = () => {
       if (response) {
         console.log('Challenge started successfully:', response);
         setCompletedAll('start'); // 챌린지 상태를 'start'로 변경
+        setModalVisible(false); // 모달 닫기
       } else {
         console.error('Failed to start challenge.');
       }
@@ -162,8 +170,14 @@ const ChallengeDetail = () => {
     }
   };
   const goToPlaceDetail = (placeId: string) => {
+    if (buttonDisabled) return; // 버튼이 비활성화된 경우 클릭 무시
+
+    setButtonDisabled(true); // 버튼 비활성화
     console.log('Navigating to PlaceDetail with ID:', placeId);
     navigation.navigate('PlaceDetail', {id: placeId});
+
+    // 버튼을 다시 활성화 (필요에 따라 특정 시점에 활성화)
+    setButtonDisabled(false);
   };
 
   const goToARPage = (spotId: number) => {

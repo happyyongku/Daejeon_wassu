@@ -33,16 +33,20 @@ const Dogam = () => {
         style={styles.gradientContainer}
         start={{x: 0, y: 0}}
         end={{x: 0, y: 1}}>
-        {wassumons.map((wassumon, index) => (
-          <View key={wassumon.spot_id} style={styles.monItem}>
-            <Image
-              source={{uri: wassumon.wassumon_image}}
-              style={styles.monIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.monText}>{wassumon.wassumon_name}</Text>
-          </View>
-        ))}
+        {wassumons.length === 0 ? (
+          <Text style={styles.noItemsText}>도감에 등록된 왓슈몬이 없습니다.</Text>
+        ) : (
+          wassumons.map((wassumon, index) => (
+            <View key={wassumon.spot_id} style={styles.monItem}>
+              <Image
+                source={{uri: wassumon.wassumon_image}}
+                style={styles.monIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.monText}>{wassumon.wassumon_name}</Text>
+            </View>
+          ))
+        )}
       </LinearGradient>
     </View>
   );
@@ -66,16 +70,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#418663',
   },
   gradientContainer: {
-    flex: 1, // 부모 뷰 전체 높이를 차지하도록 설정
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between', // 아이템 간의 간격을 균등하게 설정
-    alignItems: 'flex-start',
-    paddingVertical: width * 0.1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 15, // 좌우 여백 추가
+    paddingVertical: 20, // 상하 여백 추가
   },
   monItem: {
     alignItems: 'center',
-    width: '30%', // 한 줄에 3개씩 표시되도록 설정
+    width: '30%', // 한 줄에 3개 배치
     marginBottom: 20,
   },
   monIcon: {
@@ -88,6 +92,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     textAlign: 'center',
     marginTop: 5,
+  },
+  noItemsText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
