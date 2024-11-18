@@ -53,7 +53,7 @@ public class CreateRouteService {
             email = jwtUtil.extractUserEmail(accessToken);
         }
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(token, dto);
+        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(accessToken, dto);
         MarbleEntity marble = new MarbleEntity();
         marble.setMarbleName("custom marble");
         MarbleEntity savedMarble = marbleRepository.save(marble);
