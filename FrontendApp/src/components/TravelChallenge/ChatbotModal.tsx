@@ -8,51 +8,93 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
+  Image,
 } from 'react-native';
 import {getChatbotResponse} from '../../api/recommended'; // Axios 요청 함수 불러오기
-const {width} = Dimensions.get('window');
+
+const {width, height} = Dimensions.get('window');
+
+interface ChatMessage {
+  sender: 'user' | 'chatbot';
+  text: string;
+}
 
 interface ChatbotModalProps {
   visible: boolean;
   onClose: () => void;
 }
+
 const ChatbotModal: React.FC<ChatbotModalProps> = ({visible, onClose}) => {
   const [userInput, setUserInput] = useState('');
-  const [chatResponse, setChatResponse] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const handleSend = async () => {
     if (userInput.trim() === '') return;
+    setChatMessages([...chatMessages, {sender: 'user', text: userInput}]);
     const response = await getChatbotResponse(userInput);
-    setChatResponse(response || '죄송합니다. 응답을 받을 수 없습니다.');
+    setChatMessages(prevMessages => [
+      ...prevMessages,
+      {sender: 'chatbot', text: response || '죄송합니다. 응답을 받을 수 없습니다.'},
+    ]);
+    setUserInput('');
   };
 
-  // 모달을 닫을 때 상태 초기화
   const handleModalClose = () => {
     setUserInput('');
-    setChatResponse('');
-    onClose(); // 부모 컴포넌트의 상태를 변경하는 함수 호출
+    setChatMessages([]);
+    onClose();
   };
 
   return (
     <Modal transparent visible={visible} animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>챗봇과 대화하기</Text>
-          <ScrollView style={styles.chatContainer}>
-            <Text style={styles.chatText}>{chatResponse}</Text>
-          </ScrollView>
-          <TextInput
-            style={styles.input}
-            value={userInput}
-            onChangeText={setUserInput}
-            placeholder="챗봇에게 질문을 입력하세요"
-          />
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-              <Text style={styles.sendButtonText}>보내기</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>왔슈봇</Text>
+            <TouchableOpacity onPress={handleModalClose}>
+              <Image source={require('../../assets/imgs/x.png')} style={styles.closeIcon} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={handleModalClose}>
-              <Text style={styles.closeButtonText}>닫기</Text>
+          </View>
+
+          <View style={styles.chatWrapper}>
+            <ScrollView contentContainerStyle={styles.chatContainer}>
+              {chatMessages.length === 0 ? (
+                <Text style={styles.noChatText}>대화 내용은 실제 니니즈 세계관과 무관합니다.</Text>
+              ) : (
+                chatMessages.map((message, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.messageContainer,
+                      message.sender === 'user' ? styles.userMessage : styles.chatbotMessage,
+                    ]}>
+                    {message.sender === 'chatbot' && (
+                      <Image
+                        source={require('../../assets/imgs/chatbot.png')}
+                        style={styles.chatbotImage}
+                      />
+                    )}
+                    <View style={styles.messageContent}>
+                      {message.sender === 'chatbot' && (
+                        <Text style={styles.chatbotName}>왔슈봇</Text>
+                      )}
+                      <Text style={styles.messageText}>{message.text}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={userInput}
+              onChangeText={setUserInput}
+              placeholder="메시지를 입력해주세요"
+            />
+            <TouchableOpacity onPress={handleSend}>
+              <Image source={require('../../assets/imgs/input.png')} style={styles.sendIcon} />
             </TouchableOpacity>
           </View>
         </View>
@@ -69,58 +111,104 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: width * 0.85,
-    backgroundColor: '#C8DECB',
-    borderRadius: 10,
-    padding: 20,
+    width: width * 0.95,
+    height: height * 0.8,
+    backgroundColor: '#FFF',
+    borderRadius: 15,
   },
-  title: {
-    fontSize: 18,
-    color: '#418663',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  chatContainer: {
-    maxHeight: 200,
-    marginBottom: 10,
-  },
-  chatText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#418663',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    color: '#333',
-  },
-  buttonRow: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop: 10,
   },
-  sendButton: {
+  title: {
+    left: width * 0.4,
+    fontSize: 18,
+    color: '#333',
+    fontFamily: 'Pretendard-SemiBold',
+    margin: 10,
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
+    right: 10,
+  },
+  chatWrapper: {
+    flex: 1,
+    borderTopWidth: 1,
+    borderTopColor: '#DDD',
+    backgroundColor: '#C8DECB',
+    paddingTop: 10,
+  },
+  chatContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 10,
+  },
+  noChatText: {
+    fontSize: 14,
+    color: '#AAA',
+    textAlign: 'center',
+  },
+  messageContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginVertical: 5,
+  },
+  chatbotMessage: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    padding: 10,
+    maxWidth: '80%',
+    alignItems: 'flex-start',
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
     backgroundColor: '#418663',
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    borderRadius: 15,
+    padding: 10,
+    maxWidth: '80%',
   },
-  sendButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
+  chatbotImage: {
+    width: 30,
+    height: 30,
+    marginRight: 8,
   },
-  closeButton: {
-    backgroundColor: '#FFF',
-    borderRadius: 5,
+  messageContent: {
+    flexShrink: 1,
+    maxWidth: '85%',
+  },
+  chatbotName: {
+    fontSize: 12,
+    color: '#333',
+    marginBottom: 2,
+  },
+  messageText: {
+    fontSize: 14,
+    color: '#333',
+    flexWrap: 'wrap',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#DDD',
+    padding: 10,
+  },
+  input: {
+    flex: 1,
     borderWidth: 1,
-    borderColor: '#418663',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    borderColor: '#DDD',
+    borderRadius: 20,
+    padding: 10,
+    marginRight: 10,
   },
-  closeButtonText: {
-    color: '#418663',
-    fontWeight: 'bold',
+  sendIcon: {
+    width: 30,
+    height: 30,
   },
 });
 
