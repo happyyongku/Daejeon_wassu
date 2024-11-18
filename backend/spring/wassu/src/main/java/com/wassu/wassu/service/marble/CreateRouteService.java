@@ -53,7 +53,7 @@ public class CreateRouteService {
             email = jwtUtil.extractUserEmail(token);
         }
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(accessToken, dto);
+        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(token, dto);
         MarbleEntity marble = new MarbleEntity();
         marble.setMarbleName("custom marble");
         MarbleEntity savedMarble = marbleRepository.save(marble);
@@ -77,13 +77,11 @@ public class CreateRouteService {
 
     private List<OptimalRouteDTO.Spot> getOptimalRoute(String token, CreateRouteDTO dto) {
         String url = "https://" + serverDomain + "/fast_api/api/optimal-route";
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token); // Authorization 헤더에 Bearer 토큰 추가
-
-        // HttpEntity에 요청 본문과 헤더 설정
+        headers.setBearerAuth(token);
+        
         HttpEntity<CreateRouteDTO> request = new HttpEntity<>(dto, headers);
-
-        // RestTemplate로 POST 요청 전송
         ResponseEntity<OptimalRouteDTO> response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
