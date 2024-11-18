@@ -69,9 +69,11 @@ public class TouristSpotStampService {
     }
     
     // 좌표 기반 거리 계산
+    // 1 => 사용자 좌표, 2 => 데이터 좌표
     private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
-
+        // 위도 차이
         double dLat = Math.toRadians(lat2 - lat1);
+        // 경도 차이
         double dLng = Math.toRadians(lng2 - lng1);
 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -80,6 +82,7 @@ public class TouristSpotStampService {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
+        // EARTH_RADIUS = 6378.137 (km)
         return EARTH_RADIUS * c * 1000;
     }
 

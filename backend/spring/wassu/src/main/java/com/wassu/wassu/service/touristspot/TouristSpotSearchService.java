@@ -87,7 +87,9 @@ public class TouristSpotSearchService {
             log.info("Tourist Spot Search Result: {}", touristSpots);
             long totalHits = response.hits().total() != null ? response.hits().total().value() : 0L;
 
-            return new PageImpl<>(touristSpots, pageable, totalHits);
+            long actualTotal = Math.min(totalHits, touristSpots.size() + pageable.getOffset());
+
+            return new PageImpl<>(touristSpots, pageable, actualTotal);
 
         } catch(Exception e) {
             log.error("Exception in search tourist spot: {}", e.getMessage());
@@ -145,7 +147,9 @@ public class TouristSpotSearchService {
 
             long totalHits = response.hits().total() != null ? response.hits().total().value() : 0L;
 
-            return new PageImpl<>(result, pageable, totalHits);
+            long actualTotal = Math.min(totalHits, result.size() + pageable.getOffset());
+
+            return new PageImpl<>(result, pageable, actualTotal);
 
         } catch (Exception e) {
             log.error("Exception while filteringByCategory: {}", e.getMessage());
