@@ -16,7 +16,7 @@ import FlagIcon from '../assets/imgs/flag.svg';
 import CheckIcon from '../assets/imgs/Check.svg';
 import MedalIcon from '../assets/imgs/monster.svg';
 import ChatbotIcon from '../assets/imgs/chatbot.svg';
-import {getCoursePresets, getUserWassumon} from '../api/recommended'; // API 함수 가져오기
+import {getCoursePresets, getUserChallenges, getUserWassumon} from '../api/recommended'; // API 함수 가져오기
 import ChatbotModal from '../components/TravelChallenge/ChatbotModal'; // ChatbotModal 추가
 
 const {width} = Dimensions.get('window');
@@ -44,13 +44,6 @@ const TravelChallenge = () => {
       if (data && Array.isArray(data)) {
         // 데이터를 가져온 후 상태에 설정
         setCourses(data);
-
-        // in_progress 및 completed 배열 개수를 직접 카운트
-        const inProgressCourses = data.filter(course => !course.completed_all).length;
-        const completedCourses = data.filter(course => course.completed_all).length;
-
-        setInProgressCount(inProgressCourses);
-        setCompletedCount(completedCourses);
       } else {
         console.error('Invalid course data structure:', data);
       }
@@ -106,6 +99,30 @@ const TravelChallenge = () => {
   const closeChatbotModal = () => {
     setChatbotModalVisible(false);
   };
+
+  const fetchChallenges = useCallback(async () => {
+    try {
+      const response = await getUserChallenges(); // API 호출
+      if (response) {
+        // in_progress 코스 개수 추출
+        const inProgressCourses = response.in_progress?.length || 0;
+        setInProgressCount(inProgressCourses);
+
+        // completed 코스 개수 추출
+        const completedCourses = response.completed?.length || 0;
+        setCompletedCount(completedCourses);
+      }
+    } catch (error) {
+      console.error('Error fetching challenges:', error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChallenges(); // 데이터 다시 가져오기
+    }, [fetchChallenges]),
+  );
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>

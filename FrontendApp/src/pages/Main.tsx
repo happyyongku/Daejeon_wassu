@@ -405,7 +405,9 @@ const MainPage = () => {
               <Text style={styles.challengeSubtitle}>대전여행코스 챌린지</Text>
               <FlameIcon width={25} height={25} />
 
-              <TouchableOpacity onPress={goToTravelChallenge} style={styles.viewAllContainer}>
+              <TouchableOpacity
+                onPress={() => checkLoginAndExecute(goToTravelChallenge)}
+                style={styles.viewAllContainer}>
                 <Text style={styles.viewAllLink}>전체 코스 보기</Text>
               </TouchableOpacity>
             </View>
@@ -416,7 +418,7 @@ const MainPage = () => {
             showsHorizontalScrollIndicator={false}
             style={styles.imageContainer}>
             <View style={styles.imageWrapper}>
-              <TouchableOpacity onPress={() => goToChallengeDetail(8)}>
+              <TouchableOpacity onPress={() => checkLoginAndExecute(() => goToChallengeDetail(8))}>
                 <ImageBackground source={require('../assets/imgs/noodle.jpg')} style={styles.image}>
                   <View style={styles.overlay}>
                     <Text style={styles.overlayTitle}>누들대전</Text>
@@ -429,7 +431,9 @@ const MainPage = () => {
             </View>
 
             <View style={styles.imageWrapper}>
-              <TouchableOpacity onPress={() => goToChallengeDetail(2)} style={styles.imageWrapper}>
+              <TouchableOpacity
+                onPress={() => checkLoginAndExecute(() => goToChallengeDetail(2))}
+                style={styles.imageWrapper}>
                 <ImageBackground source={require('../assets/imgs/bread.png')} style={styles.image}>
                   <View style={styles.overlay}>
                     <Text style={styles.overlayTitle}>대전 빵지순례</Text>
@@ -453,7 +457,9 @@ const MainPage = () => {
                 <Text style={styles.scheduleOverlayText}>
                   여행 일정에 맞춰 <Text style={styles.Bolds}>대전</Text>에서 할일을 채워보기
                 </Text>
-                <TouchableOpacity style={styles.scheduleButton} onPress={goToTravelItinerary}>
+                <TouchableOpacity
+                  style={styles.scheduleButton}
+                  onPress={() => checkLoginAndExecute(goToTravelItinerary)}>
                   <Text style={styles.scheduleButtonText}>+ 일정 등록하고 대전 관광지 채우기</Text>
                 </TouchableOpacity>
               </ImageBackground>
@@ -500,7 +506,8 @@ const MainPage = () => {
             {/* 인기 게시글 목록 */}
             {review.map(item => (
               <View key={item.id} style={styles.reviewCard}>
-                <TouchableOpacity onPress={() => handlePostPress(item.id)}>
+                <TouchableOpacity
+                  onPress={() => checkLoginAndExecute(() => handlePostPress(item.id))}>
                   <View style={styles.userInfo}>
                     <Image source={item.userimg} style={styles.userImage} />
                     <Text style={styles.nickname}>{item.nickname}</Text>

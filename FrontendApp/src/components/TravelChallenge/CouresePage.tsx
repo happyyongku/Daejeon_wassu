@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.06,
   },
   sectionTitle: {
+    marginTop: 30,
     fontSize: 20,
     color: '#333',
     fontFamily: 'Pretendard-Bold',
