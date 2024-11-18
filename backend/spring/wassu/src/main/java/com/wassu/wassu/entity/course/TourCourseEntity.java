@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Data
 @Table(name="tour_course")
 public class TourCourseEntity {

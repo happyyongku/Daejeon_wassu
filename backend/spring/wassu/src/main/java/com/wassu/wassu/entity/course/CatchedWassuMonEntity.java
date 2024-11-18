@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class CatchedWassuMonEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

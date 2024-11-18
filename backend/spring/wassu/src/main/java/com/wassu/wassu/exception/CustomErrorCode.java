@@ -60,7 +60,8 @@ public enum CustomErrorCode {
     USER_OR_SPOT_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "User Or Spot Not Found"),
     FAILED_TO_SAVING_STAMP(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to saving stamp"),
     EXCEPTION_IN_LISTENER(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in listener"),
-    SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE Connection Error"),;
+    SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE Connection Error"),
+    FAST_API_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Fast API Connection Error"),;
 
     private final HttpStatus status;
     private final String message;

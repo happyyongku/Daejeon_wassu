@@ -51,14 +51,19 @@ public class MarbleService {
     public InviteRoomDTO createMarble(Long marbleId, String email, CreateRoomDTO dto) {
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         MarbleEntity marble = marbleRepository.findById(marbleId).orElseThrow(() -> new CustomException(CustomErrorCode.MARBLE_NOT_FOUND));
+        return processCreateRoom(dto.isSingle(), marble, creator);
+    }
+
+    public InviteRoomDTO processCreateRoom(boolean single, MarbleEntity marble, UserEntity creator) {
         MarbleRoomEntity room = MarbleRoomEntity.builder()
                 .marble(marble)
                 .creator(creator)
                 .build();
         String code = null;
-        if (!dto.isSingle()) { // 같이도슈면 초대코드 생성
+        if (!single) { // 같이도슈면 초대코드 생성
             code = generateInviteCode();
             room.setSingle(false);
+            room.setReady(false);
             room.setInviteCode(code);
         }
         MarbleRoomEntity savedRoom = roomRepository.save(room);
@@ -74,6 +79,7 @@ public class MarbleService {
             MarbleRoomEntity room = roomRepository.findById(roomId).orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             room.setGuest(user);
+            room.setReady(true);
             return roomId;
         }
         return null;
@@ -81,6 +87,7 @@ public class MarbleService {
 
     public String reGenerateInviteCode(Long roomId) {
         String code = generateInviteCode();
+        log.info("generated invite code {}", code);
         redisRepository.createCertification(code, roomId);
         return code;
     }
@@ -239,10 +246,11 @@ public class MarbleService {
         return missionVerified;
     }
 
-    public Long getMyMarble(String email) {
+    public MyMarbleDTO getMyMarble(String email) {
         MarbleRoomEntity myRoom = roomRepository.findMyRoom(email);
         if (myRoom != null) {
-            return myRoom.getId();
+            log.info("myRoom id = {}", myRoom.getId());
+            return new MyMarbleDTO(myRoom.getId(), myRoom.isSingle());
         }
         return null;
     }

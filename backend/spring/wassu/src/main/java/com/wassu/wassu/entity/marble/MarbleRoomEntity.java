@@ -50,4 +50,7 @@ public class MarbleRoomEntity {
     @Builder.Default
     private int guestPass = 1;
 
+    @Builder.Default
+    private boolean ready = true;
+
 }
