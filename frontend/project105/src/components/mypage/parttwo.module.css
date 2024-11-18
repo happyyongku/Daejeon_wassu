@@ -127,3 +127,11 @@
 .g {
   color: #418663;
 }
+
+.nono {
+  width: 100%;
+  color: #333333;
+  opacity: 60%;
+  text-align: center;
+  padding: 40px 0px;
+}
