@@ -22,4 +22,9 @@ public class NodeEntity {
     @JoinColumn(name = "tourist_spot_entity_id")
     private TouristSpotEntity touristSpot;
 
+    public void insertToMarble(MarbleEntity marble) {
+        this.marble = marble;
+        marble.getNodes().add(this);
+    }
+
 }
