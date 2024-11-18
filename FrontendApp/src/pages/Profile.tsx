@@ -84,7 +84,11 @@ const Profile = () => {
   const closeImagePickerModal = () => setImagePickerModalVisible(false);
 
   const handleResetImage = async () => {
-    const defaultImage = Image.resolveAssetSource(require('../assets/imgs/uiicon.png'));
+    const defaultImage = {
+      uri: 'asset:/imgs/uiicon.png', // Android에서 로컬 asset 접근 시 기본 경로
+      type: 'image/png',
+      name: 'profile_image.png',
+    };
 
     const file = {
       uri: defaultImage.uri,
