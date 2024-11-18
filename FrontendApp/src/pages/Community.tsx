@@ -182,8 +182,12 @@ const Community = () => {
         <FlatList
           data={posts}
           keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <View style={styles.postContainer}>
+          renderItem={({item, index}) => (
+            <View
+              style={[
+                styles.postContainer,
+                index === posts.length - 1 && styles.lastPostContainer, // 마지막 요소에만 추가 스타일
+              ]}>
               <TouchableOpacity
                 onPress={() => checkLoginAndExecute(() => handlePostPress(item.id))}>
                 <View style={styles.postHeader}>
@@ -403,7 +407,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 50,
     right: 20,
     width: 50,
     height: 50,
@@ -416,6 +420,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  lastPostContainer: {
+    marginBottom: 50, // 마지막 요소에만 추가 여백
   },
 });
 

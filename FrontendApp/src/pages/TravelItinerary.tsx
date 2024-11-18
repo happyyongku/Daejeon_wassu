@@ -270,21 +270,22 @@ const TravelItinerary = () => {
       )}
 
       {/* 지난 여행 */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>지난 여행</Text>
-        <Image source={require('../assets/imgs/past.png')} style={styles.icon} />
+      <View style={styles.sectionContainerss}>
+        <View style={styles.sectionContainers}>
+          <Text style={styles.sectionTitle}>지난 여행</Text>
+          <Image source={require('../assets/imgs/past.png')} style={styles.icon} />
+        </View>
+        {pastSchedules.length > 0 ? (
+          <FlatList
+            data={pastSchedules}
+            renderItem={renderTripItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        ) : (
+          <Text style={styles.noDataText}>지난 여행이 없습니다</Text>
+        )}
       </View>
-      {pastSchedules.length > 0 ? (
-        <FlatList
-          data={pastSchedules}
-          renderItem={renderTripItem}
-          keyExtractor={item => item.id}
-          scrollEnabled={false}
-        />
-      ) : (
-        <Text style={styles.noDataText}>지난 여행이 없습니다</Text>
-      )}
-
       <DeleteConfirmationModal
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
@@ -373,6 +374,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   sectionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+  },
+  sectionContainers: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
@@ -482,6 +488,9 @@ const styles = StyleSheet.create({
     borderColor: '#418663',
     borderWidth: 2,
     backgroundColor: '#E6F4EC',
+  },
+  sectionContainerss: {
+    marginBottom: 50,
   },
 });
 

@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: '#418663',
-    marginBottom: 20,
+    marginBottom: 50,
     alignSelf: 'center',
   },
   buttonIcon: {

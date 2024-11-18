@@ -138,7 +138,7 @@ const PostDetail = () => {
 
           <View style={styles.detailsContainer}>
             <Text style={styles.place}>
-              {postDetail.place || '장소 정보 없음'} {/* place 값을 표시 */}
+              {postDetail.place || ' '} {/* place 값을 표시 */}
             </Text>
             <Text style={styles.time}>{postDetail.createdAt}</Text>
           </View>
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
+    marginBottom: 50,
   },
   likes: {
     fontSize: 14,
