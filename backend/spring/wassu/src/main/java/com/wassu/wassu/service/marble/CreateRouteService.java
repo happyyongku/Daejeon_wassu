@@ -57,8 +57,8 @@ public class CreateRouteService {
         int order = 1;
         if (optimalRoute != null) {
             for (RouteSpotDTO route : optimalRoute) {
-                String spotName = route.getSpot_name();
-                TouristSpotEntity spot = spotRepository.findBySpotName(spotName).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
+                Long spotId = route.getSpot_id();
+                TouristSpotEntity spot = spotRepository.findById(spotId).orElseThrow(() -> new CustomException(CustomErrorCode.TOURIST_NOT_FOUND));
                 NodeEntity node = new NodeEntity();
                 node.setNodeOrder(order);
                 node.setTouristSpot(spot);
