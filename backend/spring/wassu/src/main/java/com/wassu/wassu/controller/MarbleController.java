@@ -51,12 +51,7 @@ public class MarbleController {
     @PostMapping("/route")
     public ResponseEntity<?> createMarbleRoot(@RequestHeader(value="Authorization", required = false) String accessToken,
                                               @RequestParam boolean single, @RequestBody CreateRouteDTO dto) {
-        String userEmail = null;
-        if (accessToken != null) {
-            String token = accessToken.replace("Bearer ", "");
-            userEmail = jwtUtil.extractUserEmail(token);
-        }
-        InviteRoomDTO result = routeService.createMarbleRoot(userEmail, dto, single);
+        InviteRoomDTO result = routeService.createMarbleRoot(accessToken, dto, single);
         return ResponseEntity.ok(result);
     }
 

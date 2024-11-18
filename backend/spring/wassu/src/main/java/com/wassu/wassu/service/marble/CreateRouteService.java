@@ -14,9 +14,13 @@ import com.wassu.wassu.repository.UserRepository;
 import com.wassu.wassu.repository.marble.MarbleRepository;
 import com.wassu.wassu.repository.marble.NodeRepository;
 import com.wassu.wassu.repository.touristspot.TouristSpotRepository;
+import com.wassu.wassu.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,10 +43,17 @@ public class CreateRouteService {
     private final MarbleRepository marbleRepository;
     private final NodeRepository nodeRepository;
     private final MarbleService marbleService;
+    private final JwtUtil jwtUtil;
 
-    public InviteRoomDTO createMarbleRoot(String email, CreateRouteDTO dto, boolean single) {
+    public InviteRoomDTO createMarbleRoot(String token, CreateRouteDTO dto, boolean single) {
+        String email = null;
+        String accessToken = null;
+        if (token != null) {
+            accessToken = token.replace("Bearer ", "");
+            email = jwtUtil.extractUserEmail(token);
+        }
         UserEntity creator = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(dto);
+        List<OptimalRouteDTO.Spot> optimalRoute = getOptimalRoute(accessToken, dto);
         MarbleEntity marble = new MarbleEntity();
         marble.setMarbleName("custom marble");
         MarbleEntity savedMarble = marbleRepository.save(marble);
@@ -64,9 +75,21 @@ public class CreateRouteService {
         return marbleService.processCreateRoom(single, savedMarble, creator);
     }
 
-    private List<OptimalRouteDTO.Spot> getOptimalRoute(CreateRouteDTO dto) {
+    private List<OptimalRouteDTO.Spot> getOptimalRoute(String token, CreateRouteDTO dto) {
         String url = "https://" + serverDomain + "/fast_api/api/optimal-route";
-        ResponseEntity<OptimalRouteDTO> response = restTemplate.postForEntity(url, dto, OptimalRouteDTO.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token); // Authorization 헤더에 Bearer 토큰 추가
+
+        // HttpEntity에 요청 본문과 헤더 설정
+        HttpEntity<CreateRouteDTO> request = new HttpEntity<>(dto, headers);
+
+        // RestTemplate로 POST 요청 전송
+        ResponseEntity<OptimalRouteDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                request,
+                OptimalRouteDTO.class
+        );
         OptimalRouteDTO optimalRoute = response.getBody();
         if (optimalRoute != null) {
             return optimalRoute.getOptimalRoute();
