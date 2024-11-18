@@ -204,7 +204,7 @@ const ChallengeDetail = () => {
             <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
               {courseName}
             </Text>
-            <Text style={styles.subtitle}>왓슈볼을 눌러 도전하세요! 왓슈몬을 잡으세요.</Text>
+            <Text style={styles.subtitle}>왔슈볼을 눌러 도전하세요! 왔슈몬을 잡으세요.</Text>
           </View>
 
           <View style={styles.hashtagContainer}>

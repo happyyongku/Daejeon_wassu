@@ -110,6 +110,34 @@ export async function getTouristSpotsByCategory(category: string): Promise<Touri
   }
 }
 
+export async function getTouristSpotsByCategorys(category: string): Promise<TouristSpot[] | null> {
+  try {
+    const response = await api.get('/tourist/filter', {
+      params: {category, size: 50},
+    });
+
+    if (response && response.status === 200) {
+      const spots: TouristSpot[] = response.data.content.map((spot: any) => ({
+        id: spot.id,
+        spotName: spot.spotName,
+        spotAddress: spot.spotAddress,
+        image: spot.images.length > 0 ? spot.images[0].image : null,
+      }));
+      return spots;
+    } else {
+      console.error(response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error(err.response);
+    } else {
+      console.error(err);
+    }
+    return null;
+  }
+}
+
 // 관광지 상세보기 정보
 export async function getTouristSpotDetails(id: string): Promise<TouristSpotDetails | null> {
   try {

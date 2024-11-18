@@ -12,7 +12,7 @@ const MainRoom = () => {
   const {width, height} = useWindowDimensions();
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
     return () => {
       Orientation.unlockAllOrientations();
     };

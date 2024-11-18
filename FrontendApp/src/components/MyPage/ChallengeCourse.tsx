@@ -27,10 +27,20 @@ const ChallengeCourse = () => {
 
   useEffect(() => {
     const fetchChallenges = async () => {
-      const data = await getUserChallenges();
-      if (data) {
-        setInProgressChallenges(data.in_progress);
-        setCompletedChallenges(data.completed);
+      try {
+        const data = await getUserChallenges();
+
+        if (data.message === 'No challenges found') {
+          // 둘 다 없을 경우
+          setInProgressChallenges([]);
+          setCompletedChallenges([]);
+        } else {
+          // 데이터가 있을 경우
+          setInProgressChallenges(data.in_progress || []);
+          setCompletedChallenges(data.completed || []);
+        }
+      } catch (error) {
+        console.error('챌린지 데이터 가져오기 실패:', error);
       }
     };
     fetchChallenges();
@@ -59,7 +69,7 @@ const ChallengeCourse = () => {
         <Image source={require('../../assets/imgs/run.png')} style={styles.runIcon} />
         <View style={styles.textContainer}>
           <Text style={styles.addButtonText}>챌린지 참여하러 가기</Text>
-          <Text style={styles.addButtonSubtitle}>대전 왓슈의 많은 챌린지를 도전하세요.</Text>
+          <Text style={styles.addButtonSubtitle}>대전 왔슈의 많은 챌린지를 도전하세요.</Text>
         </View>
       </TouchableOpacity>
 
@@ -71,22 +81,26 @@ const ChallengeCourse = () => {
         </TouchableOpacity>
       </View>
 
-      {inProgressChallenges.map(challenge => (
-        <TouchableOpacity
-          key={challenge.course.id}
-          style={styles.card}
-          onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <Image
-            source={{uri: challenge.course.image_url}}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
-            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+      {inProgressChallenges.length > 0 ? (
+        inProgressChallenges.map(challenge => (
+          <TouchableOpacity
+            key={challenge.course.id}
+            style={styles.card}
+            onPress={() => goToChallengeDetail(challenge.course.id)}>
+            <Image
+              source={{uri: challenge.course.image_url}}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+              <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text style={styles.noChallengesText}>진행중인 챌린지가 없습니다.</Text>
+      )}
 
       {/* 완료한 챌린지 타이틀과 전체 보기 */}
       <View style={styles.titleContainer}>
@@ -96,22 +110,26 @@ const ChallengeCourse = () => {
         </TouchableOpacity>
       </View>
 
-      {completedChallenges.map(challenge => (
-        <TouchableOpacity
-          key={challenge.course.id}
-          style={styles.card}
-          onPress={() => goToChallengeDetail(challenge.course.id)}>
-          <Image
-            source={{uri: challenge.course.image_url}}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
-            <Text style={styles.cardDescription}>{challenge.course.description}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+      {completedChallenges.length > 0 ? (
+        completedChallenges.map(challenge => (
+          <TouchableOpacity
+            key={challenge.course.id}
+            style={styles.card}
+            onPress={() => goToChallengeDetail(challenge.course.id)}>
+            <Image
+              source={{uri: challenge.course.image_url}}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{challenge.course.course_name}</Text>
+              <Text style={styles.cardDescription}>{challenge.course.description}</Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text style={styles.noChallengesText}>완료한 챌린지가 없습니다.</Text>
+      )}
     </View>
   );
 };
@@ -200,6 +218,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(51, 51, 51, 0.5)',
     marginTop: 10,
+  },
+  noChallengesText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Regular',
+    color: '#999',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
 

@@ -64,7 +64,8 @@ interface CategoryListProps {
 
 const CategoryList: React.FC<CategoryListProps> = ({onSelectCategory}) => {
   const handlePress = (categoryName: string) => {
-    onSelectCategory(categoryName);
+    console.log(`Selected Category: ${categoryName}`); // 디버깅 로그
+    onSelectCategory(categoryName || '카테고리 없음');
   };
 
   return (
@@ -74,7 +75,7 @@ const CategoryList: React.FC<CategoryListProps> = ({onSelectCategory}) => {
       renderItem={({item}) => (
         <TouchableOpacity onPress={() => handlePress(item.name)} style={styles.categoryItem}>
           {item.icon}
-          <Text style={styles.categoryText}>{item.name}</Text>
+          <Text style={styles.categoryText}>{item.name || '카테고리 없음'}</Text>
         </TouchableOpacity>
       )}
       keyExtractor={item => item.id}

@@ -28,7 +28,7 @@ const Invitation = () => {
   const [inviteCode, setInviteCode] = useState('');
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
     return () => {
       Orientation.unlockAllOrientations();
     };
@@ -76,6 +76,10 @@ const Invitation = () => {
     icon: {
       width: 150,
       height: 150,
+    },
+    icons: {
+      width: 175,
+      height: 175,
     },
     inputRow: {
       flexDirection: 'column',
@@ -138,7 +142,7 @@ const Invitation = () => {
       <View style={styles.container}>
         <View style={styles.iconRow}>
           <Image source={require('../../assets/imgs/mono/ghome.png')} style={styles.icon} />
-          <Image source={require('../../assets/imgs/mono/yhome.png')} style={styles.icon} />
+          <Image source={require('../../assets/imgs/mono/yhome.png')} style={styles.icons} />
         </View>
 
         <View style={styles.inputRow}>

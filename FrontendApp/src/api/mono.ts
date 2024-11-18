@@ -118,19 +118,17 @@ export async function verifyLocation(
   nodeId: number,
 ): Promise<{verified: boolean} | any> {
   try {
-    // const position = await new Promise<LocationData>((resolve, reject) => {
-    //   Geolocation.getCurrentPosition(
-    //     position => {
-    //       const {latitude, longitude} = position.coords;
-    //       resolve({latitude, longitude});
-    //     },
-    //     error => reject(error),
-    //     {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    //   );
-    // });
-    // const {latitude, longitude} = position;
-    const latitude = 36.3466842; // 테스트용 고정 위도
-    const longitude = 127.3022638; // 테스트용 고정 경도
+    const position = await new Promise<LocationData>((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          resolve({latitude, longitude});
+        },
+        error => reject(error),
+        {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+      );
+    });
+    const {latitude, longitude} = position;
     // 서버로 인증 요청
     const response = await Authapi.post(`/marble/room/${roomId}/mission/${nodeId}/verify`, {
       latitude,
@@ -283,5 +281,90 @@ export async function getMyMarble(): Promise<{roomId: number; single: boolean} |
       console.error('진행 중인 마블 조회 요청 에러:', error);
     }
     return null; // 에러 발생 시 null 반환
+  }
+}
+
+// 테마보드 생성
+export async function postCustomMarble(
+  preference: string,
+  startLat: number,
+  startLon: number,
+  endLat: number,
+  endLon: number,
+  single: boolean,
+): Promise<{roomId: number} | null> {
+  try {
+    const response = await Authapi.post(
+      `/marble/route`,
+      {
+        preference,
+        start_lat: startLat,
+        start_lon: startLon,
+        end_lat: endLat,
+        end_lon: endLon,
+      },
+      {
+        params: {
+          single, // URL 쿼리 파라미터로 전달
+        },
+      },
+    );
+
+    if (response.status === 200) {
+      console.log('맞춤 보드 생성 성공:', response.data);
+      return response.data; // roomId 반환
+    } else {
+      console.error('맞춤 보드 생성 실패:', response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('맞춤 보드 생성 요청 에러:', err.response);
+    } else {
+      console.error('맞춤 보드 생성 요청 에러:', err);
+    }
+    return null;
+  }
+}
+
+export async function postCustomMarbles(
+  preference: string,
+  startLat: number,
+  startLon: number,
+  endLat: number,
+  endLon: number,
+  single: boolean,
+): Promise<{roomId: number; inviteCode: string} | null> {
+  try {
+    const response = await Authapi.post(
+      '/marble/route',
+      {
+        preference,
+        start_lat: startLat,
+        start_lon: startLon,
+        end_lat: endLat,
+        end_lon: endLon,
+      },
+      {
+        params: {
+          single, // URL 쿼리 파라미터로 전달
+        },
+      },
+    );
+
+    if (response.status === 200) {
+      console.log('맞춤 보드 생성 성공 (초대 코드 포함):', response.data);
+      return response.data; // roomId와 inviteCode 반환
+    } else {
+      console.error('맞춤 보드 생성 실패:', response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error('맞춤 보드 생성 요청 에러:', err.response);
+    } else {
+      console.error('맞춤 보드 생성 요청 에러:', err);
+    }
+    return null;
   }
 }

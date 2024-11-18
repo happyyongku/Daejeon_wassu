@@ -19,7 +19,7 @@ const MonopolyPage = () => {
   const {width, height} = useWindowDimensions();
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    Orientation.lockToLandscapeLeft();
     return () => {
       Orientation.unlockAllOrientations();
     };
@@ -77,11 +77,11 @@ const MonopolyPage = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={goToChoice}>
           <Text style={styles.buttonText}>혼자</Text>
-          <Text style={styles.buttonText}>왓슈</Text>
+          <Text style={styles.buttonText}>왔슈</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={goToInvitation}>
           <Text style={styles.buttonText}>대결</Text>
-          <Text style={styles.buttonText}>왓슈</Text>
+          <Text style={styles.buttonText}>왔슈</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>

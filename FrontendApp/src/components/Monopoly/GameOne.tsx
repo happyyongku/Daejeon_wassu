@@ -200,10 +200,8 @@ const GameOne = () => {
     console.log(`주사위 결과: ${parsedData.dice1} + ${parsedData.dice2} = ${totalDiceValue}`);
 
     setTimeout(() => {
-      const updatedPosition = currentPosition + totalDiceValue; // 새로운 위치 계산
-      setCurrentPosition(updatedPosition);
       setShowDiceResult(false); // 주사위 결과 숨김
-    }, 4000);
+    }, 2000);
   };
 
   const handleRollDice = async () => {
