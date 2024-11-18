@@ -320,7 +320,7 @@ public class MarbleService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double distance = EARTH_RADIUS * c;
 
-        return distance <= 100;
+        return distance <= 500;
     }
 
     private boolean isGameReady(MarbleRoomEntity room) {
