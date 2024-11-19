@@ -24,7 +24,7 @@ const ProfileImagePickerModal: React.FC<ProfileImagePickerModalProps> = ({
             <Text style={styles.optionText}>앨범에서 선택</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onResetImage} style={styles.modalOption}>
-            <Text style={styles.optionText}>기본 이미지로 변경</Text>
+            {/* <Text style={styles.optionText}>기본 이미지로 변경</Text> */}
           </TouchableOpacity>
           <View style={styles.divider} />
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>

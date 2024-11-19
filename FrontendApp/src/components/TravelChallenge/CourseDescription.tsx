@@ -8,9 +8,7 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
-import type {RootStackParamList} from '../../router/Navigator';
+
 import BreadIcon from '../../assets/imgs/bread.svg';
 import MonIcon from '../../assets/imgs/mon1.svg';
 import MononeIcon from '../../assets/imgs/mon2.svg';
@@ -18,22 +16,14 @@ import MontwoIcon from '../../assets/imgs/mon3.svg';
 
 const {width} = Dimensions.get('window');
 
-type CourseDescriptionNavigationProp = StackNavigationProp<RootStackParamList>;
-
 const CourseDescription = () => {
-  const navigation = useNavigation<CourseDescriptionNavigationProp>();
-
-  const goToChallengeDetail = () => {
-    navigation.navigate('ChallengeDetail');
-  };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>챌린지?</Text>
-        <Text style={styles.context}>대전왓슈는 대전 여행객들이 가볼만한 </Text>
+        <Text style={styles.context}>대전왔슈는 대전 여행객들이 가볼만한 </Text>
         <Text style={styles.context}>대전 여행 코스를 챌린지 식으로 제공합니다.</Text>
-        <Text style={styles.context}>대전 왓슈 챌린지와 함께</Text>
+        <Text style={styles.context}>대전 왔슈 챌린지와 함께</Text>
         <Text style={styles.context}>언제든 대전 여행을 즐겨보세요!</Text>
       </View>
 
@@ -60,12 +50,12 @@ const CourseDescription = () => {
       <View style={styles.middle}>
         <Text style={styles.title}>챌린지 완료 방법?</Text>
         <Text style={styles.context}>각 코스에 있는 관광지에 도착 시</Text>
-        <Text style={styles.context}>왓슈몬을 잡는 미션을 진행 할 수 있습니다.</Text>
-        <Text style={styles.context}>왓슈몬을 잡아 각 관광지를 모두 등록해</Text>
+        <Text style={styles.context}>왔슈몬을 잡는 미션을 진행 할 수 있습니다.</Text>
+        <Text style={styles.context}>왔슈몬을 잡아 각 관광지를 모두 등록해</Text>
         <Text style={styles.context}>모든 관광지를 완료하면 챌린지를 완료하게 됩니다.</Text>
       </View>
 
-      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
+      <TouchableOpacity style={styles.card}>
         <BreadIcon width={100} height={100} style={styles.cardImage} />
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
@@ -76,13 +66,13 @@ const CourseDescription = () => {
       </TouchableOpacity>
 
       <View style={styles.end}>
-        <Text style={styles.title}>왓슈몬?</Text>
-        <Text style={styles.context}>대전왓슈는 관광지 인증 방식을</Text>
-        <Text style={styles.context}>AR 모드로 왓슈몬을 잡는 것으로 구현을 했습니다.</Text>
+        <Text style={styles.title}>왔슈몬?</Text>
+        <Text style={styles.context}>대전왔슈는 관광지 인증 방식을</Text>
+        <Text style={styles.context}>AR 모드로 왔슈몬을 잡는 것으로 구현을 했습니다.</Text>
         <Text style={styles.context}>
-          각 관광지에 등장하는 왓슈몬을 잡아 챌리지를 완료해보세요.
+          각 관광지에 등장하는 왔슈몬을 잡아 챌리지를 완료해보세요.
         </Text>
-        <Text style={styles.context}>다양한 왓슈몬을 잡아 도감을 모아보세요.</Text>
+        <Text style={styles.context}>다양한 왔슈몬을 잡아 도감을 모아보세요.</Text>
       </View>
 
       <View style={styles.mon}>

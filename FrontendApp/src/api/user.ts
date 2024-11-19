@@ -2,7 +2,7 @@ import axios from 'axios';
 import {api, Authapi} from './core';
 import {saveTokens, getTokens, removeTokens} from '../utills/tokenStorage';
 
-//회원가입 이메일 인증
+//회원가입 이메일 인증 확인
 export async function sendVerificationCode(email: string) {
   try {
     const response = await api.post('/auth/send-verification-code', null, {
@@ -12,14 +12,13 @@ export async function sendVerificationCode(email: string) {
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       if (!err.response) {
-        console.error('No response from server.');
         return undefined;
       } else {
-        console.error('Error response:', err.response);
+        console.error(err.response);
         return err.response;
       }
     } else {
-      console.error('Unknown error:', err);
+      console.error(err);
       return undefined;
     }
   }
@@ -34,23 +33,21 @@ export async function login(email: string, password: string) {
       const {access: accessToken, refresh: refreshToken} = response.data;
 
       if (accessToken && refreshToken) {
-        console.log('Access Token:', accessToken);
-        console.log('Refresh Token:', refreshToken);
         await saveTokens(accessToken, refreshToken);
       } else {
-        console.error('Login error: Access token or refresh token is missing.');
+        console.error('Access token or refresh token is missing.');
       }
     } else {
-      console.error('Login error: No response data.');
+      console.error('No response data.');
     }
 
     return response;
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Login error (Axios):', err.response);
+      console.error(err.response);
       return err.response;
     } else {
-      console.error('Unexpected error:', err);
+      console.error(err);
       return undefined;
     }
   }
@@ -62,23 +59,20 @@ export async function logout() {
     const {accessToken} = await getTokens();
 
     if (!accessToken) {
-      console.error('Logout error: No access token available.');
       return;
     }
     const response = await Authapi.post('/auth/logout', null);
 
     if (response.status === 200) {
-      console.log('Logout successful.');
-
       await removeTokens();
     } else {
-      console.error('Logout failed:', response.status);
+      console.error(response.status);
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Logout error (Axios):', err.response);
+      console.error(err.response);
     } else {
-      console.error('Unexpected error during logout:', err);
+      console.error(err);
     }
   }
 }
@@ -91,19 +85,74 @@ export async function verifyCode(email: string, code: string) {
     });
 
     if (response && response.status === 200 && response.data.status === 'success') {
-      console.log('Code verification successful.');
       return true;
     } else {
-      console.error('Code verification failed:', response.data);
+      console.error(response.data);
       return false;
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      console.error('Code verification error (Axios):', err.response);
+      console.error(err.response);
       return false;
     } else {
-      console.error('Unexpected error during code verification:', err);
+      console.error(err);
       return false;
     }
+  }
+}
+
+// 회원가입
+export async function signUp(
+  email: string,
+  password: string,
+  gender: string,
+  birthYear: number,
+  nickname: string,
+) {
+  try {
+    const response = await api.post('/auth/signup', {
+      email,
+      password,
+      gender,
+      birthYear,
+      nickname,
+    });
+
+    if (response && response.status === 200 && response.data.status === 'success') {
+      return response.data;
+    } else {
+      console.error(response.data);
+      return null;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error(err.response);
+      return null;
+    } else {
+      console.error(err);
+      return null;
+    }
+  }
+}
+
+//회원탈퇴
+export async function deleteAccount() {
+  try {
+    const response = await Authapi.delete('/auth/delete-account');
+
+    if (response && response.status === 200 && response.data.status === 'success') {
+      await removeTokens();
+      return true;
+    } else {
+      console.error(response.data);
+      return false;
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      console.error(err.response);
+    } else {
+      console.error(err);
+    }
+    return false;
   }
 }

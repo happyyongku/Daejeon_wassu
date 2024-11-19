@@ -1,44 +1,46 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
-import {logout} from '../../api/user';
+import LoginIcon from '../../assets/imgs/user.svg';
+import {getTokens} from '../../utills/tokenStorage';
+import {getUserProfile} from '../../api/mypage';
 
 type HeaderNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Header = () => {
   const navigation = useNavigation<HeaderNavigationProp>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const goToLogin = () => {
-    navigation.navigate('Login');
-  };
+  const checkLoginStatus = async () => {
+    const {accessToken} = await getTokens();
+    setIsLoggedIn(!!accessToken);
 
-  const goToMyPage = () => {
-    navigation.navigate('MyPage');
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigation.navigate('Main');
-    } catch (error) {
-      console.error('Logout error:', error);
-      Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
+    if (accessToken) {
+      const profile = await getUserProfile();
+      setProfileImage(profile?.profileImage || null);
     }
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  const goToLoginOrProfile = () => {
+    navigation.navigate(isLoggedIn ? 'MyPage' : 'Login');
   };
 
   return (
     <View style={styles.container}>
-      <Text>로고</Text>
-      <TouchableOpacity style={styles.loginButton} onPress={goToLogin}>
-        <Text style={styles.loginButtonText}>로그인</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.myButton} onPress={goToMyPage}>
-        <Text style={styles.myButtonText}>마이페이지</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.myButton} onPress={handleLogout}>
-        <Text style={styles.myButtonText}>로그아웃</Text>
+      <Image source={require('../../assets/imgs/LogoHD.png')} style={styles.logo} />
+      <TouchableOpacity style={styles.loginButtons} onPress={goToLoginOrProfile}>
+        {isLoggedIn && profileImage ? (
+          <Image source={{uri: profileImage}} style={styles.profileImage} />
+        ) : (
+          <LoginIcon width={25} height={25} />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -50,7 +52,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingVertical: 15,
     backgroundColor: '#fff',
   },
   loginButton: {
@@ -72,6 +74,19 @@ const styles = StyleSheet.create({
   myButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  logo: {
+    resizeMode: 'contain',
+  },
+  loginButtons: {
+    backgroundColor: '#418663',
+    borderRadius: 20,
+  },
+  profileImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    resizeMode: 'cover', // 이미지가 꽉 차도록
   },
 });
 

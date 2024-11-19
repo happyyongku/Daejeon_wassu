@@ -4,13 +4,13 @@ import MyTrips from '../components/MyPage/MyTrips';
 import DaejeonStamp from '../components/MyPage/DaejeonStamp';
 import ChallengeCourse from '../components/MyPage/ChallengeCourse';
 import TravelLog from '../components/MyPage/TravelLog';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
+import {getUserProfile} from '../api/mypage';
 
 const {width} = Dimensions.get('window');
 
-// 라우팅 타입 정의
 type MyPageNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const MyPage = () => {
@@ -18,6 +18,28 @@ const MyPage = () => {
   const [activeTab, setActiveTab] = useState<
     'MyTrips' | 'DaejeonStamp' | 'ChallengeCourse' | 'TravelLog'
   >('MyTrips');
+  const [profile, setProfile] = useState<{nickname: string; profileImage: string | null}>({
+    nickname: '',
+    profileImage: null,
+  });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserProfile = async () => {
+        const userProfile = await getUserProfile();
+        if (userProfile) {
+          setProfile({
+            nickname: userProfile.nickname,
+            profileImage:
+              userProfile.profileImage !== 'default'
+                ? userProfile.profileImage
+                : '../assets/imgs/user.png',
+          });
+        }
+      };
+      fetchUserProfile();
+    }, []),
+  );
 
   const goToProfile = () => {
     navigation.navigate('Profile');
@@ -44,15 +66,17 @@ const MyPage = () => {
 
   return (
     <View style={styles.container}>
-      {/* 상단 로고 */}
-      <Image source={require('../assets/imgs/minilogo.png')} style={styles.logo} />
-
       {/* 프로필 정보 */}
       <View style={styles.profileContainer}>
-        <Image source={require('../assets/imgs/profile.png')} style={styles.profileImage} />
+        <Image
+          source={
+            profile.profileImage ? {uri: profile.profileImage} : require('../assets/imgs/user.png')
+          }
+          style={styles.profileImage}
+        />
         <View style={styles.profileTextContainer}>
           <View style={styles.profileHeader}>
-            <Text style={styles.nickname}>대전의 아들 장현수</Text>
+            <Text style={styles.nickname}>{profile.nickname || '사용자 이름'}</Text>
             <TouchableOpacity onPress={goToProfile}>
               <Image
                 source={require('../assets/imgs/chevron-right.png')}
@@ -60,11 +84,10 @@ const MyPage = () => {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.introduction}>대전 토박이</Text>
         </View>
         <TouchableOpacity style={styles.collectionButton} onPress={goToCollection}>
           <Image source={require('../assets/imgs/monster.png')} style={styles.monsterIcon} />
-          <Text style={styles.collectionText}>왓슈몬 도감</Text>
+          <Text style={styles.collectionText}>왔슈몬 도감</Text>
         </TouchableOpacity>
       </View>
 
@@ -121,6 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 50,
   },
   profileImage: {
     width: 75,

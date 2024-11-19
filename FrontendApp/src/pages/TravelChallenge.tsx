@@ -1,26 +1,86 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import React, {useState, useCallback} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Image,
+} from 'react-native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import GolfIcon from '../assets/imgs/golf.svg';
 import FlagIcon from '../assets/imgs/flag.svg';
 import CheckIcon from '../assets/imgs/Check.svg';
 import MedalIcon from '../assets/imgs/monster.svg';
-import BreadIcon from '../assets/imgs/bread.svg';
 import ChatbotIcon from '../assets/imgs/chatbot.svg';
+import {getCoursePresets, getUserChallenges, getUserWassumon} from '../api/recommended'; // API 함수 가져오기
+import ChatbotModal from '../components/TravelChallenge/ChatbotModal'; // ChatbotModal 추가
 
 const {width} = Dimensions.get('window');
 
 type TravelChallengeNavigationProp = StackNavigationProp<RootStackParamList>;
+interface Course {
+  id: number;
+  course_name: string;
+  description: string;
+  image_url: string;
+  completed_all: boolean; // completed_all 추가
+}
 
 const TravelChallenge = () => {
   const navigation = useNavigation<TravelChallengeNavigationProp>();
+  const [courses, setCourses] = useState<Course[]>([]); // Course 타입 지정
+  const [inProgressCount, setInProgressCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [wassumonCount, setWassumonCount] = useState(0); // 잡은 왓슈몬 수 상태 추가
+  const [isChatbotModalVisible, setChatbotModalVisible] = useState(false); // 모달 상태
+  // API 요청 함수
+  const fetchCourses = useCallback(async () => {
+    try {
+      const data = await getCoursePresets();
+      if (data && Array.isArray(data)) {
+        // 데이터를 가져온 후 상태에 설정
+        setCourses(data);
+      } else {
+        console.error('Invalid course data structure:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  }, []);
+
+  // 왓슈몬 데이터 가져오기
+  const fetchWassumons = useCallback(async () => {
+    try {
+      const data = await getUserWassumon();
+      if (data) {
+        setWassumonCount(data.collected_wassumons?.length || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching user Wassumon:', error);
+    }
+  }, []);
+
+  // 페이지 포커스 시 데이터 다시 가져오기
+  useFocusEffect(
+    useCallback(() => {
+      fetchCourses();
+      fetchWassumons();
+    }, [fetchCourses, fetchWassumons]),
+  );
 
   const goToOngoingChallenge = () => {
     navigation.navigate('OngoingChallenge');
   };
-
+  const goToCompletedChallenge = () => {
+    navigation.navigate('CompletedChallenge');
+  };
+  const goToDogam = () => {
+    navigation.navigate('Dogam');
+  };
   const goToCourse = () => {
     navigation.navigate('Course');
   };
@@ -29,9 +89,39 @@ const TravelChallenge = () => {
     navigation.navigate('CourseDescription');
   };
 
-  const goToChallengeDetail = () => {
-    navigation.navigate('ChallengeDetail');
+  const goToChallengeDetail = (courseId: number) => {
+    navigation.navigate('ChallengeDetail', {id: courseId});
   };
+  const openChatbotModal = () => {
+    setChatbotModalVisible(true);
+  };
+
+  const closeChatbotModal = () => {
+    setChatbotModalVisible(false);
+  };
+
+  const fetchChallenges = useCallback(async () => {
+    try {
+      const response = await getUserChallenges(); // API 호출
+      if (response) {
+        // in_progress 코스 개수 추출
+        const inProgressCourses = response.in_progress?.length || 0;
+        setInProgressCount(inProgressCourses);
+
+        // completed 코스 개수 추출
+        const completedCourses = response.completed?.length || 0;
+        setCompletedCount(completedCourses);
+      }
+    } catch (error) {
+      console.error('Error fetching challenges:', error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChallenges(); // 데이터 다시 가져오기
+    }, [fetchChallenges]),
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -45,25 +135,27 @@ const TravelChallenge = () => {
           <View style={styles.statItem}>
             <FlagIcon width={16} height={16} />
             <Text style={styles.statLabel}>참가중</Text>
-            <Text style={styles.statValue}>1</Text>
+            <Text style={styles.statValue}>{inProgressCount}</Text>
           </View>
-          <TouchableOpacity onPress={goToOngoingChallenge}>
-            <Text style={styles.challengeText}>나의 챌린지 &gt;</Text>
-          </TouchableOpacity>
+          {inProgressCount > 0 && (
+            <TouchableOpacity onPress={goToOngoingChallenge}>
+              <Text style={styles.challengeText}>나의 챌린지 &gt;</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.bottomRow}>
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={goToCompletedChallenge} style={styles.statItem}>
             <CheckIcon width={16} height={16} />
             <Text style={styles.statLabel}>완료</Text>
-            <Text style={styles.statValue}>-</Text>
-          </View>
+            <Text style={styles.statValue}>{completedCount}</Text>
+          </TouchableOpacity>
           <View style={styles.separator} />
-          <View style={styles.statItem}>
+          <TouchableOpacity onPress={goToDogam} style={styles.statItem}>
             <MedalIcon width={16} height={16} />
             <Text style={styles.statLabel}>잡은 왓슈몬</Text>
-            <Text style={styles.statValue}>10</Text>
-          </View>
+            <Text style={styles.statValue}>{wassumonCount}</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -75,35 +167,22 @@ const TravelChallenge = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.card} onPress={goToChallengeDetail}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.card}>
-        <BreadIcon width={100} height={100} style={styles.cardImage} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>대전 빵지순례 코스</Text>
-          <Text style={styles.cardDescription}>
-            대전의 빵집을 구석 구석 찾아드립니다. 다양한 빵집 코스 추천으로 대전 빵지순례를 해보세요
-          </Text>
-        </View>
-      </TouchableOpacity>
+      {courses.slice(0, 2).map(course => (
+        <TouchableOpacity
+          key={course.id}
+          style={styles.card}
+          onPress={() => goToChallengeDetail(course.id)}>
+          <Image source={{uri: course.image_url}} style={styles.cardImage} />
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{course.course_name}</Text>
+            <Text style={styles.cardDescription}>{course.description}</Text>
+          </View>
+          {/* completed_all이 true일 때 complete 도장을 표시 */}
+          {course.completed_all && (
+            <Image source={require('../assets/imgs/complete.png')} style={styles.completeIcon} />
+          )}
+        </TouchableOpacity>
+      ))}
 
       <TouchableOpacity style={styles.faqButton} onPress={goToCourseDescription}>
         <Text style={styles.faqText}>챌린지 코스가 무엇인가요?</Text>
@@ -117,9 +196,11 @@ const TravelChallenge = () => {
       <Text style={styles.chatText}>원하는 코스가 없으시면 챗봇과 한 번 대화해보세요.</Text>
       <Text style={styles.chatText}>아쉽게도 챌린지는 제공되지 않습니다.</Text>
 
-      <TouchableOpacity style={styles.chatbotButton}>
+      <TouchableOpacity style={styles.chatbotButton} onPress={openChatbotModal}>
         <Text style={styles.chatbotButtonText}>챗봇에게 코스 물어보기!</Text>
       </TouchableOpacity>
+
+      <ChatbotModal visible={isChatbotModalVisible} onClose={closeChatbotModal} />
     </ScrollView>
   );
 };
@@ -234,6 +315,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   cardImage: {
+    width: 100, // 너비를 명시적으로 설정
+    height: 100, // 높이를 명시적으로 설정
     marginRight: 10,
     borderRadius: 12,
   },
@@ -292,6 +375,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
+  },
+  completeIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 50,
+    height: 50,
+    zIndex: 1,
   },
 });
 

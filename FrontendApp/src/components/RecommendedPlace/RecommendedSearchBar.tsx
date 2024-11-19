@@ -1,10 +1,22 @@
 import React from 'react';
-import {View, TextInput, StyleSheet, Dimensions} from 'react-native';
+import {View, TextInput, StyleSheet, Dimensions, TouchableOpacity, Text} from 'react-native';
 import SearchIcon from '../../assets/imgs/search.svg';
 
 const {width} = Dimensions.get('window');
 
-const RecommendedSearchBar = () => {
+type RecommendedSearchBarProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+  onSearch: () => void;
+  onClear: () => void;
+};
+
+const RecommendedSearchBar = ({
+  value,
+  onChangeText,
+  onSearch,
+  onClear,
+}: RecommendedSearchBarProps) => {
   return (
     <View style={styles.centerContainer}>
       <View style={styles.searchBarContainer}>
@@ -13,8 +25,19 @@ const RecommendedSearchBar = () => {
           autoCorrect={false}
           autoCapitalize="none"
           maxLength={100}
+          value={value} // value 설정
+          onChangeText={onChangeText} // onChangeText 호출
+          onSubmitEditing={onSearch} // 엔터 누르면 검색
         />
-        <SearchIcon width={20} height={20} />
+        {value ? (
+          <TouchableOpacity onPress={onClear}>
+            <Text>X</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={onSearch}>
+            <SearchIcon width={20} height={20} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

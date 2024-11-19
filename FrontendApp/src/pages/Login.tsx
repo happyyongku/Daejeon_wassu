@@ -41,10 +41,8 @@ const Login = (): React.JSX.Element => {
     try {
       const response = await login(email, password);
       if (response && response.status === 200) {
-        Alert.alert('로그인 성공!', '메인 화면으로 이동합니다.');
         navigation.navigate('Main');
       } else {
-        console.log(response?.status);
         Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해 주세요.');
       }
     } catch (error) {

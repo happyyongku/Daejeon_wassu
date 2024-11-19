@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,26 +9,31 @@ import {
   FlatList,
   Image,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import SearchBar from '../components/Main/SearchBar';
 import {useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../router/Navigator';
 import LogoIcon from '../assets/imgs/Logo2.svg';
-import GroupIcon from '../assets/imgs/Group.svg';
 import FoodIcon from '../assets/imgs/food.svg';
 import HomeIcon from '../assets/imgs/home.svg';
-import RainIcon from '../assets/imgs/rain.svg';
 import SportIcon from '../assets/imgs/sport.svg';
 import ArtIcon from '../assets/imgs/art.svg';
-import BreadIcon from '../assets/imgs/breadB.svg';
-import FlameIcon from '../assets/imgs/flame.svg';
-import NatureIcon from '../assets/imgs/na.svg';
+import BreadIcon from '../assets/imgs/mainbread.svg';
+import FlameIcon from '../assets/imgs/mainhot.svg';
 import ScienceIcon from '../assets/imgs/sei.svg';
-import CalendarIcon from '../assets/imgs/calendar.svg';
+import CalendarIcon from '../assets/imgs/maincalendar.svg';
 import MonopolyIcon from '../assets/imgs/monopoly.svg';
+import LoginIcon from '../assets/imgs/user.svg';
+import {getTokens} from '../utills/tokenStorage';
+import {getRecommendedPosts} from '../api/community';
+import {getSpots} from '../api/itinerary';
+import {TouristSpot} from '../types';
+import {getUserProfile} from '../api/mypage';
+import {getMyMarble} from '../api/mono';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 type MainScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -47,35 +52,54 @@ type Review = {
 };
 
 const categories: Category[] = [
-  {id: '1', name: '전체', icon: <GroupIcon width={40} height={40} />},
-  {id: '2', name: '맛집', icon: <FoodIcon width={40} height={40} />},
-  {id: '3', name: '숙소', icon: <HomeIcon width={40} height={40} />},
-  {id: '4', name: '우천', icon: <RainIcon width={40} height={40} />},
-  {id: '5', name: '스포츠', icon: <SportIcon width={40} height={40} />},
-  {id: '6', name: '예술', icon: <ArtIcon width={40} height={40} />},
-  {id: '7', name: '과학', icon: <ScienceIcon width={40} height={40} />},
-  {id: '8', name: '빵', icon: <BreadIcon width={40} height={40} />},
-  {id: '9', name: '자연', icon: <NatureIcon width={40} height={40} />},
-  {id: '10', name: '인기', icon: <FlameIcon width={40} height={40} />},
+  {id: '1', name: '음식', icon: <FoodIcon width={30} height={30} />},
+  {id: '2', name: '자연', icon: <HomeIcon width={30} height={30} />},
+  {
+    id: '3',
+    name: '역사',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-history-1373354.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
+  {
+    id: '4',
+    name: '문화',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-culture-9531233.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
+  {id: '5', name: '과학', icon: <ScienceIcon width={30} height={30} />},
+  {id: '6', name: '교육', icon: <ArtIcon width={30} height={30} />},
+  {
+    id: '7',
+    name: '가족',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-family-3884999.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
+  {id: '8', name: '빵집', icon: <BreadIcon width={30} height={30} />},
+  {id: '9', name: '스포츠', icon: <SportIcon width={30} height={30} />},
+  {
+    id: '10',
+    name: '랜드마크',
+    icon: (
+      <Image
+        source={require('../assets/imgs/categoryicon/free-icon-landmark-navigation-16996099.png')}
+        style={{width: 30, height: 30}}
+      />
+    ),
+  },
 ];
 
-const review: Review[] = [
-  {
-    id: '1',
-    nickname: '대전의 아들 장현수',
-    userimg: require('../assets/imgs/hotLong.png'),
-    title: '대전 노잼 아닙니다 놀러오세요',
-    context:
-      '안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!안녕하세요 대전의 아들 장현수입니다!',
-  },
-  {
-    id: '2',
-    nickname: '대전의 아들 장현수',
-    userimg: require('../assets/imgs/hotLong.png'),
-    title: '대전 노잼 아닙니다 놀러오세요',
-    context: '안녕하세요 대전의 아들 장현수입니다!',
-  },
-];
 const chunkArray = <T,>(array: T[], size: number): T[][] => {
   const chunkedArr: T[][] = [];
   for (let i = 0; i < array.length; i += size) {
@@ -86,17 +110,121 @@ const chunkArray = <T,>(array: T[], size: number): T[][] => {
 
 const MainPage = () => {
   const navigation = useNavigation<MainScreenNavigationProp>();
+  const [review, setReview] = useState<Review[]>([]);
+  const [searchText, setSearchText] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<TouristSpot[]>([]);
+  const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
+
+  const [userProfile, setUserProfile] = useState<{
+    profileImage: string | null;
+  } | null>(null);
+
+  const handleSearch = async () => {
+    if (searchText.trim()) {
+      // 검색어가 있을 때만 검색 실행
+      const results = await getSpots(searchText);
+      setSearchResults(results ?? []); // If results is null, set an empty array
+      setIsSearchResultVisible(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchResultVisible(false); // 검색어가 없으면 검색 결과 숨김
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchText('');
+    setIsSearchResultVisible(false);
+  };
+
+  // searchText가 변경될 때마다 handleSearch 실행
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
+  useEffect(() => {
+    const fetchRecommendedPosts = async () => {
+      try {
+        const recommendedPosts = await getRecommendedPosts();
+        if (recommendedPosts) {
+          const formattedReviews = recommendedPosts.map(post => ({
+            id: post.id,
+            nickname: post.nickName,
+            userimg: {uri: post.profileImage},
+            title: post.title,
+            context: post.content,
+          }));
+          setReview(formattedReviews);
+        }
+      } catch (error) {
+        console.error('Error fetching recommended posts:', error);
+      }
+    };
+
+    fetchRecommendedPosts();
+  }, []);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const {accessToken} = await getTokens();
+      const {refreshToken} = await getTokens();
+
+      if (accessToken) {
+        const profile = await getUserProfile();
+        if (profile) {
+          setUserProfile({profileImage: profile.profileImage});
+        } else {
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', checkLoginStatus); // 화면 포커싱 시 확인
+    return unsubscribe;
+  }, [navigation]);
+
+  const goToLoginOrProfile = async () => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      navigation.navigate('MyPage');
+    } else {
+      navigation.navigate('Login');
+    }
+  };
 
   const goToRecommend = () => {
-    navigation.navigate('RecommendedPlace');
+    navigation.navigate('RecommendedPlace', {category: ''});
+  };
+
+  const goToRecommends = (category: string) => {
+    navigation.navigate('RecommendedPlace', {category});
   };
 
   const goToTravelChallenge = () => {
     navigation.navigate('TravelChallenge');
   };
 
-  const goToMonopolyPage = () => {
-    navigation.navigate('MonopolyPage');
+  const goToMonopolyPage = async () => {
+    try {
+      const myMarble = await getMyMarble();
+
+      if (myMarble) {
+        const {roomId, single} = myMarble;
+
+        if (single) {
+          navigation.navigate('GameOne', {roomId}); // GameOne 페이지로 이동
+        } else {
+          navigation.navigate('GameTwo', {roomId}); // GameTwo 페이지로 이동
+        }
+      } else {
+        // 진행 중인 마블이 없는 경우
+        navigation.navigate('MonopolyPage'); // MonopolyPage로 이동
+      }
+    } catch (error) {
+      console.error('MonopolyPage 이동 중 에러 발생:', error);
+    }
   };
 
   const goToCommunity = () => {
@@ -107,13 +235,13 @@ const MainPage = () => {
     navigation.navigate('TravelItinerary');
   };
 
-  const goToLogin = () => {
-    navigation.navigate('Login');
-  };
   const goToMap = () => {
     navigation.navigate('Map');
   };
 
+  const goToPlaceDetail = (id: string) => {
+    navigation.navigate('PlaceDetail', {id});
+  };
   const insertLineBreak = (text: string, maxChars: number) => {
     const words = text.split(' ');
     let line = '';
@@ -134,23 +262,44 @@ const MainPage = () => {
   const recommendData = [
     {
       id: '1',
-      title: insertLineBreak('비오는 날에도 즐길 수 있는 실내 대전 여행지, 클릭!', 15),
+      title: insertLineBreak('대전에서 놓치지 말아야 할 명소, 지금 확인하세요!', 18),
       image: require('../assets/imgs/museum.png'),
-      category: '실내',
+      category: '랜드마크',
     },
     {
       id: '2',
-      title: insertLineBreak('대전 야외 명소, 꼭 방문해보세요!', 15),
+      title: insertLineBreak('대전의 유명 빵집 투어, 맛있는 여정을 떠나보세요!', 15),
       image: require('../assets/imgs/breadFull.png'),
-      category: '야외',
+      category: '빵집',
     },
   ];
 
   const handlePress = (categoryName: string) => {
-    console.log(`${categoryName}`);
+    navigation.navigate('RecommendedPlace', {category: categoryName});
+  };
+  const goToChallengeDetail = (id: number) => {
+    navigation.navigate('ChallengeDetail', {id});
+  };
+  const categoryRows = chunkArray<Category>(categories, 5);
+
+  const handlePostPress = (articleId: string) => {
+    navigation.navigate('PostDetail', {articleId});
   };
 
-  const categoryRows = chunkArray<Category>(categories, 5);
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
 
   return (
     <>
@@ -160,14 +309,46 @@ const MainPage = () => {
           <Text style={styles.logoText}>대전왔슈</Text>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={goToLogin}>
-          <Text>로그인</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={goToLoginOrProfile}>
+          {userProfile && userProfile.profileImage ? (
+            <Image source={{uri: userProfile.profileImage}} style={styles.profileImage} />
+          ) : (
+            <LoginIcon width={25} height={25} />
+          )}
         </TouchableOpacity>
       </View>
 
       <View style={styles.searchBarContainer}>
-        <SearchBar />
+        <SearchBar
+          value={searchText}
+          onChangeText={setSearchText} // 검색어 변경 시 자동 호출
+          onSearch={handleSearch} // 엔터 키를 눌렀을 때 검색
+          onClear={handleClearSearch} // X 버튼 클릭 시 검색어 초기화
+        />
       </View>
+
+      {isSearchResultVisible && (
+        <View style={styles.searchResultContainer}>
+          {searchResults.length > 0 ? (
+            <FlatList
+              data={searchResults}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <TouchableOpacity onPress={() => goToPlaceDetail(item.id)}>
+                  <View style={styles.listItem}>
+                    <Text style={styles.spotName}>{item.spotName}</Text>
+                    <Text style={styles.spotAddress}>{item.spotAddress}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Text style={styles.noResultsText}>검색 결과가 없습니다</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.recommendContainer}>
@@ -177,7 +358,9 @@ const MainPage = () => {
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item.id}
             renderItem={({item}) => (
-              <TouchableOpacity style={styles.recommendItem} onPress={goToRecommend}>
+              <TouchableOpacity
+                style={styles.recommendItem}
+                onPress={() => goToRecommends(item.category)}>
                 <Text style={styles.recommendTitle} numberOfLines={2} ellipsizeMode="tail">
                   {item.title}
                 </Text>
@@ -190,7 +373,7 @@ const MainPage = () => {
             <Text style={styles.categoryTitle}>
               대전 관광지 <Text style={styles.categorySubtitle}>모두 담아놨슈~</Text>
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={goToRecommend}>
               <Text style={styles.categoryMore}>&gt;</Text>
             </TouchableOpacity>
           </View>
@@ -212,13 +395,15 @@ const MainPage = () => {
 
         <View style={styles.challengeContainer}>
           <View style={styles.challengeHeader}>
-            <Text style={styles.challengeTitle}>코스를 돌며 왓슈몬을 잡는</Text>
+            <Text style={styles.challengeTitle}>코스를 돌며 왔슈몬을 잡는</Text>
 
             <View style={styles.challengeSubtitleContainer}>
               <Text style={styles.challengeSubtitle}>대전여행코스 챌린지</Text>
               <FlameIcon width={25} height={25} />
 
-              <TouchableOpacity onPress={goToTravelChallenge} style={styles.viewAllContainer}>
+              <TouchableOpacity
+                onPress={() => checkLoginAndExecute(goToTravelChallenge)}
+                style={styles.viewAllContainer}>
                 <Text style={styles.viewAllLink}>전체 코스 보기</Text>
               </TouchableOpacity>
             </View>
@@ -229,23 +414,29 @@ const MainPage = () => {
             showsHorizontalScrollIndicator={false}
             style={styles.imageContainer}>
             <View style={styles.imageWrapper}>
-              <ImageBackground source={require('../assets/imgs/hotLong.png')} style={styles.image}>
-                <View style={styles.overlay}>
-                  <Text style={styles.overlayTitle}>대전 핫스팟 투어</Text>
-                  <Text style={styles.overlayDescription}>사람들이 많이 찾는 대전 핫플레이스</Text>
-                </View>
-              </ImageBackground>
+              <TouchableOpacity onPress={() => checkLoginAndExecute(() => goToChallengeDetail(8))}>
+                <ImageBackground source={require('../assets/imgs/noodle.jpg')} style={styles.image}>
+                  <View style={styles.overlay}>
+                    <Text style={styles.overlayTitle}>누들대전</Text>
+                    <Text style={styles.overlayDescription}>
+                      2024 누들대전 우수가게들을 만나보세요.
+                    </Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.imageWrapper}>
-              <ImageBackground
-                source={require('../assets/imgs/breadLong.png')}
-                style={styles.image}>
-                <View style={styles.overlay}>
-                  <Text style={styles.overlayTitle}>대전 빵지순례</Text>
-                  <Text style={styles.overlayDescription}>대전의 다양한 빵집을 소개합니다</Text>
-                </View>
-              </ImageBackground>
+              <TouchableOpacity
+                onPress={() => checkLoginAndExecute(() => goToChallengeDetail(2))}
+                style={styles.imageWrapper}>
+                <ImageBackground source={require('../assets/imgs/bread.png')} style={styles.image}>
+                  <View style={styles.overlay}>
+                    <Text style={styles.overlayTitle}>대전 빵지순례</Text>
+                    <Text style={styles.overlayDescription}>대전의 다양한 빵집을 소개합니다</Text>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
             </View>
           </ScrollView>
 
@@ -262,7 +453,9 @@ const MainPage = () => {
                 <Text style={styles.scheduleOverlayText}>
                   여행 일정에 맞춰 <Text style={styles.Bolds}>대전</Text>에서 할일을 채워보기
                 </Text>
-                <TouchableOpacity style={styles.scheduleButton} onPress={goToTravelItinerary}>
+                <TouchableOpacity
+                  style={styles.scheduleButton}
+                  onPress={() => checkLoginAndExecute(goToTravelItinerary)}>
                   <Text style={styles.scheduleButtonText}>+ 일정 등록하고 대전 관광지 채우기</Text>
                 </TouchableOpacity>
               </ImageBackground>
@@ -286,37 +479,42 @@ const MainPage = () => {
           />
 
           <Text style={styles.monopolyDescription}>2팀의 대결모드도 가능!</Text>
-          <TouchableOpacity style={styles.monopolyButton} onPress={goToMonopolyPage}>
+          <TouchableOpacity
+            style={styles.monopolyButton}
+            onPress={() => checkLoginAndExecute(goToMonopolyPage)}>
             <Text style={styles.monopolyButtonText}>마블와슈 하러가기!</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.reviewContainer}>
-          <View style={styles.reviewHeader}>
-            <View style={styles.reviewM}>
-              <Text style={styles.reviewHeaderTitle}>대전와슈 인기 여행기</Text>
-              <FlameIcon width={20} height={20} />
-            </View>
-            <TouchableOpacity style={styles.communityLink} onPress={goToCommunity}>
-              <Text style={styles.communityLinkText}>커뮤니티 보기</Text>
-            </TouchableOpacity>
-          </View>
-
-          {review.map(item => (
-            <View key={item.id} style={styles.reviewCard}>
-              <View style={styles.userInfo}>
-                <Image source={item.userimg} style={styles.userImage} />
-                <Text style={styles.nickname}>{item.nickname}</Text>
+        <ScrollView style={styles.containers}>
+          {/* 인기 리뷰 섹션 */}
+          <View style={styles.reviewContainer}>
+            <View style={styles.reviewHeader}>
+              <View style={styles.reviewM}>
+                <Text style={styles.reviewHeaderTitle}>대전와슈 인기 여행기</Text>
+                <FlameIcon width={20} height={20} />
               </View>
-
-              <Text style={styles.reviewTitle}>{item.title}</Text>
-              <Text style={styles.reviewText}>{item.context}</Text>
+              <TouchableOpacity style={styles.communityLink} onPress={goToCommunity}>
+                <Text style={styles.communityLinkText}>커뮤니티 보기</Text>
+              </TouchableOpacity>
             </View>
-          ))}
-        </View>
-        <TouchableOpacity style={styles.communityLink} onPress={goToMap}>
-          <Text style={styles.communityLinkText}>맵</Text>
-        </TouchableOpacity>
+
+            {/* 인기 게시글 목록 */}
+            {review.map(item => (
+              <View key={item.id} style={styles.reviewCard}>
+                <TouchableOpacity
+                  onPress={() => checkLoginAndExecute(() => handlePostPress(item.id))}>
+                  <View style={styles.userInfo}>
+                    <Image source={item.userimg} style={styles.userImage} />
+                    <Text style={styles.nickname}>{item.nickname}</Text>
+                  </View>
+                  <Text style={styles.reviewTitle}>{item.title}</Text>
+                  <Text style={styles.reviewText}>{item.context}</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </ScrollView>
     </>
   );
@@ -325,6 +523,10 @@ const MainPage = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F2F5FB',
+  },
+  containers: {
+    backgroundColor: '#F2F5FB',
+    marginBottom: 50,
   },
   contentContainer: {
     paddingHorizontal: width * 0.06,
@@ -674,6 +876,70 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
     fontFamily: 'Pretendard-Regular',
+  },
+  searchResultContainer: {
+    position: 'absolute',
+    top: 115, // 검색창 아래 위치하도록 적절히 설정
+    width: width * 0.75,
+    maxHeight: height * 0.5,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    alignSelf: 'center',
+    zIndex: 10,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  listItem: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  spotName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  spotAddress: {
+    fontSize: 14,
+    color: '#555',
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#888',
+    fontFamily: 'Pretendard-Medium',
+  },
+  arButton: {
+    backgroundColor: '#418663',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  arButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Pretendard-Bold',
+    fontWeight: 'bold',
+  },
+
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 

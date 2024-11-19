@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* @typescript-eslint/no-explicit-any: "off" */
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,6 +8,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Header from '../common/Header';
@@ -21,17 +23,27 @@ import CompassIcon from '../../assets/imgs/compass.svg';
 import EditIcon from '../../assets/imgs/edit.svg';
 import CustomModal from '../common/CustomModal';
 import StepModal from '../common/StepModal';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
 import type {RootStackParamList} from '../../router/Navigator';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import {getTouristSpotDetails, registerTouristStamp} from '../../api/tourist';
+import {favoriteTouristSpot, unfavoriteTouristSpot} from '../../api/tourist';
+import GpsComponent from '../common/GpsComponent'; // GpsComponent 파일 경로
+import {getTokens} from '../../utills/tokenStorage';
 
 type PlaceDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const {width} = Dimensions.get('window');
 
 type PlaceDetailRouteProp = {
-  name: string;
+  id: string;
 };
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 const scheduleData = [
   {
     id: '1',
@@ -53,53 +65,94 @@ const scheduleData = [
   },
 ];
 
-const review = [
-  {
-    id: '1',
-    nickName: '지날존두',
-    userImg: require('../../assets/imgs/hanbat.png'),
-    time: '2024.08.24',
-    reviewText:
-      '이번에 100 기념으로 대전 여행 와서 한밭 수목원 들렸는데 힐링되고 너무 좋네요~ 정말 다양한 식물이 있어요. 사람 많은거 싫은 사람 추천이요. 다들 놀러 오세요.',
-    placeImgs: [],
-  },
-  {
-    id: '2',
-    nickName: '노은 호카게',
-    userImg: require('../../assets/imgs/hanbat.png'),
-    time: '2024.06.04',
-    reviewText: '혼자 산책하기 좋음. 추천.',
-    placeImgs: [
-      require('../../assets/imgs/hanbat.png'),
-      require('../../assets/imgs/breadLong.png'),
-      require('../../assets/imgs/breadLong.png'),
-    ],
-  },
-  {
-    id: '3',
-    nickName: '노은 호카게',
-    userImg: require('../../assets/imgs/hanbat.png'),
-    time: '2024.06.04',
-    reviewText: '혼자 산책하기 좋음. 추천.',
-    placeImgs: [
-      require('../../assets/imgs/hanbat.png'),
-      require('../../assets/imgs/breadLong.png'),
-      require('../../assets/imgs/breadLong.png'),
-      require('../../assets/imgs/breadLong.png'),
-    ],
-  },
-];
-
 const PlaceDetail = () => {
   const navigation = useNavigation<PlaceDetailScreenNavigationProp>();
   const route = useRoute();
-  const {name} = route.params as PlaceDetailRouteProp;
+  const {id} = route.params as PlaceDetailRouteProp;
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [spotDetails, setSpotDetails] = useState<any>(null);
   const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
-  const [stampModalVisible, setStampModalVisible] = useState<any>(null);
+  const [stampModalVisible, setStampModalVisible] = useState(false);
+  const [stampModalContent, setStampModalContent] = useState<string>(''); // 모달 내용
+  const [stampImageSource, setStampImageSource] = useState<any>(null); // 도장 이미지
+  const [showGpsComponent, setShowGpsComponent] = useState(false); // GPS 컴포넌트 렌더링 제어
+  const [_coordinates, setCoordinates] = useState<Coordinates | null>(null); // 타입 명시
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [favoritesCount, setFavoritesCount] = useState<number>(0);
+  const [stamped, setStamped] = useState<boolean>(false); // 스탬프 상태
+  const [isRequestInProgress, setIsRequestInProgress] = useState(false);
+  type StampImages = {
+    [key: string]: any; // key는 string이고 값은 any 타입
+  };
+  const stampImages: StampImages = {
+    음식: require('../../assets/imgs/stamp/food.png'),
+    자연: require('../../assets/imgs/stamp/nature.png'),
+    역사: require('../../assets/imgs/stamp/history.png'),
+    문화: require('../../assets/imgs/stamp/culture.png'),
+    과학: require('../../assets/imgs/stamp/science.png'),
+    교육: require('../../assets/imgs/stamp/education.png'),
+    가족: require('../../assets/imgs/stamp/family.png'),
+    빵집: require('../../assets/imgs/stamp/bakery.png'),
+    스포츠: require('../../assets/imgs/stamp/sport.png'),
+    랜드마크: require('../../assets/imgs/stamp/landmark.png'),
+    nostamp: {
+      음식: require('../../assets/imgs/nostamp/food.png'),
+      자연: require('../../assets/imgs/nostamp/nature.png'),
+      역사: require('../../assets/imgs/nostamp/history.png'),
+      문화: require('../../assets/imgs/nostamp/culture.png'),
+      과학: require('../../assets/imgs/nostamp/science.png'),
+      교육: require('../../assets/imgs/nostamp/education.png'),
+      가족: require('../../assets/imgs/nostamp/family.png'),
+      빵집: require('../../assets/imgs/nostamp/bakery.png'),
+      스포츠: require('../../assets/imgs/nostamp/sport.png'),
+      랜드마크: require('../../assets/imgs/nostamp/landmark.png'),
+    },
+  };
+
+  const checkLoginAndExecute = async (action: () => void) => {
+    const {accessToken} = await getTokens();
+    if (accessToken) {
+      action();
+    } else {
+      Alert.alert('로그인 필요', '이 기능을 사용하려면 로그인이 필요합니다.', [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '로그인',
+          onPress: () => navigation.navigate('Login'),
+        },
+      ]);
+    }
+  };
+
+  const fetchSpotDetails = useCallback(async () => {
+    try {
+      const details = await getTouristSpotDetails(id);
+      if (details) {
+        setSpotDetails(details);
+        setIsFavorite(details.favorite ?? false);
+        setFavoritesCount(details.favoritesCount ?? 0);
+        setStamped(details.stamped ?? false);
+      }
+    } catch (error) {
+      console.error('Failed to fetch tourist spot details:', error);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchSpotDetails();
+  }, [fetchSpotDetails]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSpotDetails();
+    }, [fetchSpotDetails]),
+  );
+
+  const gotoWrite = () => {
+    navigation.navigate('WriteReview', {spotId: id});
+  };
 
   const handleScheduleSelect = (schedule: any) => {
     setSelectedSchedule(schedule);
@@ -107,8 +160,116 @@ const PlaceDetail = () => {
     setDetailModalVisible(true);
   };
 
-  const gotoWrite = () => {
-    navigation.navigate('WriteReview');
+  useEffect(() => {
+    fetchSpotDetails();
+  }, [fetchSpotDetails]);
+
+  const handleFavoriteToggle = async () => {
+    try {
+      let result = null;
+      if (isFavorite) {
+        result = await unfavoriteTouristSpot(id);
+      } else {
+        result = await favoriteTouristSpot(id);
+      }
+      if (result && typeof result === 'object') {
+        setIsFavorite(result.userLiked);
+        setFavoritesCount(result.totalFavorites);
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite status:', error);
+      await fetchSpotDetails();
+    }
+  };
+
+  const handleStampPress = () => {
+    setShowGpsComponent(true);
+  };
+
+  const onLocationRetrieved = async (coords: Coordinates | null) => {
+    if (!coords) {
+      Alert.alert('좌표 불러오기 실패', '현재 위치를 가져올 수 없습니다.');
+      setShowGpsComponent(false);
+      return;
+    }
+
+    if (stamped || isRequestInProgress) {
+      // 이미 스탬프가 등록되었거나 요청이 진행 중인 경우, 추가 요청 방지
+      return;
+    }
+
+    setIsRequestInProgress(true);
+
+    const {latitude, longitude} = coords;
+    setCoordinates(coords);
+
+    try {
+      if (spotDetails && spotDetails.touristSpotTags.length > 0) {
+        const tag = spotDetails.touristSpotTags[0].tag;
+        const imageSource = stampImages[tag] || null;
+
+        const response = await registerTouristStamp(
+          id,
+          latitude.toString(),
+          longitude.toString(),
+          tag,
+        );
+        if (response === 'success') {
+          setStampModalContent(`${spotDetails.spotName}에 스탬프 찍기를 성공하였습니다!!`);
+          setStampImageSource(imageSource);
+          setStampModalVisible(true);
+          setStamped(true);
+        } else {
+          setStampModalContent(`${spotDetails.spotName}에 스탬프 찍기를 실패하였습니다.`);
+          setStampImageSource(null);
+          setStampModalVisible(true);
+        }
+      }
+    } catch (error) {
+      console.error('스탬프 요청 실패:', error);
+    } finally {
+      setShowGpsComponent(false);
+      setIsRequestInProgress(false);
+    }
+  };
+
+  const getStampIcon = () => {
+    if (!spotDetails || !spotDetails.touristSpotTags || spotDetails.touristSpotTags.length === 0) {
+      return StempIcon;
+    }
+    const tag = spotDetails.touristSpotTags[0].tag as keyof typeof stampImages;
+    if (stamped) {
+      return stampImages[tag] || StempIcon;
+    } else {
+      return stampImages.nostamp[tag] || StempIcon;
+    }
+  };
+
+  if (!spotDetails) {
+    return <Text>Loading...</Text>;
+  }
+
+  const review = spotDetails.reviews.map(
+    (item: {
+      reviewId: number;
+      content: string;
+      profile: {nickname: string; profileImage: string};
+      createdAt: number[];
+      reviewImages: {imageUrl: string}[];
+    }) => ({
+      id: item.reviewId.toString(),
+      nickName: item.profile.nickname,
+      userImg: {uri: item.profile.profileImage},
+      time: `${item.createdAt[0]}.${item.createdAt[1]}.${item.createdAt[2]}`,
+      reviewText: item.content,
+      placeImgs: item.reviewImages.map((img: {imageUrl: string}) => ({
+        uri: img.imageUrl,
+      })),
+    }),
+  );
+
+  const goToTravelItinerary = () => {
+    navigation.navigate('MyPage');
   };
 
   return (
@@ -116,36 +277,57 @@ const PlaceDetail = () => {
       <Header />
       <ScrollView style={styles.container}>
         <View style={styles.headerSection}>
-          <Text style={styles.placeName}>{name}</Text>
+          <Text style={styles.placeName}>{spotDetails.spotName}</Text>
           <View style={styles.iconsRow}>
             <Text style={styles.heart}>♥️</Text>
-            <Text style={styles.likeCount}>999 +</Text>
+            <Text style={styles.likeCount}>{favoritesCount > 999 ? '999+' : favoritesCount}</Text>
           </View>
           <View style={styles.iconsRow}>
             <MarkerIcon width={18} height={18} />
-            <Text style={styles.areaText}>서구</Text>
+            <Text style={styles.areaText}>{spotDetails.spotAddress.split(' ')[1]}</Text>
           </View>
-          <Image source={require('../../assets/imgs/hanbat.png')} style={styles.placeImage} />
+          <Image
+            source={
+              spotDetails.touristSpotImages && spotDetails.touristSpotImages.length > 0
+                ? {uri: spotDetails.touristSpotImages[0].imageUrl}
+                : require('../../assets/imgs/department.png') // Fallback image when there is no imageUrl
+            }
+            style={styles.placeImage}
+          />
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.iconButton}>
-            <HearthIcon width={24} height={24} style={styles.icon} />
-            <Text style={styles.iconButtonText}>찜하기</Text>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(handleFavoriteToggle)}>
+            {isFavorite ? (
+              <Image source={require('../../assets/imgs/heart1.png')} style={styles.icon} />
+            ) : (
+              <HearthIcon width={24} height={24} style={styles.icon} />
+            )}
+            <Text style={styles.iconButtonText}>{isFavorite ? '찜취소' : '찜하기'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => setScheduleModalVisible(true)}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(goToTravelItinerary)}>
             <CalendarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>일정추가</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={gotoWrite}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(gotoWrite)}>
             <StarIcon width={24} height={24} style={styles.icon} />
             <Text style={styles.iconButtonText}>리뷰쓰기</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => setStampModalVisible(true)}>
-            <StempIcon width={24} height={24} style={styles.icon} />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => checkLoginAndExecute(handleStampPress)}>
+            <Image source={getStampIcon()} style={styles.icon} />
             <Text style={styles.iconButtonText}>스탬프</Text>
           </TouchableOpacity>
         </View>
+
+        {showGpsComponent && <GpsComponent onLocationRetrieved={onLocationRetrieved} />}
 
         <View style={styles.detailSection}>
           <Text style={styles.detailTitle}>상세 정보</Text>
@@ -155,13 +337,11 @@ const PlaceDetail = () => {
               <Text style={styles.detailText}>영업시간</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailSubText}>월 : 09:00 ~ 20:00 </Text>
-              <Text style={styles.detailSubText}>화 : 휴무</Text>
-              <Text style={styles.detailSubText}>수 : 09:00 ~ 20:30</Text>
-              <Text style={styles.detailSubText}>목 : 09:00 ~ 20:30</Text>
-              <Text style={styles.detailSubText}>금 : 09:00 ~ 20:30</Text>
-              <Text style={styles.detailSubText}>토 : 09:00 ~ 21:00</Text>
-              <Text style={styles.detailSubText}>일 : 09:00 ~ 21:00</Text>
+              {spotDetails.businessHours.split('|').map((hour: string, index: number) => (
+                <Text key={index} style={styles.detailSubText}>
+                  {hour.trim()}
+                </Text>
+              ))}
             </View>
 
             <View style={styles.detailItem}>
@@ -169,21 +349,29 @@ const PlaceDetail = () => {
               <Text style={styles.detailText}>전화번호</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailSubText}>042-270-8452</Text>
+              <Text style={styles.detailSubText}>{spotDetails.phone}</Text>
             </View>
 
             <View style={styles.detailItem}>
               <CompassIcon width={20} height={20} />
               <Text style={styles.detailText}>위치</Text>
             </View>
-            <Image source={require('../../assets/imgs/maphan.png')} style={styles.mapImage} />
+
+            <View style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                initialRegion={{
+                  latitude: spotDetails.latitude,
+                  longitude: spotDetails.longitude,
+                  latitudeDelta: 0.008,
+                  longitudeDelta: 0.0001,
+                }}
+                provider={PROVIDER_GOOGLE}
+              />
+            </View>
+
             <View style={styles.addressRow}>
-              <Text style={styles.addressText}>대전 서구 둔산대로 169</Text>
-              <TouchableOpacity
-                style={styles.directionButton}
-                onPress={() => setModalVisible(true)}>
-                <Text style={styles.directionButtonText}>길찾기</Text>
-              </TouchableOpacity>
+              <Text style={styles.addressText}>{spotDetails.spotAddress}</Text>
             </View>
           </View>
         </View>
@@ -191,58 +379,53 @@ const PlaceDetail = () => {
         <View style={styles.descriptionSection}>
           <Text style={styles.descriptionTitle}>설명</Text>
           <View style={styles.descriptionTextView}>
-            <Text style={styles.descriptionText}>
-              한밭 수목 원입니다. 이곳은 자연 카테고리에 속하며 모든 사람들이 편안하게 와서
-              휴식하다가 가면 되는 대전의 유명 관광 코스 중 하나입니다. 편하게 와서 쉬다가 가면 될
-              것 같습니다.한밭 수목원입니다. 이곳은 자연 카테고리에 속하며 모든 사람들이 편안하게
-              와서 휴식하다가 가면 되는 대전의 유명 관광 코스 중 하나입니다. 편하게 와서 쉬다가 가면
-              될 것 같습니다.
-            </Text>
+            <Text style={styles.descriptionText}>{spotDetails.spotDescription}</Text>
           </View>
         </View>
 
         <View style={styles.reviewSection}>
           <View style={styles.reviewHeader}>
-            <Text style={styles.reviewTitle}>방문 후기 207</Text>
-            <TouchableOpacity onPress={gotoWrite}>
+            <Text style={styles.reviewTitle}>방문 후기 {spotDetails.reviewCount}</Text>
+            <TouchableOpacity onPress={() => checkLoginAndExecute(gotoWrite)}>
               <EditIcon width={20} height={20} />
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.reviewSectionT} nestedScrollEnabled={true}>
-            {review.map(item => (
-              <View key={item.id} style={styles.reviewItemContainer}>
-                <View style={styles.reviewHeaderRow}>
-                  <Image source={item.userImg} style={styles.userImage} />
-                  <View style={styles.userInfo}>
-                    <Text style={styles.reviewerName}>{item.nickName}</Text>
-                    <Text style={styles.reviewDate}>{item.time}</Text>
+            {review.map(
+              (item: {
+                id: string;
+                nickName: string;
+                userImg: {uri: string};
+                time: string;
+                reviewText: string;
+                placeImgs: {uri: string}[];
+              }) => (
+                <View key={item.id} style={styles.reviewItemContainer}>
+                  <View style={styles.reviewHeaderRow}>
+                    <Image source={item.userImg} style={styles.userImage} />
+                    <View style={styles.userInfo}>
+                      <Text style={styles.reviewerName}>{item.nickName}</Text>
+                      <Text style={styles.reviewDate}>{item.time}</Text>
+                    </View>
                   </View>
-                </View>
-                <Text style={styles.reviewContent}>{item.reviewText}</Text>
+                  <Text style={styles.reviewContent}>{item.reviewText}</Text>
 
-                <ScrollView
-                  horizontal
-                  pagingEnabled
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.reviewImgContent}>
-                  {item.placeImgs.map((img, index) => (
-                    <Image key={index} source={img} style={styles.reviewImage} />
-                  ))}
-                </ScrollView>
-              </View>
-            ))}
+                  <ScrollView
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.reviewImgContent}>
+                    {item.placeImgs.map((img, index) => (
+                      <Image key={index} source={img} style={styles.reviewImage} />
+                    ))}
+                  </ScrollView>
+                </View>
+              ),
+            )}
           </ScrollView>
         </View>
 
-        <CustomModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          title="차량 길찾기"
-          content="거리: 7.8 km \n소요 시간: 17 분"
-          imageSource={require('../../assets/imgs/maphan.png')}
-          footerButtonText="확인"
-        />
         <StepModal
           visible={scheduleModalVisible}
           onClose={() => setScheduleModalVisible(false)}
@@ -282,9 +465,9 @@ const PlaceDetail = () => {
         <CustomModal
           visible={stampModalVisible}
           onClose={() => setStampModalVisible(false)}
-          title="한밭 수목원"
-          content="한밭 수목원에 스탬프 찍기를 \n성공하였습니다!!"
-          imageSource={require('../../assets/imgs/preview.png')}
+          title={spotDetails.spotName}
+          content={stampModalContent}
+          imageSource={stampImageSource}
           footerButtonText="확인"
         />
       </ScrollView>
@@ -320,9 +503,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginLeft: 5,
   },
-  marker: {
-    color: '#333',
-  },
   areaText: {
     marginLeft: 5,
     fontSize: 10,
@@ -347,6 +527,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginBottom: 5,
+    height: 24,
+    width: 24,
     color: 'rgba(51, 51, 51, 0.5)',
   },
   iconButtonText: {
@@ -451,7 +633,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    marginBottom: 20,
+    marginBottom: 50,
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -540,6 +722,60 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  mapContainer: {
+    width: '100%',
+    height: 150,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginVertical: 10,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+    fontFamily: 'Pretendard-Bold',
+  },
+  maps: {
+    width: '100%',
+    height: 200,
+  },
+  travelInfoContainer: {
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  travelInfoText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium',
+    color: '#333',
+    marginVertical: 2,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: '#418663',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontFamily: 'Pretendard-Bold',
   },
 });
 
